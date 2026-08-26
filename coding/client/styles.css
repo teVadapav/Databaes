@@ -1,0 +1,48 @@
+/* Custom Styles for PS-02 Smart Krishi Application */
+
+@layer utilities {
+  .border-3 {
+    border-width: 3px;
+  }
+}
+
+/* Smooth transitions */
+button, select, input {
+  transition: all 0.15s ease-in-out;
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Audio animation pulse */
+@keyframes audioWave {
+  0%, 100% {
+    transform: scaleY(0.4);
+  }
+  50% {
+    transform: scaleY(1.0);
+  }
+}
+
+.audio-playing {
+  animation: pulse 1.5s infinite;
+}
+
+/* High contrast touch targets for low-literacy users */
+.touch-target {
+  min-height: 48px;
+  min-width: 48px;
+}
