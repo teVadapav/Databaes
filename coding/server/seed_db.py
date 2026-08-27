@@ -24,19 +24,21 @@ def init_and_seed_db():
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
 
-    # Enable foreign keys
-    cursor.execute("PRAGMA foreign_keys = ON;")
+    # Disable foreign keys during setup/teardown
+    cursor.execute("PRAGMA foreign_keys = OFF;")
+    conn.commit()
 
-    # Drop existing tables
+    # Drop existing tables (children before parents)
     cursor.executescript("""
+    PRAGMA foreign_keys = OFF;
     DROP TABLE IF EXISTS farmers;
-    DROP TABLE IF EXISTS districts;
     DROP TABLE IF EXISTS mandi_prices;
-    DROP TABLE IF EXISTS schemes;
     DROP TABLE IF EXISTS daily_rainfall;
     DROP TABLE IF EXISTS officers;
     DROP TABLE IF EXISTS contingency_crops;
     DROP TABLE IF EXISTS advisory_rules;
+    DROP TABLE IF EXISTS schemes;
+    DROP TABLE IF EXISTS districts;
 
     CREATE TABLE districts (
         id TEXT PRIMARY KEY,
