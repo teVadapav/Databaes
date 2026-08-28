@@ -5,9 +5,22 @@ Combines weather, soil, phenological crop stage, CRIDA contingency logic,
 and Mandi price vs Govt MSP evaluations.
 """
 
+def format_rule_i18n(rule: dict, replacements: dict) -> tuple:
+    languages = ['en', 'hi', 'mr', 'or', 'as', 'kn']
+    titles = {}
+    texts = {}
+    for lang in languages:
+        title = rule.get(f"title_{lang}") or rule.get("title_en", "")
+        template = rule.get(f"template_{lang}") or rule.get("template_en", "")
+        for k, v in replacements.items():
+            template = template.replace(f"{{{k}}}", str(v))
+        titles[lang] = title
+        texts[lang] = template
+    return titles, texts
+
 def get_advisory(farmer_id: str, data: dict) -> dict:
     """
-    Generates plain-language spoken and text advisory for a farmer.
+    Generates plain-language spoken and text advisory for a farmer across all supported languages.
     """
     farmers = data.get("farmers", [])
     districts = data.get("districts", [])
@@ -51,10 +64,7 @@ def get_advisory(farmer_id: str, data: dict) -> dict:
         r30 = next((r for r in advisory_rules if r["rule_id"] == "R-30"), {})
         price_str = f"{current_price:,}"
         msp_str = f"{govt_msp:,}"
-
-        text_en = (r30.get("template_en", "")).replace("{price}", price_str).replace("{msp}", msp_str)
-        text_hi = (r30.get("template_hi", "")).replace("{price}", price_str).replace("{msp}", msp_str)
-        text_mr = (r30.get("template_mr", "")).replace("{price}", price_str).replace("{msp}", msp_str)
+        titles, texts = format_rule_i18n(r30, {"price": price_str, "msp": msp_str})
 
         return {
             "farmer_id": farmer["id"],
@@ -65,16 +75,8 @@ def get_advisory(farmer_id: str, data: dict) -> dict:
             "rule_id": "R-30",
             "action_type": "market_intervention",
             "priority": "CRITICAL",
-            "title": {
-                "en": r30.get("title_en", "Market Distress Alert: Price Below MSP"),
-                "hi": r30.get("title_hi", "बाजार संकट चेतावनी: एमएसपी से कम भाव"),
-                "mr": r30.get("title_mr", "बाजार भाव इशारा: हमीभावापेक्षा कमी भाव")
-            },
-            "text": {
-                "en": text_en,
-                "hi": text_hi,
-                "mr": text_mr
-            },
+            "title": titles,
+            "text": texts,
             "audio_stub_url": f"/audio/advisories/{farmer.get('language', 'hi')}_R-30.mp3",
             "contingency_crops": [],
             "price_data": {
@@ -99,10 +101,7 @@ def get_advisory(farmer_id: str, data: dict) -> dict:
     if farmer.get("crop_stage") == "sowing" and (weather.get("onset_status") == "delayed" or onset_delay > 15):
         r10 = next((r for r in advisory_rules if r["rule_id"] == "R-10"), {})
         delay_days = onset_delay if onset_delay > 0 else 20
-
-        text_en = (r10.get("template_en", "")).replace("{onset_delay_days}", str(delay_days))
-        text_hi = (r10.get("template_hi", "")).replace("{onset_delay_days}", str(delay_days))
-        text_mr = (r10.get("template_mr", "")).replace("{onset_delay_days}", str(delay_days))
+        titles, texts = format_rule_i18n(r10, {"onset_delay_days": delay_days})
 
         relevant_contingency = [
             c for c in contingency_crops
@@ -119,16 +118,8 @@ def get_advisory(farmer_id: str, data: dict) -> dict:
             "rule_id": "R-10",
             "action_type": "contingency_crop_switch",
             "priority": "HIGH",
-            "title": {
-                "en": r10.get("title_en", "CRIDA Contingency: Delayed Monsoon Onset"),
-                "hi": r10.get("title_hi", "क्रीडा आकस्मिक सलाह: मानसून विलंब"),
-                "mr": r10.get("title_mr", "आपत्कालीन सल्ला: मान्सून उशीर")
-            },
-            "text": {
-                "en": text_en,
-                "hi": text_hi,
-                "mr": text_mr
-            },
+            "title": titles,
+            "text": texts,
             "audio_stub_url": f"/audio/advisories/{farmer.get('language', 'mr')}_R-10.mp3",
             "contingency_crops": contingency_list,
             "price_data": {
@@ -152,9 +143,7 @@ def get_advisory(farmer_id: str, data: dict) -> dict:
     dry_spell = weather.get("dry_spell_days", 0)
     if farmer.get("crop_stage") == "flowering" and dry_spell >= 12:
         r12 = next((r for r in advisory_rules if r["rule_id"] == "R-12"), {})
-        text_en = (r12.get("template_en", "")).replace("{dry_spell_days}", str(dry_spell))
-        text_hi = (r12.get("template_hi", "")).replace("{dry_spell_days}", str(dry_spell))
-        text_mr = (r12.get("template_mr", "")).replace("{dry_spell_days}", str(dry_spell))
+        titles, texts = format_rule_i18n(r12, {"dry_spell_days": dry_spell})
 
         return {
             "farmer_id": farmer["id"],
@@ -165,12 +154,8 @@ def get_advisory(farmer_id: str, data: dict) -> dict:
             "rule_id": "R-12",
             "action_type": "critical_irrigation_and_claim",
             "priority": "HIGH",
-            "title": {
-                "en": r12.get("title_en"),
-                "hi": r12.get("title_hi"),
-                "mr": r12.get("title_mr")
-            },
-            "text": { "en": text_en, "hi": text_hi, "mr": text_mr },
+            "title": titles,
+            "text": texts,
             "audio_stub_url": f"/audio/advisories/{farmer.get('language', 'mr')}_R-12.mp3",
             "contingency_crops": [],
             "price_data": {
@@ -193,9 +178,7 @@ def get_advisory(farmer_id: str, data: dict) -> dict:
     # 4. Vegetative Stage + Moderate Dry Spell (>= 7 days) -> R-11
     if farmer.get("crop_stage") == "vegetative" and dry_spell >= 7:
         r11 = next((r for r in advisory_rules if r["rule_id"] == "R-11"), {})
-        text_en = (r11.get("template_en", "")).replace("{dry_spell_days}", str(dry_spell))
-        text_hi = (r11.get("template_hi", "")).replace("{dry_spell_days}", str(dry_spell))
-        text_mr = (r11.get("template_mr", "")).replace("{dry_spell_days}", str(dry_spell))
+        titles, texts = format_rule_i18n(r11, {"dry_spell_days": dry_spell})
 
         return {
             "farmer_id": farmer["id"],
@@ -206,12 +189,8 @@ def get_advisory(farmer_id: str, data: dict) -> dict:
             "rule_id": "R-11",
             "action_type": "moisture_conservation",
             "priority": "MEDIUM",
-            "title": {
-                "en": r11.get("title_en"),
-                "hi": r11.get("title_hi"),
-                "mr": r11.get("title_mr")
-            },
-            "text": { "en": text_en, "hi": text_hi, "mr": text_mr },
+            "title": titles,
+            "text": texts,
             "audio_stub_url": f"/audio/advisories/{farmer.get('language', 'hi')}_R-11.mp3",
             "contingency_crops": [],
             "price_data": {
@@ -233,6 +212,7 @@ def get_advisory(farmer_id: str, data: dict) -> dict:
 
     # 5. Normal / Favorable Conditions -> R-20
     r20 = next((r for r in advisory_rules if r["rule_id"] == "R-20"), {})
+    titles, texts = format_rule_i18n(r20, {})
     return {
         "farmer_id": farmer["id"],
         "farmer_name": farmer["name"],
@@ -242,16 +222,8 @@ def get_advisory(farmer_id: str, data: dict) -> dict:
         "rule_id": "R-20",
         "action_type": "optimal_management",
         "priority": "NORMAL",
-        "title": {
-            "en": r20.get("title_en", "Optimal Seasonal Care"),
-            "hi": r20.get("title_hi", "अनुकूल मौसम सलाह"),
-            "mr": r20.get("title_mr", "उत्तम हवामान सल्ला")
-        },
-        "text": {
-            "en": r20.get("template_en", f"Crop stage is {farmer.get('crop_stage')}. Maintain balanced nutrition and proactive weed control."),
-            "hi": r20.get("template_hi", f"फसल {farmer.get('crop_stage')} अवस्था में है। संतुलित पोषण और समय पर खरपतवार नियंत्रण रखें।"),
-            "mr": r20.get("template_mr", f"पीक {farmer.get('crop_stage')} अवस्थेत आहे. योग्य खत व्यवस्थापन आणि आंतरमशागत करा.")
-        },
+        "title": titles,
+        "text": texts,
         "audio_stub_url": f"/audio/advisories/{farmer.get('language', 'mr')}_R-20.mp3",
         "contingency_crops": [],
         "price_data": {

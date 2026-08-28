@@ -24,8 +24,8 @@ def init_and_seed_db():
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
 
-    # Enable foreign keys
-    cursor.execute("PRAGMA foreign_keys = ON;")
+    # Disable foreign keys during re-creation
+    cursor.execute("PRAGMA foreign_keys = OFF;")
 
     # Drop existing tables
     cursor.executescript("""
@@ -145,9 +145,15 @@ def init_and_seed_db():
         title_en TEXT NOT NULL,
         title_hi TEXT,
         title_mr TEXT,
+        title_or TEXT,
+        title_as TEXT,
+        title_kn TEXT,
         template_en TEXT NOT NULL,
         template_hi TEXT,
-        template_mr TEXT
+        template_mr TEXT,
+        template_or TEXT,
+        template_as TEXT,
+        template_kn TEXT
     );
     """)
 
@@ -238,9 +244,17 @@ def init_and_seed_db():
         rules_data = json.load(f)
         for ru in rules_data:
             cursor.execute("""
-            INSERT INTO advisory_rules (rule_id, crop, stage, rainfall_bucket, soil_type, onset_status, dry_spell_stage, action_type, title_en, title_hi, title_mr, template_en, template_hi, template_mr)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """, (ru["rule_id"], ru["crop"], ru["stage"], ru["rainfall_bucket"], ru["soil_type"], ru["onset_status"], ru["dry_spell_stage"], ru["action_type"], ru.get("title_en", ""), ru.get("title_hi", ""), ru.get("title_mr", ""), ru["template_en"], ru.get("template_hi", ""), ru.get("template_mr", "")))
+            INSERT INTO advisory_rules (
+                rule_id, crop, stage, rainfall_bucket, soil_type, onset_status, dry_spell_stage, action_type,
+                title_en, title_hi, title_mr, title_or, title_as, title_kn,
+                template_en, template_hi, template_mr, template_or, template_as, template_kn
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, (
+                ru["rule_id"], ru["crop"], ru["stage"], ru["rainfall_bucket"], ru["soil_type"], ru["onset_status"], ru["dry_spell_stage"], ru["action_type"],
+                ru.get("title_en", ""), ru.get("title_hi", ""), ru.get("title_mr", ""), ru.get("title_or", ""), ru.get("title_as", ""), ru.get("title_kn", ""),
+                ru.get("template_en", ""), ru.get("template_hi", ""), ru.get("template_mr", ""), ru.get("template_or", ""), ru.get("template_as", ""), ru.get("template_kn", "")
+            ))
 
     conn.commit()
     conn.close()

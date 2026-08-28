@@ -63,11 +63,52 @@ class TestAPIEndpoints(unittest.TestCase):
         self.assertTrue(data2["price_data"]["is_below_msp"])
 
     def test_06_sms_simulation(self):
+        # Default farmer language
         resp = self.client.post("/api/simulate/sms", json={"farmer_id": "F1"})
         self.assertEqual(resp.status_code, 200)
         sms = resp.json()
-        self.assertIn("BELOW Govt MSP", sms["sms_body"])
         self.assertEqual(sms["delivery_status"], "DELIVERED")
+        self.assertTrue(len(sms["sms_body"]) > 0)
+
+        # English override
+        resp_en = self.client.post("/api/simulate/sms", json={"farmer_id": "F1", "language": "en"})
+        self.assertEqual(resp_en.status_code, 200)
+        sms_en = resp_en.json()
+        self.assertIn("BELOW Govt MSP", sms_en["sms_body"])
+
+        # Odia override
+        resp_or = self.client.post("/api/simulate/sms", json={"farmer_id": "F1", "language": "or"})
+        self.assertEqual(resp_or.status_code, 200)
+        sms_or = resp_or.json()
+        self.assertIn("ମଣ୍ଡି ଦର", sms_or["sms_body"])
+
+        # IVR Keypad Language switch (Key 9)
+        resp_ivr_lang = self.client.post("/api/simulate/ivr", json={"farmer_id": "F1", "digit_pressed": "9"})
+        self.assertEqual(resp_ivr_lang.status_code, 200)
+        self.assertEqual(resp_ivr_lang.json()["state"], "LANGUAGE_MENU")
+
+        # Select Odia via Keypad (Key 93)
+        resp_ivr_or = self.client.post("/api/simulate/ivr", json={"farmer_id": "F1", "digit_pressed": "93"})
+        self.assertEqual(resp_ivr_or.status_code, 200)
+        self.assertEqual(resp_ivr_or.json()["language"], "or")
+        self.assertIn("ନମସ୍କାର", resp_ivr_or.json()["voice_prompt_text"])
+
+    def test_07_multi_language_tts_endpoints(self):
+        # Test Odia, Assamese, Marathi, Kannada, Hindi, English
+        languages = ["or", "as", "mr", "kn", "hi", "en"]
+        sample_texts = {
+            "or": "ନମସ୍କାର କୃଷକ ଭାଇ। ଏହା ଆପଣଙ୍କ ପରାମର୍ଶ।",
+            "as": "নমস্কাৰ কৃষক ভাই। এইটো আপোনাৰ পৰামৰ্শ।",
+            "mr": "नमस्कार शेतकरी बंधू. हा आपला सल्ला आहे.",
+            "kn": "ನಮಸ್ಕಾರ ರೈತ ಬಾಂಧವರೇ. ಇದು ನಿಮ್ಮ ಸಲಹೆ.",
+            "hi": "नमस्ते किसान भाई। यह आपकी सलाह है।",
+            "en": "Hello farmer. This is your advisory."
+        }
+        for lang in languages:
+            resp = self.client.get(f"/api/tts?text={sample_texts[lang]}&lang={lang}")
+            self.assertEqual(resp.status_code, 200)
+            self.assertEqual(resp.headers["content-type"], "audio/mpeg")
+            self.assertGreater(len(resp.content), 1000)
 
 if __name__ == "__main__":
     unittest.main()
