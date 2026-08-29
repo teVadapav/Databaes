@@ -1,43 +1,61 @@
 [
   {
-    "crop": "cotton",
-    "soil_type": "Red Loamy Soil",
-    "onset_delay_condition": ">15 days delay (post July 5)",
+    "crop": "paddy",
+    "soil_type": "Red Laterite Soil",
+    "onset_delay_condition": ">15 days delay (post July 1 in Sundargarh)",
     "recommended_contingency_crops": [
       {
-        "name": "Pearl Millet (Bajra - ICTP 8203 / Dhanashakti)",
-        "duration_days": 80,
-        "rationale": "High drought tolerance, matures in 75-80 days, minimal water requirement during vegetative phase."
+        "name": "Short-Duration Paddy (MTU-1010 / Lalat)",
+        "duration_days": 110,
+        "rationale": "MTU-1010 matures in 110 days and is CRIDA-recommended for delayed sowing in Odisha red laterite soils. High tolerance to moisture stress."
       },
       {
-        "name": "Pigeonpea / Red Gram (Arhar - BDN 711 / BSMR 736)",
-        "duration_days": 140,
-        "rationale": "Deep taproot system recovers after dry spells; intercropped with soybean/pearl millet."
-      },
-      {
-        "name": "Castor (DCH-177 / DCH-519)",
+        "name": "Arhar / Pigeonpea (UPAS-120 / ICPL-87119)",
         "duration_days": 120,
-        "rationale": "Excellent resilience to delayed rains in shallow red soils."
+        "rationale": "Deep tap root system tolerates dry spells; nitrogen-fixing; suitable for red laterite. Widely grown by tribal communities in Sundargarh."
+      },
+      {
+        "name": "Finger Millet / Ragi (VL-149 / GPU-28)",
+        "duration_days": 90,
+        "rationale": "Extremely drought-tolerant; staple food crop for tribal households; low input requirement."
       }
     ],
-    "agronomic_measures": "Widen inter-row spacing to 45cm, apply straw mulch @ 5 t/ha, foliar spray of 2% Urea or 1% KNO3 during moisture stress."
+    "agronomic_measures": "Adopt direct seeded rice (DSR) to save 2-3 weeks; apply soil conservation furrows; use short-duration varieties with wide row spacing 30cm x 10cm."
   },
   {
-    "crop": "cotton",
-    "soil_type": "Black Cotton Soil",
-    "onset_delay_condition": ">20 days delay",
+    "crop": "paddy",
+    "soil_type": "Sandy Loam Soil",
+    "onset_delay_condition": ">20 days delay (Bonai block)",
     "recommended_contingency_crops": [
       {
-        "name": "Early maturing Soybean (JS 9560 / JS 20-34)",
-        "duration_days": 85,
-        "rationale": "Short duration ensures harvest before terminal moisture stress in deep black soils."
+        "name": "Green Gram / Moong (PDM-139 / Samrat)",
+        "duration_days": 65,
+        "rationale": "Very short 60-65 day cycle; captures residual soil moisture; high protein value for subsistence tribal farmers."
       },
       {
-        "name": "Green Gram / Black Gram (Moong / Urad - BM 2003-2)",
-        "duration_days": 65,
-        "rationale": "Very short 60-65 day cycle captures residual moisture."
+        "name": "Cowpea (Pusa Komal / V-16)",
+        "duration_days": 70,
+        "rationale": "Grows well in poor sandy loam soils with minimal irrigation; nitrogen fixer; provides food security."
       }
     ],
-    "agronomic_measures": "Broad Bed and Furrow (BBF) planting to conserve in-situ rainwater."
+    "agronomic_measures": "Use raised bed planting to improve drainage; apply organic mulch 5 t/ha; supplemental irrigation if available within 3-4 weeks of sowing."
+  },
+  {
+    "crop": "maize",
+    "soil_type": "Red Laterite Soil",
+    "onset_delay_condition": ">15 days delay",
+    "recommended_contingency_crops": [
+      {
+        "name": "Short-duration Maize (Vivek-9 / HQPM-1)",
+        "duration_days": 80,
+        "rationale": "Early maturing hybrid with high stress tolerance; recommended by ICAR for delayed sowing in Jharkhand-Odisha belt."
+      },
+      {
+        "name": "Arhar / Pigeonpea (UPAS-120)",
+        "duration_days": 120,
+        "rationale": "Alternative to maize when rainfall is insufficient for long-duration crops."
+      }
+    ],
+    "agronomic_measures": "Widen inter-row spacing to 60cm; apply straw mulch; foliar spray 2% urea during vegetative stress."
   }
 ]

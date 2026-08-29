@@ -24,8 +24,8 @@ def init_and_seed_db():
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
 
-    # Enable foreign keys
-    cursor.execute("PRAGMA foreign_keys = ON;")
+    # Disable foreign keys during table drops and recreations
+    cursor.execute("PRAGMA foreign_keys = OFF;")
 
     # Drop existing tables
     cursor.executescript("""

@@ -336,10 +336,18 @@ def calculate_distress_score(farmer_id: str, custom_weights: dict = None, data: 
             "crida_dimension": "Sensitivity (S)", "urgency": "HIGH"
         })
 
-    # Dimension 3 — Low Adaptive Capacity: AC_risk > 70 → State Drought Relief + PM-KISAN
-    if AC_risk > 70:
+    # Dimension 3 — Low Adaptive Capacity: AC_risk > 60 → KALIA (S6) + State Drought Relief (S4)
+    if AC_risk > 60:
+        s6 = next((s for s in schemes if s["scheme_id"] == "S6"), None)
+        if s6:
+            recommended_interventions.append({
+                "scheme_id": "S6", "scheme_name": s6["name"],
+                "trigger": "Adaptive Capacity Deficit: Marginal farmer in Sundargarh with single income source",
+                "action_item": "Ensure KALIA seasonal assistance (₹10,000/season) is credited to Aadhaar-linked account",
+                "crida_dimension": "Adaptive Capacity (AC)", "urgency": "HIGH"
+            })
         s4 = next((s for s in schemes if s["scheme_id"] == "S4"), None)
-        if s4:
+        if s4 and not any(i["scheme_id"] == "S4" for i in recommended_interventions):
             recommended_interventions.append({
                 "scheme_id": "S4", "scheme_name": s4["name"],
                 "trigger": "Adaptive Capacity Deficit: Marginal farmer with no income diversification",
@@ -357,7 +365,17 @@ def calculate_distress_score(farmer_id: str, custom_weights: dict = None, data: 
             "crida_dimension": "Mitigation Deficit (M)", "urgency": "CRITICAL"
         })
 
-    # Dimension 5 — Trigger: Loan due ≤ 45 days → KCC restructuring (S2) + PM-KISAN (S5)
+    # Dimension 5 — Trigger: Informal debt → BALARAM (S7); Loan due ≤ 45 days → KCC (S2) + PM-KISAN (S5)
+    if farmer.get("informal_debt"):
+        s7 = next((s for s in schemes if s["scheme_id"] == "S7"), None)
+        if s7:
+            recommended_interventions.append({
+                "scheme_id": "S7", "scheme_name": s7["name"],
+                "trigger": "Trigger Shock: High-interest informal moneylender debt exposure",
+                "action_item": "Link farmer to Joint Liability Group (JLG) under BALARAM scheme for zero-interest crop loan up to ₹50,000 to clear informal debt",
+                "crida_dimension": "Trigger (T)", "urgency": "CRITICAL"
+            })
+
     if days_to_due <= 45 or informal_shock > 0:
         s2 = next((s for s in schemes if s["scheme_id"] == "S2"), None)
         if s2:
@@ -417,6 +435,19 @@ def calculate_distress_score(farmer_id: str, custom_weights: dict = None, data: 
         "band_color": band_color,
         "framework": "ICAR-CRIDA FDI (Reddy et al., 2021)",
         "weights_used": weights,
+        "raw_components": {
+            "E":  E,
+            "S":  S,
+            "AC": AC,
+            "AC_risk": AC_risk,
+            "M":  M,
+            "T":  T,
+            "DF": DF,
+            "R":  rain_comp,
+            "P":  price_comp,
+            "L":  loan_urgency,
+            "V":  DF
+        },
         "raw_dimensions": {
             "E":  E,
             "S":  S,
@@ -425,6 +456,14 @@ def calculate_distress_score(farmer_id: str, custom_weights: dict = None, data: 
             "M":  M,
             "T":  T,
             "DF": DF
+        },
+        "sub_scores": {
+            "E":       E,
+            "S":       S,
+            "AC_Risk": AC_risk,
+            "M":       M,
+            "T":       T,
+            "DF":      DF
         },
         "sub_components": {
             "rain_component":      rain_comp,
@@ -442,6 +481,8 @@ def calculate_distress_score(farmer_id: str, custom_weights: dict = None, data: 
             "mitigation_deficit_pts": round(pts_M, 1),
             "trigger_pts":            round(pts_T, 1),
             "district_fragility_pts": round(pts_DF, 1),
+            "vulnerability_points":   round(pts_DF, 1),
+            "rainfall_points":        round(pts_E, 1)
         },
         "top_contributing_signal": {
             "name":       top_signal["name"],

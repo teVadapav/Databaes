@@ -1,32 +1,32 @@
 [
-  { 
-    "id": "D1", 
-    "name": "Nashik", 
-    "state": "Maharashtra",
-    "soil_type": "Black Cotton Soil", 
-    "avg_rainfall_mm": 120, 
-    "normal_onset_week": "2026-06-10",
-    "historical_vulnerability_index": 85,
-    "description": "Major horticulture hub; prone to severe market price volatility and localized monsoon breaks."
+  {
+    "id": "D1",
+    "name": "Sundargarh Sadar",
+    "state": "Odisha",
+    "soil_type": "Red Laterite Soil",
+    "avg_rainfall_mm": 140,
+    "normal_onset_week": "2026-06-12",
+    "historical_vulnerability_index": 78,
+    "description": "Tribal-dominated block with paddy as primary crop; rainfed agriculture; prone to mid-season dry spells."
   },
-  { 
-    "id": "D2", 
-    "name": "Vidarbha", 
-    "state": "Maharashtra",
-    "soil_type": "Red Loamy Soil", 
-    "avg_rainfall_mm": 95, 
+  {
+    "id": "D2",
+    "name": "Bonai Block",
+    "state": "Odisha",
+    "soil_type": "Sandy Loam Soil",
+    "avg_rainfall_mm": 120,
     "normal_onset_week": "2026-06-15",
-    "historical_vulnerability_index": 92,
-    "description": "Historically rainfed cotton-soybean belt with chronic agrarian distress and high climate sensitivity."
+    "historical_vulnerability_index": 85,
+    "description": "Forest-fringe block with highest agrarian distress; irregular monsoon onset, heavy informal debt burden."
   },
-  { 
-    "id": "D3", 
-    "name": "Konkan", 
-    "state": "Maharashtra",
-    "soil_type": "Laterite Soil", 
-    "avg_rainfall_mm": 250, 
-    "normal_onset_week": "2026-06-05",
-    "historical_vulnerability_index": 30,
-    "description": "High-rainfall coastal belt with well-drained soils and resilient plantation/paddy systems."
+  {
+    "id": "D3",
+    "name": "Rajgangpur Block",
+    "state": "Odisha",
+    "soil_type": "Mixed Red and Black Soil",
+    "avg_rainfall_mm": 155,
+    "normal_onset_week": "2026-06-10",
+    "historical_vulnerability_index": 65,
+    "description": "Mixed-cropping zone with some canal irrigation; relatively more resilient but faces market price volatility."
   }
 ]

@@ -1,4 +1,13 @@
-/* Custom Styles for PS-02 Smart Krishi Application */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;700;800&family=Noto+Sans+Oriya:wght@400;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap');
+
+:root {
+  --font-primary: 'Outfit', 'Noto Sans Oriya', 'Noto Sans Devanagari', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+body {
+  font-family: var(--font-primary);
+  -webkit-tap-highlight-color: transparent;
+}
 
 @layer utilities {
   .border-3 {
@@ -41,8 +50,39 @@ button, select, input {
   animation: pulse 1.5s infinite;
 }
 
-/* High contrast touch targets for low-literacy users */
+/* Big touch target for rural accessibility */
 .touch-target {
-  min-height: 48px;
-  min-width: 48px;
+  min-height: 56px;
+}
+
+.farmer-action-btn {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.farmer-action-btn:active {
+  transform: scale(0.97);
+}
+
+.glow-pulse {
+  animation: pulse-glow 2s infinite;
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 12px rgba(34, 197, 94, 0);
+  }
+}
+
+/* Print styles */
+@media print {
+  header, nav, .no-print {
+    display: none !important;
+  }
+  body {
+    background: white;
+    color: black;
+  }
 }

@@ -1,62 +1,62 @@
 [
-  { 
-    "district_id": "D1", 
-    "crop": "onion", 
-    "date": "2026-08-25", 
-    "price_per_quintal": 1100, 
-    "govt_msp_per_quintal": 1500,
-    "recent_avg_price": 1420,
-    "market_name": "Lasalgaon Mandi",
-    "unit": "₹/Quintal"
-  },
-  { 
-    "district_id": "D1", 
-    "crop": "cotton", 
-    "date": "2026-08-25", 
-    "price_per_quintal": 6800, 
-    "govt_msp_per_quintal": 7121,
-    "recent_avg_price": 7250,
-    "market_name": "Nashik APMC",
-    "unit": "₹/Quintal"
-  },
-  { 
-    "district_id": "D1", 
-    "crop": "maize", 
-    "date": "2026-08-25", 
-    "price_per_quintal": 2050, 
-    "govt_msp_per_quintal": 2225,
-    "recent_avg_price": 2200,
-    "market_name": "Malegaon Mandi",
-    "unit": "₹/Quintal"
-  },
-  { 
-    "district_id": "D2", 
-    "crop": "cotton", 
-    "date": "2026-08-25", 
-    "price_per_quintal": 6400, 
-    "govt_msp_per_quintal": 7121,
-    "recent_avg_price": 7000,
-    "market_name": "Akola APMC",
-    "unit": "₹/Quintal"
-  },
-  { 
-    "district_id": "D2", 
-    "crop": "soybean", 
-    "date": "2026-08-25", 
-    "price_per_quintal": 4900, 
-    "govt_msp_per_quintal": 4892,
-    "recent_avg_price": 4850,
-    "market_name": "Yavatmal Mandi",
-    "unit": "₹/Quintal"
-  },
-  { 
-    "district_id": "D3", 
-    "crop": "rice", 
-    "date": "2026-08-25", 
-    "price_per_quintal": 2450, 
+  {
+    "district_id": "D1",
+    "crop": "paddy",
+    "date": "2026-08-26",
+    "price_per_quintal": 1950,
     "govt_msp_per_quintal": 2300,
-    "recent_avg_price": 2380,
-    "market_name": "Ratnagiri APMC",
-    "unit": "₹/Quintal"
+    "recent_avg_price": 2100,
+    "market_name": "Sundargarh APMC",
+    "unit": "Rs./Quintal"
+  },
+  {
+    "district_id": "D1",
+    "crop": "maize",
+    "date": "2026-08-26",
+    "price_per_quintal": 2050,
+    "govt_msp_per_quintal": 2225,
+    "recent_avg_price": 2150,
+    "market_name": "Sundargarh APMC",
+    "unit": "Rs./Quintal"
+  },
+  {
+    "district_id": "D2",
+    "crop": "paddy",
+    "date": "2026-08-26",
+    "price_per_quintal": 1880,
+    "govt_msp_per_quintal": 2300,
+    "recent_avg_price": 2050,
+    "market_name": "Bonai APMC",
+    "unit": "Rs./Quintal"
+  },
+  {
+    "district_id": "D2",
+    "crop": "arhar",
+    "date": "2026-08-26",
+    "price_per_quintal": 6200,
+    "govt_msp_per_quintal": 7000,
+    "recent_avg_price": 6500,
+    "market_name": "Bonai APMC",
+    "unit": "Rs./Quintal"
+  },
+  {
+    "district_id": "D3",
+    "crop": "paddy",
+    "date": "2026-08-26",
+    "price_per_quintal": 2350,
+    "govt_msp_per_quintal": 2300,
+    "recent_avg_price": 2280,
+    "market_name": "Lathikata APMC",
+    "unit": "Rs./Quintal"
+  },
+  {
+    "district_id": "D3",
+    "crop": "tomato",
+    "date": "2026-08-26",
+    "price_per_quintal": 800,
+    "govt_msp_per_quintal": 0,
+    "recent_avg_price": 1400,
+    "market_name": "Rajgangpur Mandi",
+    "unit": "Rs./Quintal"
   }
 ]

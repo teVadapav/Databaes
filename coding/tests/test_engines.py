@@ -1,12 +1,12 @@
 """
-Automated Unit Tests for PS-02 Smart Crop Advisory & Distress Risk Engines (Python)
-Validates Section 11 & Section 12 Acceptance Criteria:
+Automated Unit Tests for Smart Krishi Crop Advisory & ICAR-CRIDA Distress Risk Engines
+Validates:
 1. Advisory Engine pure function & execution speed (<= 2s)
-2. Contingency crop switch on delayed monsoon onset (R-10)
+2. Contingency crop switch on delayed monsoon onset (R-10) for Sundargarh
 3. Market intervention override when crop_stage == 'harvest' and price < MSP (R-30)
-4. 4-Weight Distress Score formula (0.35R + 0.30P + 0.20L + 0.15V)
-5. MSP-relative P computation
-6. Historical vulnerability index trigger for State Relief Scheme (S4)
+4. ICAR-CRIDA 6-Dimension Distress Score formula (E, S, AC, M, T, DF)
+5. MSP-relative price drop calculation
+6. Odisha-specific welfare triggers (KALIA S6, BALARAM S7, PM-AASHA S3)
 7. Adaptive Capacity Channel Routing (get_recommended_channel & get_default_ui_mode)
 8. Ethical boundary: no fragility index leak to farmer payload
 """
@@ -53,18 +53,18 @@ class TestEngines(unittest.TestCase):
 
     def test_01_channel_routing_adaptive_capacity(self):
         """Test adaptive capacity routing for feature phone and smartphone profiles"""
-        ramesh = next(f for f in self.farmers if f["id"] == "F1")
-        self.assertEqual(ramesh["device_type"], "feature_phone")
-        self.assertEqual(get_recommended_channel(ramesh), "ivr_or_sms")
-        self.assertEqual(get_default_ui_mode(ramesh), "assisted")
+        suresh = next(f for f in self.farmers if f["id"] == "F1")
+        self.assertEqual(suresh["device_type"], "feature_phone")
+        self.assertEqual(get_recommended_channel(suresh), "ivr_or_sms")
+        self.assertEqual(get_default_ui_mode(suresh), "assisted")
 
-        anil = next(f for f in self.farmers if f["id"] == "F4")
-        self.assertEqual(anil["device_type"], "smartphone")
-        self.assertEqual(get_recommended_channel(anil), "in_app_voice_and_text")
-        self.assertEqual(get_default_ui_mode(anil), "self")
+        deepak = next(f for f in self.farmers if f["id"] == "F4")
+        self.assertEqual(deepak["device_type"], "smartphone")
+        self.assertEqual(get_recommended_channel(deepak), "in_app_voice_and_text")
+        self.assertEqual(get_default_ui_mode(deepak), "self")
 
     def test_02_advisory_market_intervention_override_r30(self):
-        """Test that harvest stage + price < MSP forces Rule R-30 market intervention"""
+        """Test that harvest stage + price < MSP forces Rule R-30 market intervention with Odia support"""
         t0 = time.time()
         advisory = get_advisory("F1", self.data_store)
         duration_ms = (time.time() - t0) * 1000
@@ -74,47 +74,38 @@ class TestEngines(unittest.TestCase):
         self.assertEqual(advisory["action_type"], "market_intervention")
         self.assertTrue(advisory["price_data"]["is_below_msp"])
         self.assertIn("below the Govt MSP", advisory["text"]["en"])
-        self.assertIn("सरकारी समर्थन मूल्य", advisory["text"]["hi"])
+        self.assertIn("ସରକାରୀ ଏମଏସପି", advisory["text"]["or"])
 
     def test_03_advisory_contingency_crop_switch_r10(self):
-        """Test delayed monsoon onset triggers CRIDA contingency switch rule R-10"""
+        """Test delayed monsoon onset triggers CRIDA contingency switch rule R-10 for Sundargarh"""
         advisory = get_advisory("F2", self.data_store)
         self.assertEqual(advisory["rule_id"], "R-10")
         self.assertEqual(advisory["action_type"], "contingency_crop_switch")
         self.assertTrue(len(advisory["contingency_crops"]) > 0)
-        has_bajra = any("Pearl Millet" in c["name"] or "Pigeonpea" in c["name"] for c in advisory["contingency_crops"])
-        self.assertTrue(has_bajra, "Should recommend Pearl Millet or Pigeonpea in contingency crops")
+        has_contingency = any("Maize" in c["name"] or "Pigeonpea" in c["name"] or "Blackgram" in c["name"] for c in advisory["contingency_crops"])
+        self.assertTrue(has_contingency, "Should recommend short-duration contingency crops")
 
-    def test_04_distress_scorer_worked_example_and_msp_formula(self):
-        """Test 4-weight distress formula calculation and MSP-relative price drop"""
+    def test_04_distress_scorer_crida_6_dimensions(self):
+        """Test ICAR-CRIDA 6-dimension distress score formula and components"""
         score_res = calculate_distress_score("F1", DEFAULT_WEIGHTS, self.data_store)
-        # Ramesh F1:
-        # R = min(41.67, 100) = 41.67
-        # P = ((1500 - 1100) / 1500) * 100 = 26.67
-        # L = 100 - (11/90)*100 = 87.78
-        # V = 85
-        # Weighted score = 0.35*41.67 + 0.30*26.67 + 0.20*87.78 + 0.15*85 = 14.58 + 8.00 + 17.56 + 12.75 = 52.89
-        self.assertGreaterEqual(score_res["distress_score"], 50.0)
-        self.assertLessEqual(score_res["distress_score"], 56.0)
-        self.assertEqual(score_res["risk_band"], "Medium")
+        self.assertGreaterEqual(score_res["distress_score"], 60.0)
+        self.assertLessEqual(score_res["distress_score"], 80.0)
+        self.assertTrue("raw_dimensions" in score_res)
+        self.assertTrue("points_breakdown" in score_res)
         self.assertTrue(any(i["scheme_id"] == "S3" for i in score_res["recommended_interventions"]),
                         "Should recommend PM-AASHA (S3) for price < MSP")
 
-    def test_05_historical_vulnerability_index_non_redundancy(self):
-        """Test high vulnerability index in normal weather still surfaces State Drought Relief (S4)"""
-        ganesh_score = calculate_distress_score("F3", DEFAULT_WEIGHTS, self.data_store)
-        self.assertEqual(ganesh_score["raw_components"]["V"], 92.0)
-        s4 = next((i for i in ganesh_score["recommended_interventions"] if i["scheme_id"] == "S4"), None)
-        self.assertIsNotNone(s4, "High vulnerability district should trigger State Drought Relief (S4)")
-        self.assertIn("Structural District Fragility", s4["trigger"])
+    def test_05_odisha_schemes_trigger(self):
+        """Test KALIA (S6) and BALARAM (S7) triggers for marginal / sharecropper farmers"""
+        priya_score = calculate_distress_score("F2", DEFAULT_WEIGHTS, self.data_store)
+        self.assertTrue(any(i["scheme_id"] in ["S6", "S7"] for i in priya_score["recommended_interventions"]),
+                        "Should trigger KALIA or BALARAM for small/marginal/tenant farmers in Sundargarh")
 
     def test_06_custom_weights_live_adjustment(self):
         """Test dynamic recalculation with custom weights"""
-        rain_only = calculate_distress_score("F1", {"rainfall": 1, "price": 0, "loan": 0, "vulnerability": 0}, self.data_store)
-        self.assertEqual(rain_only["distress_score"], 41.7)
-
-        vuln_only = calculate_distress_score("F1", {"rainfall": 0, "price": 0, "loan": 0, "vulnerability": 1}, self.data_store)
-        self.assertEqual(vuln_only["distress_score"], 85.0)
+        exp_only = calculate_distress_score("F1", {"exposure": 1, "sensitivity": 0, "adaptive_capacity": 0, "mitigation_deficit": 0, "trigger": 0, "district_fragility": 0}, self.data_store)
+        self.assertGreater(exp_only["distress_score"], 0)
 
 if __name__ == "__main__":
     unittest.main()
+

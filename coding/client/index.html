@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Smart Krishi — Crop Advisory & Farmer Distress Early-Warning System</title>
-  <!-- Tailwind CSS CDN for utility classes -->
+  <title>Smart Krishi — Kisan Sahayak (Sundargarh, Odisha)</title>
+  <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -21,10 +21,6 @@
               800: '#166534',
               900: '#14532d'
             },
-            soil: {
-              500: '#854d0e',
-              700: '#713f12'
-            },
             distress: {
               low: '#16a34a',
               medium: '#d97706',
@@ -36,58 +32,45 @@
     }
   </script>
   <link rel="stylesheet" href="/static/styles.css">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;600;700&display=swap" rel="stylesheet">
-  <style>
-    body {
-      font-family: 'Outfit', 'Noto Sans Devanagari', -apple-system, sans-serif;
-    }
-    .touch-target {
-      min-height: 56px;
-    }
-    .farmer-btn {
-      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-    .farmer-btn:active {
-      transform: scale(0.96);
-    }
-  </style>
 </head>
-<body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col">
+<body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col font-sans">
 
   <!-- Top Global Navigation Bar -->
-  <header class="bg-slate-900 text-white shadow-md sticky top-0 z-50">
+  <header class="bg-emerald-900 text-white shadow-md sticky top-0 z-50">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex items-center justify-between h-16">
+      <div class="flex items-center justify-between h-16 sm:h-20">
         
         <!-- Logo & Title -->
-        <div class="flex items-center space-x-3">
-          <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-green-600 to-emerald-400 flex items-center justify-center text-xl font-black shadow-inner">
+        <div class="flex items-center space-x-3 cursor-pointer" onclick="switchMainView('farmer')">
+          <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-green-400 to-emerald-300 flex items-center justify-center text-2xl shadow-inner font-bold text-slate-950">
             🌱
           </div>
           <div>
             <div class="flex items-center space-x-2">
-              <span class="font-bold text-lg tracking-tight text-white">Smart Krishi</span>
-              <span class="bg-emerald-500/20 text-emerald-300 text-xs px-2 py-0.5 rounded-full font-mono font-semibold border border-emerald-500/30">v3.0 PS-02</span>
+              <span class="font-extrabold text-xl tracking-tight text-white">Smart Krishi</span>
+              <span class="bg-emerald-700/80 text-emerald-100 text-xs px-2.5 py-0.5 rounded-full font-bold border border-emerald-500/40">Sundargarh, Odisha</span>
             </div>
-            <p class="text-xs text-slate-400 hidden sm:block">Crop Advisory & Distress Early-Warning System</p>
+            <p class="text-xs text-emerald-200 hidden sm:block">କିଷାନ ସହାୟକ • Kisan Sahayak • Agro-Advisory & Early-Warning</p>
           </div>
         </div>
 
-        <!-- Global View Mode Switcher -->
-        <nav class="flex items-center space-x-1 sm:space-x-2 bg-slate-800 p-1 rounded-xl border border-slate-700">
-          <button id="nav-farmer-btn" onclick="switchMainView('farmer')" class="px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold flex items-center space-x-1.5 transition-all bg-emerald-600 text-white shadow">
+        <!-- Global View Mode Switcher (4 Navigation Views) -->
+        <nav class="flex items-center space-x-1 sm:space-x-2 bg-emerald-950/80 p-1.5 rounded-2xl border border-emerald-800">
+          <button id="nav-farmer-btn" onclick="switchMainView('farmer')" class="px-3 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center space-x-1.5 transition-all bg-emerald-600 text-white shadow">
             <span>👨‍🌾</span>
-            <span>Farmer App</span>
+            <span id="lbl-nav-app">Farmer App</span>
           </button>
-          <button id="nav-officer-btn" onclick="switchMainView('officer')" class="px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold flex items-center space-x-1.5 transition-all text-slate-300 hover:text-white hover:bg-slate-700">
+          <button id="nav-dashboard-btn" onclick="switchMainView('dashboard')" class="px-3 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center space-x-1.5 transition-all text-emerald-200 hover:text-white hover:bg-emerald-800">
+            <span>⚙️</span>
+            <span id="lbl-nav-profile">My Profile (ତଥ୍ୟ)</span>
+          </button>
+          <button id="nav-sandbox-btn" onclick="switchMainView('sandbox')" class="px-3 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center space-x-1.5 transition-all text-amber-300 hover:text-white hover:bg-emerald-800">
+            <span>🧪</span>
+            <span>Engine Sandbox (MVP)</span>
+          </button>
+          <button id="nav-officer-btn" onclick="switchMainView('officer')" class="px-3 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center space-x-1.5 transition-all text-emerald-200 hover:text-white hover:bg-emerald-800">
             <span>📊</span>
-            <span>Officer Dashboard</span>
-          </button>
-          <button id="nav-simulator-btn" onclick="switchMainView('simulator')" class="px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold flex items-center space-x-1.5 transition-all text-slate-300 hover:text-white hover:bg-slate-700">
-            <span>📟</span>
-            <span>IVR / SMS Fallback</span>
+            <span id="lbl-nav-officer">Officer Panel</span>
           </button>
         </nav>
 
@@ -98,549 +81,754 @@
   <!-- Main Content Container -->
   <main class="flex-grow max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
 
+    <!-- Top Quick Bar: Active Farmer & Language Selector (Visible on Farmer App & Profile) -->
+    <div id="top-quick-bar" class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 mb-6 flex flex-wrap items-center justify-between gap-4">
+      
+      <!-- Current Farmer Selection -->
+      <div class="flex items-center space-x-2">
+        <label for="farmer-select" class="text-xs font-bold uppercase text-slate-500">Active Farmer (ଚାଷୀ):</label>
+        <select id="farmer-select" onchange="onFarmerSelected(this.value)" class="bg-emerald-50 border-2 border-emerald-600 text-emerald-950 font-bold text-sm rounded-xl px-3 py-2 focus:ring-4 focus:ring-emerald-200 outline-none">
+          <!-- Populated dynamically -->
+        </select>
+      </div>
+
+      <!-- Quick Language Switcher Buttons -->
+      <div class="flex items-center space-x-2">
+        <span class="text-xs font-bold uppercase text-slate-500">Language (ଭାଷା):</span>
+        <div class="inline-flex bg-slate-100 p-1 rounded-xl border border-slate-200">
+          <button id="btn-lang-or" onclick="setLanguage('or')" class="px-3 py-1.5 rounded-lg text-xs font-black transition-all bg-emerald-700 text-white shadow-sm">
+            ଓଡ଼ିଆ (Odia)
+          </button>
+          <button id="btn-lang-hi" onclick="setLanguage('hi')" class="px-3 py-1.5 rounded-lg text-xs font-black transition-all text-slate-700 hover:text-emerald-900">
+            हिन्दी (Hindi)
+          </button>
+          <button id="btn-lang-en" onclick="setLanguage('en')" class="px-3 py-1.5 rounded-lg text-xs font-black transition-all text-slate-700 hover:text-emerald-900">
+            English
+          </button>
+        </div>
+      </div>
+
+    </div>
+
     <!-- ========================================================================= -->
-    <!-- VIEW 1: FARMER APP (Low-Literacy, Voice-First, Assisted / Self Mode) -->
+    <!-- VIEW 1: FARMER PORTAL (Simple, 4-Button Farmer Friendly Layout) -->
     <!-- ========================================================================= -->
     <div id="view-farmer" class="block space-y-6">
       
-      <!-- Top Control Bar: Mode Toggle & Profile Switcher -->
-      <div class="bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-4">
-        
-        <!-- Assisted vs Self-Service Mode Toggle -->
-        <div class="flex items-center space-x-3">
-          <div class="text-xs font-bold uppercase tracking-wider text-slate-500">Access Mode:</div>
-          <div class="inline-flex p-1 bg-slate-100 rounded-xl border border-slate-200">
-            <button id="btn-mode-assisted" onclick="setFarmerAccessMode('assisted')" class="px-3 py-1.5 rounded-lg text-xs sm:text-sm font-bold flex items-center space-x-1.5 transition-all bg-emerald-700 text-white shadow-sm">
-              <span>🤝</span>
-              <span>Assisted Mode (Kisan Mitra / CSC)</span>
-            </button>
-            <button id="btn-mode-self" onclick="setFarmerAccessMode('self')" class="px-3 py-1.5 rounded-lg text-xs sm:text-sm font-bold flex items-center space-x-1.5 transition-all text-slate-600 hover:text-slate-900">
-              <span>📱</span>
-              <span>Self-Service</span>
-            </button>
-          </div>
-        </div>
-
-        <!-- Farmer Profile Selector & Language Selector -->
-        <div class="flex flex-wrap items-center gap-3">
+      <!-- Farmer Profile Header Banner -->
+      <div id="farmer-hero-card" class="bg-gradient-to-r from-emerald-800 via-green-800 to-emerald-900 text-white rounded-3xl p-6 sm:p-8 shadow-xl relative overflow-hidden">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
           
-          <!-- Farmer Dropdown -->
-          <div class="flex items-center space-x-2">
-            <label for="farmer-select" class="text-xs font-bold uppercase text-slate-500">Select Farmer:</label>
-            <select id="farmer-select" onchange="onFarmerSelected(this.value)" class="bg-emerald-50 border-2 border-emerald-600 text-emerald-950 font-bold text-sm rounded-xl px-3 py-2 focus:ring-4 focus:ring-emerald-200 outline-none">
-              <!-- Populated dynamically -->
-            </select>
-          </div>
-
-          <!-- Language Selector -->
-          <div class="flex items-center space-x-2">
-            <label for="lang-select" class="text-xs font-bold uppercase text-slate-500">Language:</label>
-            <select id="lang-select" onchange="onLanguageChanged(this.value)" class="bg-slate-100 border border-slate-300 text-slate-800 font-bold text-sm rounded-xl px-3 py-2 outline-none">
-              <option value="hi">हिंदी (Hindi)</option>
-              <option value="mr">मराठी (Marathi)</option>
-              <option value="en">English</option>
-            </select>
-          </div>
-
-        </div>
-
-      </div>
-
-      <!-- Farmer Identity & Digital Profile Bar -->
-      <div id="farmer-profile-card" class="bg-gradient-to-r from-emerald-800 to-green-700 text-white rounded-3xl p-6 sm:p-8 shadow-lg relative overflow-hidden">
-        <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
             <div class="flex items-center space-x-3 mb-2">
-              <h1 id="fp-name" class="text-2xl sm:text-3xl font-extrabold tracking-tight">Ramesh Patil</h1>
-              <span id="fp-crop-badge" class="bg-yellow-400 text-slate-950 text-xs sm:text-sm font-extrabold px-3 py-1 rounded-full uppercase tracking-wider">🧅 Onion — Harvest</span>
+              <h2 id="hero-farmer-name" class="text-2xl sm:text-3xl font-black tracking-tight">Suresh Majhi</h2>
+              <span id="hero-village-badge" class="bg-emerald-700/80 text-emerald-100 text-xs px-3 py-1 rounded-full font-bold border border-emerald-500/40">
+                📍 Kuarmunda, Sundargarh Sadar
+              </span>
             </div>
-            <div class="flex flex-wrap items-center gap-y-1 gap-x-4 text-emerald-100 text-sm">
-              <span id="fp-location">📍 Chandwad, Nashik</span>
-              <span>•</span>
-              <span id="fp-landholding">📐 1.2 Hectares</span>
-              <span>•</span>
-              <span id="fp-loan">💳 Loan Due: 06 Sep 2026</span>
-            </div>
-          </div>
-
-          <!-- Adaptive Capacity Channel Badge -->
-          <div class="bg-black/20 backdrop-blur border border-white/10 rounded-2xl p-4 flex items-center space-x-4">
-            <div id="fp-channel-icon" class="text-3xl">☎️</div>
-            <div>
-              <div class="text-xs uppercase font-bold text-emerald-200 tracking-wider">Optimal Channel</div>
-              <div id="fp-channel-title" class="font-extrabold text-sm sm:text-base text-white">IVR Call & Plain SMS</div>
-              <div id="fp-device-note" class="text-xs text-emerald-100">Feature Phone (Poor Network)</div>
+            <div class="flex flex-wrap gap-2 text-xs font-semibold text-emerald-100 mt-2">
+              <span class="bg-emerald-950/60 px-3 py-1 rounded-lg">🌾 Crop: <strong id="hero-crop" class="text-white">Paddy (ଧାନ)</strong></span>
+              <span class="bg-emerald-950/60 px-3 py-1 rounded-lg">🌱 Stage: <strong id="hero-stage" class="text-white">Harvest</strong></span>
+              <span class="bg-emerald-950/60 px-3 py-1 rounded-lg">💧 Irrigation: <strong id="hero-irrigation" class="text-white">Rainfed</strong></span>
+              <span class="bg-emerald-950/60 px-3 py-1 rounded-lg">📐 Land: <strong id="hero-land" class="text-white">0.9 Hectares</strong></span>
             </div>
           </div>
-        </div>
-      </div>
 
-      <!-- 4 Large Core Action Buttons for Rural Touch Navigation -->
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
-        
-        <!-- Button 1: Advisory -->
-        <button onclick="showFarmerTab('advisory')" id="tab-btn-advisory" class="farmer-btn bg-white hover:bg-emerald-50 border-3 border-emerald-600 rounded-3xl p-5 sm:p-6 text-left shadow-md flex flex-col justify-between space-y-3 ring-4 ring-emerald-500/20">
-          <div class="text-4xl">🌦️</div>
-          <div>
-            <div class="text-lg sm:text-xl font-extrabold text-slate-900" id="btn-text-advisory">Crop Advisory</div>
-            <div class="text-xs text-slate-500 font-medium">Weather & Crop Care</div>
-          </div>
-          <span class="inline-flex items-center text-xs font-bold text-emerald-700">Tap to listen 🔊</span>
-        </button>
-
-        <!-- Button 2: Mandi Price -->
-        <button onclick="showFarmerTab('mandi')" id="tab-btn-mandi" class="farmer-btn bg-white hover:bg-amber-50 border-2 border-slate-200 hover:border-amber-500 rounded-3xl p-5 sm:p-6 text-left shadow-sm flex flex-col justify-between space-y-3">
-          <div class="text-4xl">💰</div>
-          <div>
-            <div class="text-lg sm:text-xl font-extrabold text-slate-900" id="btn-text-mandi">Mandi Price</div>
-            <div class="text-xs text-slate-500 font-medium">Market vs Govt MSP</div>
-          </div>
-          <span id="tab-mandi-indicator" class="inline-flex items-center text-xs font-bold text-amber-700">Check MSP Line ⚖️</span>
-        </button>
-
-        <!-- Button 3: My Alerts -->
-        <button onclick="showFarmerTab('alerts')" id="tab-btn-alerts" class="farmer-btn bg-white hover:bg-blue-50 border-2 border-slate-200 hover:border-blue-500 rounded-3xl p-5 sm:p-6 text-left shadow-sm flex flex-col justify-between space-y-3">
-          <div class="text-4xl">🔔</div>
-          <div>
-            <div class="text-lg sm:text-xl font-extrabold text-slate-900" id="btn-text-alerts">My Alerts</div>
-            <div class="text-xs text-slate-500 font-medium">Rain & Loan Notices</div>
-          </div>
-          <span class="inline-flex items-center text-xs font-bold text-blue-700">View updates 📲</span>
-        </button>
-
-        <!-- Button 4: Govt Schemes -->
-        <button onclick="showFarmerTab('schemes')" id="tab-btn-schemes" class="farmer-btn bg-white hover:bg-purple-50 border-2 border-slate-200 hover:border-purple-500 rounded-3xl p-5 sm:p-6 text-left shadow-sm flex flex-col justify-between space-y-3">
-          <div class="text-4xl">🏛️</div>
-          <div>
-            <div class="text-lg sm:text-xl font-extrabold text-slate-900" id="btn-text-schemes">Govt Schemes</div>
-            <div class="text-xs text-slate-500 font-medium">PMFBY, KCC & Relief</div>
-          </div>
-          <span class="inline-flex items-center text-xs font-bold text-purple-700">Eligible safety nets 🛡️</span>
-        </button>
-
-      </div>
-
-      <!-- Tab Content Sections -->
-      <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-md border border-slate-200">
-        
-        <!-- Tab 1: Advisory Section -->
-        <div id="farmer-tab-advisory" class="space-y-6">
-          
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
-            <div>
-              <span id="advisory-badge" class="px-3 py-1 rounded-full text-xs font-extrabold bg-red-100 text-red-700 uppercase tracking-wider">MARKET INTERVENTION (R-30)</span>
-              <h2 id="advisory-title" class="text-xl sm:text-2xl font-black text-slate-900 mt-2">Current Mandi price is below Govt MSP</h2>
-            </div>
-            
-            <!-- Spoken Audio Player Button -->
-            <button id="btn-play-voice" onclick="playCurrentAdvisoryAudio()" class="px-5 py-3 rounded-2xl bg-emerald-700 hover:bg-emerald-800 text-white font-extrabold flex items-center justify-center space-x-2 shadow-lg shadow-emerald-700/20 active:scale-95 transition-all touch-target">
-              <span id="voice-icon" class="text-2xl">🔊</span>
-              <span id="voice-btn-text" class="text-base">Play Spoken Advisory (आवाज ऐका)</span>
+          <!-- Audio Readout Button & Edit Button -->
+          <div class="flex flex-col sm:flex-row gap-2">
+            <button id="btn-hero-tts" onclick="speakCurrentAdvisory()" class="touch-target px-5 py-3 rounded-2xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-sm flex items-center justify-center space-x-2 shadow-lg transition-all transform active:scale-95">
+              <span id="hero-speaker-icon" class="text-xl">🔊</span>
+              <span id="hero-audio-label">ଶୁଣନ୍ତୁ • Listen Advisory</span>
+            </button>
+            <button onclick="switchMainView('dashboard')" class="touch-target px-4 py-3 rounded-2xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs flex items-center justify-center space-x-1.5 border border-white/20 transition-all">
+              <span>✏️</span>
+              <span id="hero-edit-label">Update Info (ତଥ୍ୟ ବଦଳାନ୍ତୁ)</span>
             </button>
           </div>
 
-          <!-- Plain Language Spoken Text Display (High Contrast) -->
-          <div class="bg-slate-50 border-2 border-slate-200 rounded-2xl p-6">
-            <p id="advisory-spoken-text" class="text-lg sm:text-xl font-bold text-slate-900 leading-relaxed">
-              Loading advisory...
-            </p>
+        </div>
+      </div>
+
+      <!-- 4 BIG ACTION BUTTONS (High-Contrast, Touch-Friendly) -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
+        
+        <button id="btn-tab-advisory" onclick="selectFarmerTab('advisory')" class="farmer-action-btn touch-target p-4 sm:p-5 rounded-2xl border-2 border-emerald-600 bg-emerald-50 text-emerald-950 font-black shadow-md flex flex-col items-center justify-center text-center space-y-1.5 ring-4 ring-emerald-500/20">
+          <span class="text-3xl sm:text-4xl">🌾</span>
+          <span class="text-sm sm:text-base font-extrabold" id="btn-title-advisory">My Advisory</span>
+          <span class="text-xs font-semibold text-emerald-800" id="btn-sub-advisory">ମୋର ପରାମର୍ଶ</span>
+        </button>
+
+        <button id="btn-tab-mandi" onclick="selectFarmerTab('mandi')" class="farmer-action-btn touch-target p-4 sm:p-5 rounded-2xl border-2 border-slate-200 bg-white hover:bg-slate-50 text-slate-800 font-bold shadow-sm flex flex-col items-center justify-center text-center space-y-1.5">
+          <span class="text-3xl sm:text-4xl">💰</span>
+          <span class="text-sm sm:text-base font-extrabold" id="btn-title-mandi">Mandi Price</span>
+          <span class="text-xs font-semibold text-slate-500" id="btn-sub-mandi">ମଣ୍ଡି ଦର ଓ ଏମଏସପି</span>
+        </button>
+
+        <button id="btn-tab-weather" onclick="selectFarmerTab('weather')" class="farmer-action-btn touch-target p-4 sm:p-5 rounded-2xl border-2 border-slate-200 bg-white hover:bg-slate-50 text-slate-800 font-bold shadow-sm flex flex-col items-center justify-center text-center space-y-1.5">
+          <span class="text-3xl sm:text-4xl">☁️</span>
+          <span class="text-sm sm:text-base font-extrabold" id="btn-title-weather">Weather & Alerts</span>
+          <span class="text-xs font-semibold text-slate-500" id="btn-sub-weather">ପାଣିପାଗ ଓ ବର୍ଷା</span>
+        </button>
+
+        <button id="btn-tab-schemes" onclick="selectFarmerTab('schemes')" class="farmer-action-btn touch-target p-4 sm:p-5 rounded-2xl border-2 border-slate-200 bg-white hover:bg-slate-50 text-slate-800 font-bold shadow-sm flex flex-col items-center justify-center text-center space-y-1.5">
+          <span class="text-3xl sm:text-4xl">📋</span>
+          <span class="text-sm sm:text-base font-extrabold" id="btn-title-schemes">Govt Schemes</span>
+          <span class="text-xs font-semibold text-slate-500" id="btn-sub-schemes">ସରକାରୀ ଯୋଜନା</span>
+        </button>
+
+      </div>
+
+      <!-- TAB 1 CONTENT: MY ADVISORY -->
+      <div id="farmer-tab-advisory-content" class="block space-y-4">
+        <div id="advisory-main-card" class="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border-2 border-emerald-200 space-y-4">
+          
+          <!-- Badge and Title -->
+          <div class="flex items-center justify-between flex-wrap gap-2 border-b border-slate-100 pb-4">
+            <span id="advisory-rule-badge" class="px-3.5 py-1 rounded-full text-xs font-black bg-rose-600 text-white uppercase tracking-wider">
+              CRITICAL INTERVENTION (R-30)
+            </span>
+            <span id="advisory-priority-badge" class="text-xs font-bold text-slate-500">
+              Sundargarh Agro-Advisory
+            </span>
           </div>
 
-          <!-- Contingency Crop Card (if applicable) -->
-          <div id="contingency-box" class="hidden bg-amber-50 border-2 border-amber-300 rounded-2xl p-6 space-y-3">
-            <div class="flex items-center space-x-2 text-amber-800 font-extrabold text-base">
-              <span>🌾</span>
-              <span>ICAR-CRIDA Contingency Crop Recommendations:</span>
-            </div>
+          <h3 id="advisory-title-text" class="text-xl sm:text-2xl font-black text-slate-900 leading-snug">
+            Market Distress Alert: Mandi Price Below Govt MSP
+          </h3>
+
+          <div id="advisory-body-text" class="text-base sm:text-lg text-slate-800 leading-relaxed font-medium bg-emerald-50/60 p-5 rounded-2xl border border-emerald-100">
+            <!-- Advisory body text -->
+          </div>
+
+          <!-- Contingency Crops List (if rule R-10) -->
+          <div id="contingency-crops-container" class="hidden space-y-3 pt-2">
+            <h4 class="text-sm font-extrabold text-slate-700 uppercase tracking-wider">🌾 CRIDA Recommended Short-Duration Contingency Crops:</h4>
             <div id="contingency-crops-list" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <!-- Rendered dynamically -->
-            </div>
-          </div>
-
-          <!-- Weather & Soil Quick Context Bar -->
-          <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
-            <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
-              <div class="text-xs text-slate-500 font-bold">Rainfall Deviation</div>
-              <div id="ctx-rainfall" class="text-base font-extrabold text-slate-800">-41.7% Deficit</div>
-            </div>
-            <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
-              <div class="text-xs text-slate-500 font-bold">Dry Spell Length</div>
-              <div id="ctx-dryspell" class="text-base font-extrabold text-slate-800">8 Days</div>
-            </div>
-            <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
-              <div class="text-xs text-slate-500 font-bold">Monsoon Onset</div>
-              <div id="ctx-onset" class="text-base font-extrabold text-slate-800">Normal</div>
-            </div>
-            <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
-              <div class="text-xs text-slate-500 font-bold">Soil Type</div>
-              <div id="ctx-soil" class="text-base font-extrabold text-slate-800">Black Cotton</div>
+              <!-- Populated dynamically -->
             </div>
           </div>
 
         </div>
+      </div>
 
-        <!-- Tab 2: Mandi Price vs MSP Section -->
-        <div id="farmer-tab-mandi" class="hidden space-y-6">
-          <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+      <!-- TAB 2 CONTENT: MANDI PRICE VS MSP -->
+      <div id="farmer-tab-mandi-content" class="hidden space-y-4">
+        <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-200 space-y-6">
+          
+          <div class="flex items-center justify-between border-b border-slate-100 pb-4">
             <div>
-              <span class="px-3 py-1 rounded-full text-xs font-extrabold bg-amber-100 text-amber-800 uppercase tracking-wider">APMC Market Surveillance</span>
-              <h2 class="text-xl sm:text-2xl font-black text-slate-900 mt-2">Mandi Price vs Government MSP</h2>
+              <h3 class="text-xl font-black text-slate-900" id="mandi-header-title">Mandi vs Govt MSP Price (ମଣ୍ଡି ଦର)</h3>
+              <p class="text-xs font-semibold text-slate-500 mt-0.5" id="mandi-header-sub">Market: Sundargarh APMC • Date: <span id="mandi-date-display">26/08/2026</span></p>
             </div>
-            <div class="text-right">
-              <span id="mandi-name" class="text-xs font-bold text-slate-500">Lasalgaon APMC</span>
-              <div class="text-xs text-slate-400">Updated: 25 Aug 2026</div>
+            <span id="mandi-crop-badge" class="px-3 py-1 rounded-full text-xs font-black bg-emerald-100 text-emerald-900 uppercase">
+              PADDY
+            </span>
+          </div>
+
+          <!-- Warning Banner if below MSP -->
+          <div id="mandi-warning-banner" class="bg-rose-50 border-2 border-rose-300 rounded-2xl p-4 sm:p-5 flex items-start space-x-3">
+            <span class="text-2xl">⚠️</span>
+            <div>
+              <h4 class="text-sm sm:text-base font-black text-rose-900" id="mandi-warning-title">Price Alert: Today's Price is Below Government MSP!</h4>
+              <p class="text-xs sm:text-sm font-semibold text-rose-800 mt-1" id="mandi-warning-desc">
+                Do not sell in panic. Register at APMC MSP procurement center or apply for WDRA warehouse pledge loan.
+              </p>
             </div>
           </div>
 
-          <!-- MSP Comparison Banner & Warning -->
-          <div id="mandi-alert-box" class="bg-red-50 border-2 border-red-400 rounded-2xl p-5 text-red-950 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div class="flex items-start space-x-3">
-              <div class="text-3xl">⚠️</div>
+          <!-- Price Numbers Comparison -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200">
+              <span class="text-xs font-bold uppercase text-slate-500">Government MSP Benchmark</span>
+              <div class="text-3xl font-black text-slate-900 mt-1">₹<span id="mandi-msp-val">2,300</span> <span class="text-sm font-semibold text-slate-500">/ Quintal</span></div>
+              <span class="text-xs font-semibold text-emerald-700 mt-1 block">✓ Guaranteed Minimum Price</span>
+            </div>
+            <div class="bg-rose-50 p-5 rounded-2xl border border-rose-200">
+              <span class="text-xs font-bold uppercase text-rose-800">Today's Local Mandi Price</span>
+              <div class="text-3xl font-black text-rose-700 mt-1">₹<span id="mandi-current-val">1,950</span> <span class="text-sm font-semibold text-rose-600">/ Quintal</span></div>
+              <span id="mandi-shortfall-text" class="text-xs font-black text-rose-700 mt-1 block">Shortfall: -15.2% below MSP</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- TAB 3 CONTENT: WEATHER & ALERTS -->
+      <div id="farmer-tab-weather-content" class="hidden space-y-4">
+        <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-200 space-y-6">
+          
+          <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+            <div>
+              <h3 class="text-xl font-black text-slate-900">Weather & Monsoon Status (ପାଣିପାଗ)</h3>
+              <p class="text-xs font-semibold text-slate-500 mt-0.5">District: Sundargarh, Odisha • Automated CRIDA Station</p>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200">
+              <span class="text-xs font-bold uppercase text-slate-500">Rainfall Deviation</span>
+              <div id="weather-dev-val" class="text-2xl font-black text-slate-900 mt-1">-39.3% Deficit</div>
+              <span class="text-xs text-slate-500 mt-1 block">Compared to normal season</span>
+            </div>
+            <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200">
+              <span class="text-xs font-bold uppercase text-slate-500">Dry Spell Days</span>
+              <div id="weather-dry-val" class="text-2xl font-black text-amber-600 mt-1">9 Days</div>
+              <span class="text-xs text-slate-500 mt-1 block">Consecutive dry days</span>
+            </div>
+            <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200">
+              <span class="text-xs font-bold uppercase text-slate-500">Monsoon Onset</span>
+              <div id="weather-onset-val" class="text-2xl font-black text-slate-900 mt-1">Normal</div>
+              <span class="text-xs text-slate-500 mt-1 block">Onset delay: 2 days</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- TAB 4 CONTENT: GOVT SCHEMES & AID -->
+      <div id="farmer-tab-schemes-content" class="hidden space-y-4">
+        <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-200 space-y-6">
+          
+          <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+            <div>
+              <h3 class="text-xl font-black text-slate-900">Recommended Schemes for You (ସରକାରୀ ଯୋଜନା)</h3>
+              <p class="text-xs font-semibold text-slate-500 mt-0.5">Targeted Odisha & Central Govt Farmer Welfare Programs</p>
+            </div>
+          </div>
+
+          <div id="farmer-schemes-list" class="space-y-3">
+            <!-- Populated dynamically -->
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- VIEW 2: FARMER DASHBOARD (My Profile & Settings - Farmer Setup Screen) -->
+    <!-- ========================================================================= -->
+    <div id="view-dashboard" class="hidden space-y-6">
+      
+      <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-200 space-y-6">
+        
+        <div class="border-b border-slate-100 pb-4">
+          <h2 class="text-2xl font-black text-slate-900">⚙️ Farmer Profile & Dashboard (ମୋର ତଥ୍ୟ)</h2>
+          <p class="text-xs sm:text-sm text-slate-600 mt-1">
+            Fill and update your farming and financial information below. The advisory and distress system will instantly update according to your data.
+          </p>
+        </div>
+
+        <!-- Dashboard Form -->
+        <form id="farmer-profile-form" onsubmit="handleSaveProfile(event)" class="space-y-6">
+          
+          <!-- Section 1: Language Preference -->
+          <div class="bg-emerald-50/60 p-5 rounded-2xl border border-emerald-200 space-y-3">
+            <label class="block text-sm font-extrabold text-emerald-950 uppercase tracking-wider">
+              1. Choose Preferred Language (ଭାଷା ଚୟନ):
+            </label>
+            <div class="grid grid-cols-3 gap-3">
+              <label class="cursor-pointer border-2 rounded-xl p-3 text-center transition-all bg-white border-emerald-600 font-black text-emerald-900">
+                <input type="radio" name="profile_language" value="or" class="sr-only" checked onchange="setLanguage('or')">
+                <span>🇮🇳 ଓଡ଼ିଆ (Odia)</span>
+              </label>
+              <label class="cursor-pointer border-2 rounded-xl p-3 text-center transition-all bg-white border-slate-200 font-bold text-slate-700">
+                <input type="radio" name="profile_language" value="hi" class="sr-only" onchange="setLanguage('hi')">
+                <span>🇮🇳 हिन्दी (Hindi)</span>
+              </label>
+              <label class="cursor-pointer border-2 rounded-xl p-3 text-center transition-all bg-white border-slate-200 font-bold text-slate-700">
+                <input type="radio" name="profile_language" value="en" class="sr-only" onchange="setLanguage('en')">
+                <span>🇬🇧 English</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Section 2: Personal & Block Info -->
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div>
+              <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Farmer Full Name (ନାମ):</label>
+              <input type="text" id="prof-name" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm font-bold text-slate-900 outline-none focus:border-emerald-600" required>
+            </div>
+            <div>
+              <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Village (ଗ୍ରାମ):</label>
+              <input type="text" id="prof-village" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm font-bold text-slate-900 outline-none focus:border-emerald-600" required>
+            </div>
+            <div>
+              <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Sundargarh Block (ବ୍ଲକ):</label>
+              <select id="prof-district" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm font-bold text-slate-900 outline-none focus:border-emerald-600">
+                <option value="D1">Sundargarh Sadar</option>
+                <option value="D2">Bonai Block</option>
+                <option value="D3">Rajgangpur Block</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Section 3: Crop & Land Info -->
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div>
+              <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Crop (ଫସଲ):</label>
+              <select id="prof-crop" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm font-bold text-slate-900 outline-none focus:border-emerald-600">
+                <option value="paddy">Paddy (ଧାନ)</option>
+                <option value="maize">Maize (ମକା)</option>
+                <option value="arhar">Arhar / Pigeonpea (ଅରହର)</option>
+                <option value="tomato">Tomato (ବିଲାତି)</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Crop Stage (ଅବସ୍ଥା):</label>
+              <select id="prof-stage" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm font-bold text-slate-900 outline-none focus:border-emerald-600">
+                <option value="sowing">Sowing (ବୁଣିବା)</option>
+                <option value="vegetative">Vegetative Growth (ବଢ଼ିବା)</option>
+                <option value="flowering">Flowering (ଫୁଲ ଧରିବା)</option>
+                <option value="harvest">Harvest (ଅମଳ)</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Landholding in Hectares (ଜମି):</label>
+              <input type="number" step="0.1" id="prof-land" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm font-bold text-slate-900 outline-none focus:border-emerald-600" required>
+            </div>
+          </div>
+
+          <!-- Section 4: Irrigation & Borewell -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Irrigation Source (ଜଳସେଚନ):</label>
+              <select id="prof-irrigation" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm font-bold text-slate-900 outline-none focus:border-emerald-600">
+                <option value="rainfed">100% Rainfed (କେବଳ ବର୍ଷା ଉପରେ ନିର୍ଭର)</option>
+                <option value="protective_well">Protective Well / Borewell (କୂପ / ବୋରୱେଲ)</option>
+                <option value="canal">Canal / Assured Irrigation (କେନାଲ)</option>
+              </select>
+            </div>
+            <div class="flex items-center space-x-3 pt-6">
+              <input type="checkbox" id="prof-borewell" class="w-5 h-5 rounded text-emerald-600 focus:ring-emerald-500">
+              <label for="prof-borewell" class="text-sm font-bold text-slate-800">Has history of Borewell failure (ବୋରୱେଲ ଫେଲ ହୋଇଛି)</label>
+            </div>
+          </div>
+
+          <!-- Section 5: Credit & Safety Nets -->
+          <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-4">
+            <h4 class="text-xs font-extrabold text-slate-600 uppercase tracking-wider">Safety Nets, Insurance & Loans (ଋଣ ଓ ବୀମା):</h4>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <label class="flex items-center space-x-2.5">
+                <input type="checkbox" id="prof-pmfby" class="w-5 h-5 rounded text-emerald-600 focus:ring-emerald-500">
+                <span class="text-sm font-bold text-slate-800">PMFBY Insured (ଫସଲ ବୀମା ଅଛି)</span>
+              </label>
+              <label class="flex items-center space-x-2.5">
+                <input type="checkbox" id="prof-kcc" class="w-5 h-5 rounded text-emerald-600 focus:ring-emerald-500">
+                <span class="text-sm font-bold text-slate-800">Has Kisan Credit Card (KCC ଋଣ)</span>
+              </label>
+              <label class="flex items-center space-x-2.5">
+                <input type="checkbox" id="prof-informal" class="w-5 h-5 rounded text-rose-600 focus:ring-rose-500">
+                <span class="text-sm font-bold text-rose-800">Informal Moneylender Debt (ମହାଜନ ଋଣ)</span>
+              </label>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
               <div>
-                <div class="font-extrabold text-lg">Price is BELOW Government MSP!</div>
-                <p id="mandi-alert-text" class="text-sm font-medium mt-0.5">Current market rate is below MSP. Do NOT sell in distress. Consider e-NAM pledge loan or WDRA warehousing.</p>
+                <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Loan Due Date (ଋଣ ଶୁଝିବା ତାରିଖ):</label>
+                <input type="date" id="prof-loan-date" class="w-full bg-white border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm font-bold text-slate-900 outline-none focus:border-emerald-600">
+              </div>
+              <div>
+                <label class="block text-xs font-bold uppercase text-slate-600 mb-1">Loan Amount in ₹ (ଋଣ ରାଶି):</label>
+                <input type="number" id="prof-loan-amount" class="w-full bg-white border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm font-bold text-slate-900 outline-none focus:border-emerald-600">
               </div>
             </div>
-            <span class="bg-red-600 text-white font-black text-xs px-3 py-1.5 rounded-lg whitespace-nowrap">Distress Warning</span>
-          </div>
-
-          <!-- Price Display Cards -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            
-            <!-- Current Price Card -->
-            <div class="bg-slate-50 border-2 border-slate-200 rounded-2xl p-6 text-center space-y-2">
-              <div class="text-sm font-bold text-slate-500 uppercase tracking-wider">Today's Mandi Price</div>
-              <div id="mandi-current-price" class="text-4xl sm:text-5xl font-black text-slate-900">₹1,100</div>
-              <div class="text-xs text-slate-500 font-semibold">per Quintal</div>
-            </div>
-
-            <!-- Govt MSP Line Card -->
-            <div class="bg-emerald-50 border-2 border-emerald-400 rounded-2xl p-6 text-center space-y-2 relative overflow-hidden">
-              <div class="absolute top-2 right-2 bg-emerald-600 text-white text-[10px] font-black uppercase px-2 py-0.5 rounded">Govt Floor Price</div>
-              <div class="text-sm font-bold text-emerald-800 uppercase tracking-wider">Government MSP</div>
-              <div id="mandi-msp-price" class="text-4xl sm:text-5xl font-black text-emerald-900">₹1,500</div>
-              <div class="text-xs text-emerald-700 font-semibold">per Quintal (Guaranteed Benchmark)</div>
-            </div>
 
           </div>
 
-          <!-- Action Recommendation for Price Crash -->
-          <div class="bg-slate-900 text-white rounded-2xl p-6 space-y-3">
-            <div class="text-sm font-bold text-emerald-400 uppercase tracking-wider">Recommended Market Action:</div>
-            <p class="text-sm sm:text-base leading-relaxed text-slate-200">
-              1. <strong>Avoid immediate Mandi distress sale:</strong> Current mandi realization causes an estimated ₹400/quintal loss.<br>
-              2. <strong>e-NAM & WDRA Warehouse Receipt:</strong> Store produce in nearby WDRA warehouse and avail 70% pledge loan at 7% interest.<br>
-              3. <strong>PM-AASHA Enrollment:</strong> Register at the Taluka procurement center for government price deficit support.
-            </p>
+          <!-- Submit Button -->
+          <div class="pt-4 flex justify-end">
+            <button type="submit" class="touch-target px-8 py-4 rounded-2xl bg-emerald-700 hover:bg-emerald-600 text-white font-black text-base shadow-xl flex items-center space-x-2 transition-all transform active:scale-95">
+              <span>💾</span>
+              <span id="btn-save-profile-lbl">Save My Info & Update App (ପ୍ରୋଫାଇଲ ସଂରକ୍ଷଣ କରନ୍ତୁ)</span>
+            </button>
           </div>
 
-        </div>
-
-        <!-- Tab 3: Alerts Section -->
-        <div id="farmer-tab-alerts" class="hidden space-y-6">
-          <div class="pb-4 border-b border-slate-100">
-            <span class="px-3 py-1 rounded-full text-xs font-extrabold bg-blue-100 text-blue-800 uppercase tracking-wider">Notifications & Reminders</span>
-            <h2 class="text-xl sm:text-2xl font-black text-slate-900 mt-2">Active Notifications for Your Farm</h2>
-          </div>
-
-          <div id="farmer-alerts-container" class="space-y-4">
-            <!-- Populated dynamically -->
-          </div>
-        </div>
-
-        <!-- Tab 4: Govt Schemes Section -->
-        <div id="farmer-tab-schemes" class="hidden space-y-6">
-          <div class="pb-4 border-b border-slate-100">
-            <span class="px-3 py-1 rounded-full text-xs font-extrabold bg-purple-100 text-purple-800 uppercase tracking-wider">Government Safety Net</span>
-            <h2 class="text-xl sm:text-2xl font-black text-slate-900 mt-2">Eligible Schemes Based on Your Stress Signals</h2>
-          </div>
-
-          <div id="farmer-schemes-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <!-- Populated dynamically -->
-          </div>
-        </div>
+        </form>
 
       </div>
 
     </div>
 
     <!-- ========================================================================= -->
-    <!-- VIEW 2: OFFICER DASHBOARD ( literate, desktop-first data table & sliders) -->
+    <!-- VIEW 3: ENGINE SANDBOX / MVP TESTER (Interactive Simulation Playground) -->
     <!-- ========================================================================= -->
-    <div id="view-officer" class="hidden space-y-6">
+    <div id="view-sandbox" class="hidden space-y-6">
       
-      <!-- Top Metrics Summary Cards -->
-      <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-          <div class="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Monitored</div>
-          <div id="metric-total" class="text-3xl font-black text-slate-900 mt-1">6</div>
-          <div class="text-xs text-slate-400 mt-1">Across 3 Agro-Districts</div>
-        </div>
-        <div class="bg-white p-5 rounded-2xl border border-red-200 bg-red-50/30 shadow-sm">
-          <div class="text-xs font-bold text-red-600 uppercase tracking-wider">High Risk Alert</div>
-          <div id="metric-high" class="text-3xl font-black text-red-600 mt-1">2</div>
-          <div class="text-xs text-red-500 mt-1">Immediate intervention required</div>
-        </div>
-        <div class="bg-white p-5 rounded-2xl border border-amber-200 bg-amber-50/30 shadow-sm">
-          <div class="text-xs font-bold text-amber-600 uppercase tracking-wider">Medium Risk</div>
-          <div id="metric-med" class="text-3xl font-black text-amber-600 mt-1">3</div>
-          <div class="text-xs text-amber-500 mt-1">Under advisory monitoring</div>
-        </div>
-        <div class="bg-white p-5 rounded-2xl border border-green-200 bg-green-50/30 shadow-sm">
-          <div class="text-xs font-bold text-green-600 uppercase tracking-wider">Low Risk</div>
-          <div id="metric-low" class="text-3xl font-black text-green-600 mt-1">1</div>
-          <div class="text-xs text-green-500 mt-1">Stable agronomic conditions</div>
-        </div>
-      </div>
-
-      <!-- 4-Weight Interactive Sliders Panel -->
-      <div class="bg-slate-900 text-white rounded-3xl p-6 shadow-xl border border-slate-800">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-800">
+      <!-- Top Title & Presets Bar -->
+      <div class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white rounded-3xl p-6 sm:p-8 shadow-xl border border-indigo-900/50 space-y-5">
+        
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h2 class="text-lg font-extrabold text-white flex items-center space-x-2">
-              <span>⚙️</span>
-              <span>CRIDA FDI Weight Calibrator — 6 Dimensions</span>
-            </h2>
-            <p class="text-xs text-slate-400">Adjust dimension weights (ICAR-CRIDA FDI Framework). Sliders auto-normalize to 100% and re-rank the farmer list live. DF shown to officer only.</p>
+            <div class="flex items-center space-x-2.5">
+              <span class="text-3xl">🧪</span>
+              <h2 class="text-2xl sm:text-3xl font-black text-white">Advisory Engine Sandbox (MVP Tester)</h2>
+              <span class="bg-amber-400 text-slate-950 text-xs px-2.5 py-0.5 rounded-full font-black uppercase">Live Simulation</span>
+            </div>
+            <p class="text-xs sm:text-sm text-slate-300 mt-1.5 max-w-3xl">
+              Inject custom farmer data and real-time environmental/market shocks to test rule priority triggers (R-30 vs R-10 vs R-15 vs R-20) and inspect the step-by-step ICAR-CRIDA FDI mathematical breakdown.
+            </p>
           </div>
-          <button onclick="resetDistressWeights()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-bold text-slate-300 border border-slate-700 transition">
-            Reset to CRIDA Defaults (25/15/15/15/20/10)
+
+          <button onclick="runSandboxEvaluation()" class="px-5 py-3 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-sm shadow-lg flex items-center space-x-2 transition-all self-start md:self-auto transform active:scale-95">
+            <span>🚀</span>
+            <span>Run Engine Simulation</span>
           </button>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pt-5">
-          
-          <!-- Slider 1: Exposure (E) — Climate & Price Hazard -->
-          <div class="space-y-2">
-            <div class="flex justify-between text-xs font-bold">
-              <span class="text-blue-400">🌦️ E — Exposure (Climate & Price)</span>
-              <span id="label-w-exposure" class="font-mono text-white">25%</span>
-            </div>
-            <input type="range" id="slider-w-exposure" min="0" max="100" value="25" oninput="onWeightSliderChange()" class="w-full accent-blue-500 cursor-pointer">
-            <div class="text-[11px] text-slate-400">Rainfall deficit + MSP price shortfall exposure (Dim. 1)</div>
+        <!-- 1-Click Preset Scenario Buttons -->
+        <div class="pt-2 border-t border-indigo-800/60">
+          <div class="text-xs font-bold uppercase tracking-wider text-indigo-300 mb-2">⚡ 1-Click Preset Shock Scenarios:</div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
+            <button onclick="loadSandboxPreset('market_crash')" class="p-3 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-left border border-rose-500/40 text-xs font-bold transition flex items-center space-x-2">
+              <span class="text-lg">🚨</span>
+              <div>
+                <div class="text-rose-300">1. Market Crash</div>
+                <div class="text-[10px] text-slate-400">Paddy below MSP in Sadar (R-30)</div>
+              </div>
+            </button>
+            <button onclick="loadSandboxPreset('monsoon_delay')" class="p-3 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-left border border-amber-500/40 text-xs font-bold transition flex items-center space-x-2">
+              <span class="text-lg">🌾</span>
+              <div>
+                <div class="text-amber-300">2. Monsoon Delay</div>
+                <div class="text-[10px] text-slate-400">16d delay in Bonai (R-10)</div>
+              </div>
+            </button>
+            <button onclick="loadSandboxPreset('dry_spell_debt')" class="p-3 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-left border border-indigo-500/40 text-xs font-bold transition flex items-center space-x-2">
+              <span class="text-lg">☀️</span>
+              <div>
+                <div class="text-indigo-300">3. Dry Spell & Debt</div>
+                <div class="text-[10px] text-slate-400">11d dry spell + Loan due (R-15)</div>
+              </div>
+            </button>
+            <button onclick="loadSandboxPreset('healthy_season')" class="p-3 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-left border border-emerald-500/40 text-xs font-bold transition flex items-center space-x-2">
+              <span class="text-lg">✅</span>
+              <div>
+                <div class="text-emerald-300">4. Healthy Normal</div>
+                <div class="text-[10px] text-slate-400">Normal weather & price (R-20)</div>
+              </div>
+            </button>
           </div>
-
-          <!-- Slider 2: Sensitivity (S) — Irrigation -->
-          <div class="space-y-2">
-            <div class="flex justify-between text-xs font-bold">
-              <span class="text-cyan-400">💧 S — Sensitivity (Irrigation)</span>
-              <span id="label-w-sensitivity" class="font-mono text-white">15%</span>
-            </div>
-            <input type="range" id="slider-w-sensitivity" min="0" max="100" value="15" oninput="onWeightSliderChange()" class="w-full accent-cyan-500 cursor-pointer">
-            <div class="text-[11px] text-slate-400">Irrigation dependency: rainfed / borewell / canal (Dim. 2)</div>
-          </div>
-
-          <!-- Slider 3: Adaptive Capacity (AC) — Landholding & Income -->
-          <div class="space-y-2">
-            <div class="flex justify-between text-xs font-bold">
-              <span class="text-emerald-400">🌱 AC — Adaptive Capacity (Inverted)</span>
-              <span id="label-w-ac" class="font-mono text-white">15%</span>
-            </div>
-            <input type="range" id="slider-w-ac" min="0" max="100" value="15" oninput="onWeightSliderChange()" class="w-full accent-emerald-500 cursor-pointer">
-            <div class="text-[11px] text-slate-400">Landholding size + income diversification (Dim. 3, inverted)</div>
-          </div>
-
-          <!-- Slider 4: Mitigation Deficit (M) — PMFBY / KCC Gap -->
-          <div class="space-y-2">
-            <div class="flex justify-between text-xs font-bold">
-              <span class="text-amber-400">🏛️ M — Mitigation Deficit (PMFBY/KCC)</span>
-              <span id="label-w-mitigation" class="font-mono text-white">15%</span>
-            </div>
-            <input type="range" id="slider-w-mitigation" min="0" max="100" value="15" oninput="onWeightSliderChange()" class="w-full accent-amber-500 cursor-pointer">
-            <div class="text-[11px] text-slate-400">Uninsured & no KCC = maximum deficit (Dim. 4)</div>
-          </div>
-
-          <!-- Slider 5: Trigger (T) — Loan & Informal Debt -->
-          <div class="space-y-2">
-            <div class="flex justify-between text-xs font-bold">
-              <span class="text-purple-400">💳 T — Trigger (Loan & Informal Debt)</span>
-              <span id="label-w-trigger" class="font-mono text-white">20%</span>
-            </div>
-            <input type="range" id="slider-w-trigger" min="0" max="100" value="20" oninput="onWeightSliderChange()" class="w-full accent-purple-500 cursor-pointer">
-            <div class="text-[11px] text-slate-400">Loan urgency + moneylender informal debt shock (Dim. 5)</div>
-          </div>
-
-          <!-- Slider 6: District Fragility (DF) — Historical Vulnerability (Officer-only) -->
-          <div class="space-y-2">
-            <div class="flex justify-between text-xs font-bold">
-              <span class="text-rose-400">🏔️ DF — District Fragility (Officer-only)</span>
-              <span id="label-w-df" class="font-mono text-white">10%</span>
-            </div>
-            <input type="range" id="slider-w-df" min="0" max="100" value="10" oninput="onWeightSliderChange()" class="w-full accent-rose-500 cursor-pointer">
-            <div class="text-[11px] text-slate-400">Historical agrarian crisis index — not shown to farmers (Dim. 6)</div>
-          </div>
-
         </div>
+
       </div>
 
-      <!-- Officer Farmer Data Table -->
-      <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
-        <div class="p-6 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div>
-            <h2 class="text-xl font-extrabold text-slate-900">Farmer Distress Early-Warning Registry</h2>
-            <p class="text-xs text-slate-500 mt-0.5">Ranked by compound distress risk score. Maps individual triggers directly to actionable government interventions.</p>
+      <!-- 2-Column Sandbox Layout -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        
+        <!-- Left Column: Interactive Inputs (5 Cols) -->
+        <div class="lg:col-span-5 space-y-5">
+          
+          <!-- Card 1: Farmer Attributes -->
+          <div class="bg-white rounded-3xl p-5 sm:p-6 shadow-sm border border-slate-200 space-y-4">
+            <h3 class="text-sm font-black uppercase text-slate-800 flex items-center space-x-1.5 border-b border-slate-100 pb-3">
+              <span>👨‍🌾</span>
+              <span>1. Custom Farmer Parameters</span>
+            </h3>
+
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-[11px] font-bold text-slate-500 uppercase">Farmer Name</label>
+                <input type="text" id="sb-farmer-name" value="Suresh Majhi" oninput="runSandboxEvaluation()" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-bold text-slate-900 outline-none focus:border-emerald-600">
+              </div>
+              <div>
+                <label class="block text-[11px] font-bold text-slate-500 uppercase">Sundargarh Block</label>
+                <select id="sb-district" onchange="runSandboxEvaluation()" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-bold text-slate-900 outline-none">
+                  <option value="D1">Sundargarh Sadar</option>
+                  <option value="D2">Bonai Block</option>
+                  <option value="D3">Rajgangpur Block</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-[11px] font-bold text-slate-500 uppercase">Crop</label>
+                <select id="sb-crop" onchange="runSandboxEvaluation()" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-bold text-slate-900 outline-none">
+                  <option value="paddy">Paddy (ଧାନ)</option>
+                  <option value="maize">Maize (ମକା)</option>
+                  <option value="arhar">Arhar (ଅରହର)</option>
+                  <option value="tomato">Tomato (ବିଲାତି)</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-[11px] font-bold text-slate-500 uppercase">Crop Stage</label>
+                <select id="sb-stage" onchange="runSandboxEvaluation()" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-bold text-slate-900 outline-none">
+                  <option value="sowing">Sowing (ବୁଣିବା)</option>
+                  <option value="vegetative">Vegetative (ବଢ଼ିବା)</option>
+                  <option value="flowering">Flowering (ଫୁଲ)</option>
+                  <option value="harvest" selected>Harvest (ଅମଳ)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-[11px] font-bold text-slate-500 uppercase">Landholding (ha)</label>
+                <input type="number" step="0.1" id="sb-land" value="0.9" oninput="runSandboxEvaluation()" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-bold text-slate-900 outline-none">
+              </div>
+              <div>
+                <label class="block text-[11px] font-bold text-slate-500 uppercase">Irrigation</label>
+                <select id="sb-irrigation" onchange="runSandboxEvaluation()" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-bold text-slate-900 outline-none">
+                  <option value="rainfed" selected>100% Rainfed</option>
+                  <option value="protective_well">Protective Well</option>
+                  <option value="canal">Canal (Assured)</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Checkbox Matrix -->
+            <div class="grid grid-cols-2 gap-2 pt-2 border-t border-slate-100">
+              <label class="flex items-center space-x-2 text-xs font-bold text-slate-700">
+                <input type="checkbox" id="sb-borewell-failed" onchange="runSandboxEvaluation()" class="rounded text-rose-600">
+                <span>Borewell Failed</span>
+              </label>
+              <label class="flex items-center space-x-2 text-xs font-bold text-slate-700">
+                <input type="checkbox" id="sb-pmfby" onchange="runSandboxEvaluation()" class="rounded text-emerald-600">
+                <span>PMFBY Insured</span>
+              </label>
+              <label class="flex items-center space-x-2 text-xs font-bold text-slate-700">
+                <input type="checkbox" id="sb-kcc" onchange="runSandboxEvaluation()" class="rounded text-emerald-600">
+                <span>Has KCC</span>
+              </label>
+              <label class="flex items-center space-x-2 text-xs font-bold text-rose-800">
+                <input type="checkbox" id="sb-informal-debt" checked onchange="runSandboxEvaluation()" class="rounded text-rose-600">
+                <span>Informal Debt</span>
+              </label>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3 pt-2">
+              <div>
+                <label class="block text-[11px] font-bold text-slate-500 uppercase">Loan Due Date</label>
+                <input type="date" id="sb-loan-date" value="2026-09-10" onchange="runSandboxEvaluation()" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-bold text-slate-900 outline-none">
+              </div>
+              <div>
+                <label class="block text-[11px] font-bold text-slate-500 uppercase">Language</label>
+                <select id="sb-lang" onchange="runSandboxEvaluation()" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-bold text-slate-900 outline-none">
+                  <option value="or">ଓଡ଼ିଆ (Odia)</option>
+                  <option value="hi">हिन्दी (Hindi)</option>
+                  <option value="en">English</option>
+                </select>
+              </div>
+            </div>
+
           </div>
-          <div class="flex items-center space-x-2">
-            <span class="text-xs text-slate-500 font-semibold">Filter:</span>
-            <select id="filter-risk" onchange="applyOfficerFilters()" class="text-xs font-bold bg-slate-100 border border-slate-300 rounded-lg px-2.5 py-1.5 outline-none">
-              <option value="ALL">All Risk Bands</option>
-              <option value="High">High Risk Only (71-100)</option>
-              <option value="Medium">Medium Risk (41-70)</option>
-              <option value="Low">Low Risk (0-40)</option>
-            </select>
+
+          <!-- Card 2: Environmental & Market Shocks -->
+          <div class="bg-white rounded-3xl p-5 sm:p-6 shadow-sm border border-slate-200 space-y-4">
+            <h3 class="text-sm font-black uppercase text-slate-800 flex items-center space-x-1.5 border-b border-slate-100 pb-3">
+              <span>🌦️</span>
+              <span>2. Environmental & Mandi Price Shocks</span>
+            </h3>
+
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-[11px] font-bold text-slate-500 uppercase">Today's Mandi Price (₹)</label>
+                <input type="number" id="sb-cur-price" value="1950" oninput="runSandboxEvaluation()" class="w-full bg-rose-50 border border-rose-300 rounded-xl px-3 py-2 text-xs font-black text-rose-900 outline-none">
+              </div>
+              <div>
+                <label class="block text-[11px] font-bold text-slate-500 uppercase">Govt MSP Floor (₹)</label>
+                <input type="number" id="sb-msp-price" value="2300" oninput="runSandboxEvaluation()" class="w-full bg-emerald-50 border border-emerald-300 rounded-xl px-3 py-2 text-xs font-black text-emerald-900 outline-none">
+              </div>
+            </div>
+
+            <div class="grid grid-cols-3 gap-2.5">
+              <div>
+                <label class="block text-[10px] font-bold text-slate-500 uppercase">Rain Deficit %</label>
+                <input type="number" step="0.5" id="sb-rain-dev" value="-39.3" oninput="runSandboxEvaluation()" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-2.5 py-2 text-xs font-bold text-slate-900 outline-none">
+              </div>
+              <div>
+                <label class="block text-[10px] font-bold text-slate-500 uppercase">Dry Spell (Days)</label>
+                <input type="number" id="sb-dry-days" value="9" oninput="runSandboxEvaluation()" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-2.5 py-2 text-xs font-bold text-slate-900 outline-none">
+              </div>
+              <div>
+                <label class="block text-[10px] font-bold text-slate-500 uppercase">Onset Delay (Days)</label>
+                <input type="number" id="sb-onset-delay" value="2" oninput="runSandboxEvaluation()" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-2.5 py-2 text-xs font-bold text-slate-900 outline-none">
+              </div>
+            </div>
+
           </div>
+
         </div>
 
-        <div class="overflow-x-auto">
-          <table class="w-full text-left text-sm text-slate-700">
-            <thead class="bg-slate-50 text-slate-900 uppercase font-bold text-xs border-b border-slate-200">
-              <tr>
-                <th class="px-6 py-4">Farmer & Village</th>
-                <th class="px-4 py-4">District</th>
-                <th class="px-4 py-4">Crop & Stage</th>
-                <th class="px-4 py-4">Distress Score</th>
-                <th class="px-4 py-4">Top Trigger Signal</th>
-                <th class="px-4 py-4">Recommended Scheme</th>
-                <th class="px-4 py-4">Contact Channel</th>
-                <th class="px-6 py-4 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody id="officer-table-body" class="divide-y divide-slate-100">
+        <!-- Right Column: Live Engine Diagnostic Outputs (7 Cols) -->
+        <div class="lg:col-span-7 space-y-5">
+          
+          <!-- Output Card 1: Fired Rule & Advisory -->
+          <div class="bg-white rounded-3xl p-6 shadow-sm border-2 border-emerald-500 space-y-4">
+            <div class="flex items-center justify-between flex-wrap gap-2 border-b border-slate-100 pb-3">
+              <span id="sb-out-rule-badge" class="px-3 py-1 rounded-full text-xs font-black bg-rose-600 text-white uppercase tracking-wider">
+                🚨 RULE R-30: MARKET DISTRESS OVERRIDE
+              </span>
+              <span class="text-xs font-bold text-slate-400">Advisory Engine Output</span>
+            </div>
+
+            <h3 id="sb-out-advisory-title" class="text-xl font-black text-slate-900 leading-snug">
+              Market Distress Alert: Mandi Price Below Govt MSP
+            </h3>
+
+            <div class="bg-emerald-50/70 border border-emerald-200 rounded-2xl p-5 space-y-3">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold uppercase tracking-wider text-emerald-900">Generated Advisory Body Text:</span>
+                <button onclick="speakSandboxAdvisory()" class="px-3 py-1 rounded-lg bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-black flex items-center space-x-1 shadow-sm transition">
+                  <span id="sb-speaker-icon">🔊</span>
+                  <span>Listen Spoken Audio</span>
+                </button>
+              </div>
+              <p id="sb-out-advisory-text" class="text-sm sm:text-base font-semibold text-emerald-950 leading-relaxed">
+                Loading simulation...
+              </p>
+            </div>
+
+            <!-- Contingency Crops Output Box -->
+            <div id="sb-out-contingency-box" class="hidden space-y-2 pt-2 border-t border-slate-100">
+              <div class="text-xs font-black text-slate-700 uppercase tracking-wider">🌾 CRIDA Recommended Short-Duration Contingency Crops:</div>
+              <div id="sb-out-contingency-list" class="grid grid-cols-1 sm:grid-cols-2 gap-2"></div>
+            </div>
+          </div>
+
+          <!-- Output Card 2: Decision Trace Checklist -->
+          <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-200 space-y-3">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+              <h4 class="text-sm font-black text-slate-900 uppercase flex items-center space-x-1.5">
+                <span>🔍</span>
+                <span>Rule Hierarchy Decision Trace (Why this rule fired)</span>
+              </h4>
+              <span class="text-xs font-mono font-bold text-slate-400">Priority 1 to 4</span>
+            </div>
+
+            <div id="sb-out-decision-trace" class="divide-y divide-slate-100 text-xs">
               <!-- Rendered dynamically -->
-            </tbody>
-          </table>
+            </div>
+          </div>
+
+          <!-- Output Card 3: ICAR-CRIDA 6-Dimension Calculation -->
+          <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-200 space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div>
+                <h4 class="text-sm font-black text-slate-900 uppercase flex items-center space-x-1.5">
+                  <span>🧮</span>
+                  <span>ICAR-CRIDA 6-Dimension Distress Calculation</span>
+                </h4>
+                <p class="text-[11px] text-slate-500 font-mono mt-0.5">Score = 0.25·E + 0.15·S + 0.15·(100-AC) + 0.15·M + 0.20·T + 0.10·DF</p>
+              </div>
+              <div class="text-right">
+                <span id="sb-out-risk-badge" class="px-3 py-1 rounded-full text-xs font-black bg-rose-100 text-rose-800">
+                  HIGH RISK (73.9)
+                </span>
+              </div>
+            </div>
+
+            <div id="sb-out-dim-matrix" class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 text-xs">
+              <!-- Rendered dynamically -->
+            </div>
+          </div>
+
+          <!-- Output Card 4: Matched Welfare Schemes & 2G Fallbacks -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            
+            <!-- Schemes -->
+            <div class="bg-white rounded-3xl p-5 shadow-sm border border-slate-200 space-y-3">
+              <h4 class="text-xs font-black text-slate-800 uppercase flex items-center space-x-1 border-b border-slate-100 pb-2">
+                <span>🏛️</span>
+                <span>Matched Welfare Schemes</span>
+              </h4>
+              <div id="sb-out-schemes-list" class="space-y-2 text-xs">
+                <!-- Rendered dynamically -->
+              </div>
+            </div>
+
+            <!-- SMS Fallback -->
+            <div class="bg-slate-900 text-white rounded-3xl p-5 shadow-sm border border-slate-800 space-y-3 font-mono">
+              <div class="flex items-center justify-between border-b border-slate-800 pb-2 text-[11px]">
+                <span class="text-emerald-400 font-bold">📟 160-Char Plain SMS</span>
+                <span id="sb-out-sms-count" class="text-slate-400">142 chars (1 SMS)</span>
+              </div>
+              <p id="sb-out-sms-body" class="text-xs text-slate-200 leading-relaxed font-sans font-medium bg-slate-950 p-3 rounded-xl border border-slate-800">
+                [କୃଷି ସତର୍କ] Suresh Majhi: PADDY ମଣ୍ଡି ଦର ₹1950 ଏମଏସପି ₹2300 ଠାରୁ କମ।
+              </p>
+            </div>
+
+          </div>
+
         </div>
+
       </div>
 
     </div>
 
     <!-- ========================================================================= -->
-    <!-- VIEW 3: SMS & IVR FALLBACK SIMULATOR (Adaptive Capacity for Basic Phones) -->
+    <!-- VIEW 4: AUTOMATED OFFICER DASHBOARD (Zero manual sliders, automated triage) -->
     <!-- ========================================================================= -->
-    <div id="view-simulator" class="hidden space-y-6">
+    <div id="view-officer" class="hidden space-y-6">
       
-      <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-200">
-        <div class="max-w-3xl">
-          <span class="px-3 py-1 rounded-full text-xs font-extrabold bg-blue-100 text-blue-800 uppercase tracking-wider">Adaptive Capacity Fallback Layer</span>
-          <h2 class="text-2xl font-black text-slate-900 mt-2">Interactive IVR Voice & Plain-Text SMS Simulator</h2>
-          <p class="text-sm text-slate-600 mt-1">
-            Over 65% of smallholder farmers in vulnerable districts operate basic feature phones or suffer from 2G/poor rural network.
-            This simulator demonstrates how the system delivers actionable advisories and distress warnings via automated voice calls (IVR) and plain-text SMS.
-          </p>
+      <!-- Automated Triage Summary Header -->
+      <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-200 space-y-4">
+        
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+          <div>
+            <div class="flex items-center space-x-2">
+              <h2 class="text-2xl font-black text-slate-900">📊 Sundargarh Extension Officer Triage Panel</h2>
+              <span class="bg-emerald-100 text-emerald-900 text-xs px-3 py-1 rounded-full font-bold">Automated Decision Support</span>
+            </div>
+            <p class="text-xs text-slate-500 mt-1">
+              Grounded in the ICAR-CRIDA 6-Dimension Farmers' Distress Index (Reddy et al., 2021). Zero manual tuning required.
+            </p>
+          </div>
+          
+          <button onclick="fetchOfficerData()" class="px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold flex items-center space-x-1.5 transition-all">
+            <span>🔄</span>
+            <span>Refresh Triage Queue</span>
+          </button>
         </div>
+
+        <!-- Metrics Cards -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200">
+            <span class="text-xs font-bold text-slate-500 uppercase">Monitored Farmers</span>
+            <div id="metric-total-farmers" class="text-3xl font-black text-slate-900 mt-1">6</div>
+          </div>
+          <div class="bg-rose-50 p-4 rounded-2xl border border-rose-200">
+            <span class="text-xs font-bold text-rose-800 uppercase">High Risk (Action Needed)</span>
+            <div id="metric-high-risk" class="text-3xl font-black text-rose-700 mt-1">2</div>
+          </div>
+          <div class="bg-amber-50 p-4 rounded-2xl border border-amber-200">
+            <span class="text-xs font-bold text-amber-800 uppercase">Medium Risk</span>
+            <div id="metric-med-risk" class="text-3xl font-black text-amber-700 mt-1">3</div>
+          </div>
+          <div class="bg-emerald-50 p-4 rounded-2xl border border-emerald-200">
+            <span class="text-xs font-bold text-emerald-800 uppercase">Low Risk</span>
+            <div id="metric-low-risk" class="text-3xl font-black text-emerald-700 mt-1">1</div>
+          </div>
+        </div>
+
       </div>
 
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        
-        <!-- Left: Interactive IVR Phone Keypad Simulator -->
-        <div class="bg-slate-900 text-white rounded-3xl p-6 shadow-xl border border-slate-800 flex flex-col justify-between space-y-6">
-          
-          <div>
-            <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
-              <div class="flex items-center space-x-2">
-                <span class="text-2xl">☎️</span>
-                <div>
-                  <h3 class="font-extrabold text-base text-white">Interactive IVR Voice Call</h3>
-                  <div class="text-xs text-emerald-400">Connected: Kisan Helpline 1800-180-1551</div>
-                </div>
-              </div>
-              <select id="sim-farmer-select" onchange="onSimFarmerChange(this.value)" class="bg-slate-800 text-white text-xs font-bold rounded-lg px-2.5 py-1.5 border border-slate-700">
-                <!-- Populated dynamically -->
-              </select>
-            </div>
-
-            <!-- Virtual Phone Screen / Speaker Prompt Display -->
-            <div class="bg-slate-950 border border-slate-800 rounded-2xl p-5 space-y-3 font-mono">
-              <div class="flex items-center justify-between text-xs text-slate-500">
-                <span id="ivr-status-pill" class="text-emerald-400 font-bold">● IN CALL (00:14)</span>
-                <span id="ivr-lang-pill">LANG: HI</span>
-              </div>
-              <div id="ivr-screen-text" class="text-sm text-slate-200 leading-relaxed font-sans font-medium min-h-[90px]">
-                Connecting to farmer...
-              </div>
-              <div class="flex items-center justify-between pt-2 border-t border-slate-900 text-xs">
-                <button onclick="playIvrAudioPrompt()" class="text-emerald-400 hover:text-emerald-300 font-bold flex items-center space-x-1 font-sans">
-                  <span>🔊</span>
-                  <span>Speak Prompt (TTS)</span>
-                </button>
-                <button onclick="startIvrCall()" class="text-slate-400 hover:text-white font-sans">Restart Call 🔄</button>
-              </div>
-            </div>
-          </div>
-
-          <!-- Keypad Matrix -->
-          <div>
-            <div class="text-xs font-bold uppercase text-slate-400 mb-3 text-center">Press Phone Keypad:</div>
-            <div class="grid grid-cols-3 gap-3 max-w-xs mx-auto">
-              <button onclick="pressIvrKey('1')" class="bg-slate-800 hover:bg-emerald-700 active:scale-95 text-white font-black text-xl py-3 rounded-2xl border border-slate-700 transition flex flex-col items-center">
-                <span>1</span>
-                <span class="text-[9px] font-normal text-slate-400">ADVISORY</span>
-              </button>
-              <button onclick="pressIvrKey('2')" class="bg-slate-800 hover:bg-emerald-700 active:scale-95 text-white font-black text-xl py-3 rounded-2xl border border-slate-700 transition flex flex-col items-center">
-                <span>2</span>
-                <span class="text-[9px] font-normal text-slate-400">MANDI/MSP</span>
-              </button>
-              <button onclick="pressIvrKey('3')" class="bg-slate-800 hover:bg-emerald-700 active:scale-95 text-white font-black text-xl py-3 rounded-2xl border border-slate-700 transition flex flex-col items-center">
-                <span>3</span>
-                <span class="text-[9px] font-normal text-slate-400">SCHEMES</span>
-              </button>
-              <button onclick="pressIvrKey('4')" class="bg-slate-800/50 text-slate-500 font-black text-xl py-3 rounded-2xl border border-slate-800 transition">4</button>
-              <button onclick="pressIvrKey('5')" class="bg-slate-800/50 text-slate-500 font-black text-xl py-3 rounded-2xl border border-slate-800 transition">5</button>
-              <button onclick="pressIvrKey('6')" class="bg-slate-800/50 text-slate-500 font-black text-xl py-3 rounded-2xl border border-slate-800 transition">6</button>
-              <button onclick="pressIvrKey('*')" class="bg-slate-800/50 text-slate-500 font-black text-xl py-3 rounded-2xl border border-slate-800 transition">*</button>
-              <button onclick="pressIvrKey('0')" class="bg-slate-800 hover:bg-emerald-700 active:scale-95 text-white font-black text-xl py-3 rounded-2xl border border-slate-700 transition flex flex-col items-center">
-                <span>0</span>
-                <span class="text-[9px] font-normal text-slate-400">OPERATOR</span>
-              </button>
-              <button onclick="pressIvrKey('#')" class="bg-slate-800/50 text-slate-500 font-black text-xl py-3 rounded-2xl border border-slate-800 transition">#</button>
-            </div>
-          </div>
-
+      <!-- Farmer Triage Table / Queue -->
+      <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
+        <div class="p-6 border-b border-slate-100 flex items-center justify-between">
+          <h3 class="text-lg font-black text-slate-900">Priority Field Outreach Queue</h3>
+          <span class="text-xs font-bold text-slate-400">Auto-ranked by ICAR-CRIDA Distress Score</span>
         </div>
 
-        <!-- Right: Feature Phone SMS Screen Emulator -->
-        <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-200 flex flex-col justify-between space-y-6">
-          
-          <div>
-            <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
-              <div class="flex items-center space-x-2">
-                <span class="text-2xl">📱</span>
-                <div>
-                  <h3 class="font-extrabold text-base text-slate-900">Feature Phone SMS Emulator</h3>
-                  <div class="text-xs text-slate-500">Plain-text 160-character GSM SMS Delivery</div>
-                </div>
-              </div>
-              <button onclick="triggerSmsDelivery()" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg shadow transition">
-                Send Test SMS 📨
-              </button>
-            </div>
-
-            <!-- Simulated Feature Phone Monochrome Screen -->
-            <div class="bg-emerald-950 border-4 border-slate-800 rounded-3xl p-6 text-emerald-300 font-mono shadow-inner space-y-4">
-              <div class="flex items-center justify-between text-[11px] text-emerald-500 pb-2 border-b border-emerald-900">
-                <span>SMS FROM: GOV-KRISHI</span>
-                <span id="sms-time">16:45 IST</span>
-              </div>
-              
-              <div id="sms-screen-body" class="text-sm font-semibold leading-relaxed tracking-wide text-emerald-100 min-h-[120px]">
-                Loading SMS payload...
-              </div>
-
-              <div class="flex items-center justify-between text-[10px] text-emerald-500 pt-2 border-t border-emerald-900">
-                <span id="sms-char-count">Length: 142 chars (1 SMS)</span>
-                <span class="text-emerald-400 font-bold">STATUS: DELIVERED ✔</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Explanatory note -->
-          <div class="bg-slate-50 rounded-2xl p-4 border border-slate-200 text-xs text-slate-600 space-y-1.5">
-            <div class="font-bold text-slate-800">Adaptive Capacity Design Validation:</div>
-            <p>• Plain text without markdown ensures 100% compatibility on 2G feature phones.</p>
-            <p>• Standardized toll-free helpline number allows immediate one-touch callback.</p>
-            <p>• Automatically localized into farmer's registered language preference.</p>
-          </div>
-
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="bg-slate-50 text-[11px] font-black uppercase tracking-wider text-slate-500 border-b border-slate-200">
+                <th class="py-3 px-4">Farmer</th>
+                <th class="py-3 px-4">Location / Crop</th>
+                <th class="py-3 px-4">Distress Score</th>
+                <th class="py-3 px-4">Top Trigger Signal</th>
+                <th class="py-3 px-4">Target Scheme</th>
+                <th class="py-3 px-4">Channel</th>
+                <th class="py-3 px-4 text-right">Action</th>
+              </tr>
+            </thead>
+            <tbody id="officer-table-body" class="divide-y divide-slate-100 text-sm">
+              <!-- Populated dynamically -->
+            </tbody>
+          </table>
         </div>
 
       </div>
@@ -650,7 +838,7 @@
   </main>
 
   <!-- ========================================================================= -->
-  <!-- MODAL: Officer Detail Drawer / Modal -->
+  <!-- MODAL: Officer Detail & Fieldwork Guidance Drawer -->
   <!-- ========================================================================= -->
   <div id="officer-detail-modal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto space-y-6">
@@ -658,10 +846,10 @@
       <div class="flex items-start justify-between border-b border-slate-100 pb-4">
         <div>
           <div class="flex items-center space-x-2">
-            <h3 id="modal-farmer-name" class="text-2xl font-black text-slate-900">Ramesh Patil</h3>
+            <h3 id="modal-farmer-name" class="text-2xl font-black text-slate-900">Suresh Majhi</h3>
             <span id="modal-risk-badge" class="px-3 py-0.5 rounded-full text-xs font-black bg-amber-100 text-amber-800">MEDIUM RISK (52.9)</span>
           </div>
-          <p id="modal-farmer-sub" class="text-xs text-slate-500 mt-1">📍 Chandwad, Nashik • 🧅 Onion (Harvest Stage)</p>
+          <p id="modal-farmer-sub" class="text-xs text-slate-500 mt-1">📍 Kuarmunda, Sundargarh Sadar • Paddy (Harvest Stage)</p>
         </div>
         <button onclick="closeOfficerModal()" class="text-slate-400 hover:text-slate-700 text-2xl font-bold p-1">✕</button>
       </div>
@@ -673,15 +861,15 @@
           <span>Field Contact & Reachability Guidance:</span>
         </div>
         <div id="modal-reachability-note" class="text-sm font-semibold text-blue-950">
-          Feature Phone on 2G/Poor Network. High tech-illiteracy. <strong>Call directly or dispatch Kisan Mitra VLE. Do NOT rely on app push notifications.</strong>
+          Feature phone on 2G poor network. <strong>Dispatch Kisan Mitra VLE or make an IVR call. Do NOT rely on app push notifications.</strong>
         </div>
       </div>
 
       <!-- CRIDA 6-Dimension FDI Breakdown -->
       <div class="space-y-3">
-        <div class="text-xs font-extrabold text-slate-500 uppercase tracking-wider">Distress Score Breakdown — ICAR-CRIDA 6-Dimension FDI (Reddy et al., 2021):</div>
+        <div class="text-xs font-extrabold text-slate-500 uppercase tracking-wider">Distress Score Breakdown — ICAR-CRIDA 6-Dimension FDI:</div>
         <div id="modal-dimension-breakdown" class="divide-y divide-slate-100 border border-slate-200 rounded-2xl overflow-hidden bg-slate-50 px-4 py-2">
-          <!-- Populated dynamically by openOfficerModal() -->
+          <!-- Populated dynamically -->
         </div>
       </div>
 
@@ -691,18 +879,6 @@
         <ul id="modal-explanations" class="space-y-2 text-sm text-slate-700">
           <!-- Populated dynamically -->
         </ul>
-      </div>
-
-      <!-- Landholding Context & District Fragility Index -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div class="p-4 bg-slate-50 rounded-2xl border border-slate-200 space-y-1">
-          <div class="text-xs font-bold text-slate-500 uppercase">Landholding Context</div>
-          <div id="modal-land-context" class="text-xs font-semibold text-slate-800">1.2 ha — Marginal Farmer; heightened exposure to price and weather volatility.</div>
-        </div>
-        <div class="p-4 bg-slate-50 rounded-2xl border border-slate-200 space-y-1">
-          <div class="text-xs font-bold text-slate-500 uppercase">District Fragility Index (Structural)</div>
-          <div id="modal-fragility-context" class="text-xs font-semibold text-slate-800">Index: 85/100 — High Historical Agrarian Crisis Sensitivity.</div>
-        </div>
       </div>
 
       <!-- Actionable Government Scheme Interventions -->
@@ -718,18 +894,18 @@
 
       <div class="pt-4 border-t border-slate-100 flex justify-end">
         <button onclick="closeOfficerModal()" class="px-6 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm shadow">
-          Close Registry Detail
+          Close
         </button>
       </div>
 
     </div>
   </div>
 
-  <!-- Footer -->
+  <!-- Clean Footer (No PS-02 Tags) -->
   <footer class="bg-slate-900 text-slate-400 py-6 border-t border-slate-800 text-center text-xs">
     <div class="max-w-7xl mx-auto px-4 space-y-1">
-      <p class="font-bold text-slate-300">PS-02: Smart Crop Advisory & Farmer Distress Early-Warning System (v3)</p>
-      <p>ICAR-CRIDA FDI Framework (Reddy et al., 2021) • 6-Dimension Distress Model • Pure CRIDA Contingency & MSP Market Interventions</p>
+      <p class="font-bold text-slate-300">Smart Krishi — Kisan Sahayak (କିଷାନ ସହାୟକ)</p>
+      <p>Sundargarh District, Odisha • ICAR-CRIDA FDI Framework • Contingency Agro-Advisory & Market Price Intelligence</p>
     </div>
   </footer>
 
