@@ -13,8 +13,13 @@ Validates Section 11 & Section 12 Acceptance Criteria:
 
 import json
 import os
+import sys
 import time
 import unittest
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if BASE_DIR not in sys.path:
+    sys.path.insert(0, BASE_DIR)
 
 from server.engine.channel_router import get_recommended_channel, get_default_ui_mode
 from server.engine.advisory_engine import get_advisory

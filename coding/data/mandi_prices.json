@@ -1,62 +1,902 @@
 [
-  { 
-    "district_id": "D1", 
-    "crop": "onion", 
-    "date": "2026-08-25", 
-    "price_per_quintal": 1100, 
+  {
+    "district_id": "D1",
+    "crop": "onion",
+    "date": "2026-08-25",
+    "price_per_quintal": 1100,
     "govt_msp_per_quintal": 1500,
     "recent_avg_price": 1420,
     "market_name": "Lasalgaon Mandi",
     "unit": "₹/Quintal"
   },
-  { 
-    "district_id": "D1", 
-    "crop": "cotton", 
-    "date": "2026-08-25", 
-    "price_per_quintal": 6800, 
+  {
+    "district_id": "D1",
+    "crop": "cotton",
+    "date": "2026-08-25",
+    "price_per_quintal": 6800,
     "govt_msp_per_quintal": 7121,
     "recent_avg_price": 7250,
     "market_name": "Nashik APMC",
     "unit": "₹/Quintal"
   },
-  { 
-    "district_id": "D1", 
-    "crop": "maize", 
-    "date": "2026-08-25", 
-    "price_per_quintal": 2050, 
+  {
+    "district_id": "D1",
+    "crop": "maize",
+    "date": "2026-08-25",
+    "price_per_quintal": 2050,
     "govt_msp_per_quintal": 2225,
     "recent_avg_price": 2200,
     "market_name": "Malegaon Mandi",
     "unit": "₹/Quintal"
   },
-  { 
-    "district_id": "D2", 
-    "crop": "cotton", 
-    "date": "2026-08-25", 
-    "price_per_quintal": 6400, 
+  {
+    "district_id": "D2",
+    "crop": "cotton",
+    "date": "2026-08-25",
+    "price_per_quintal": 6400,
     "govt_msp_per_quintal": 7121,
     "recent_avg_price": 7000,
     "market_name": "Akola APMC",
     "unit": "₹/Quintal"
   },
-  { 
-    "district_id": "D2", 
-    "crop": "soybean", 
-    "date": "2026-08-25", 
-    "price_per_quintal": 4900, 
+  {
+    "district_id": "D2",
+    "crop": "soybean",
+    "date": "2026-08-25",
+    "price_per_quintal": 4900,
     "govt_msp_per_quintal": 4892,
     "recent_avg_price": 4850,
     "market_name": "Yavatmal Mandi",
     "unit": "₹/Quintal"
   },
-  { 
-    "district_id": "D3", 
-    "crop": "rice", 
-    "date": "2026-08-25", 
-    "price_per_quintal": 2450, 
+  {
+    "district_id": "D3",
+    "crop": "rice",
+    "date": "2026-08-25",
+    "price_per_quintal": 2450,
     "govt_msp_per_quintal": 2300,
     "recent_avg_price": 2380,
     "market_name": "Ratnagiri APMC",
+    "unit": "₹/Quintal"
+  },
+  {
+    "district_id": "D_OD1",
+    "crop": "onion",
+    "date": "2026-08-25",
+    "price_per_quintal": 1650,
+    "govt_msp_per_quintal": 1850,
+    "recent_avg_price": 1700,
+    "market_name": "Kalahandi APMC",
+    "unit": "₹/Quintal"
+  },
+  {
+    "district_id": "D_OD1",
+    "crop": "cotton",
+    "date": "2026-08-25",
+    "price_per_quintal": 1650,
+    "govt_msp_per_quintal": 1850,
+    "recent_avg_price": 1700,
+    "market_name": "Kalahandi APMC",
+    "unit": "₹/Quintal"
+  },
+  {
+    "district_id": "D_OD1",
+    "crop": "soybean",
+    "date": "2026-08-25",
+    "price_per_quintal": 1650,
+    "govt_msp_per_quintal": 1850,
+    "recent_avg_price": 1700,
+    "market_name": "Kalahandi APMC",
+    "unit": "₹/Quintal"
+  },
+  {
+    "district_id": "D_OD1",
+    "crop": "paddy",
+    "date": "2026-08-25",
+    "price_per_quintal": 1650,
+    "govt_msp_per_quintal": 1850,
+    "recent_avg_price": 1700,
+    "market_name": "Kalahandi APMC",
+    "unit": "₹/Quintal"
+  },
+  {
+    "district_id": "D_OD1",
+    "crop": "wheat",
+    "date": "2026-08-25",
+    "price_per_quintal": 1650,
+    "govt_msp_per_quintal": 1850,
+    "recent_avg_price": 1700,
+    "market_name": "Kalahandi APMC",
+    "unit": "₹/Quintal"
+  },
+  {
+    "district_id": "D_OD1",
+    "crop": "maize",
+    "date": "2026-08-25",
+    "price_per_quintal": 1650,
+    "govt_msp_per_quintal": 1850,
+    "recent_avg_price": 1700,
+    "market_name": "Kalahandi APMC",
+    "unit": "₹/Quintal"
+  },
+  {
+    "district_id": "D_OD1",
+    "crop": "bajra",
+    "date": "2026-08-25",
+    "price_per_quintal": 1650,
+    "govt_msp_per_quintal": 1850,
+    "recent_avg_price": 1700,
+    "market_name": "Kalahandi APMC",
+    "unit": "₹/Quintal"
+  },
+  {
+    "district_id": "D_OD2",
+    "crop": "onion",
+    "date": "2026-08-25",
+    "price_per_quintal": 1650,
+    "govt_msp_per_quintal": 1850,
+    "recent_avg_price": 1700,
+    "market_name": "Balangir APMC",
+    "unit": "₹/Quintal"
+  },
+  {
+    "district_id": "D_OD2",
+    "crop": "cotton",
+    "date": "2026-08-25",
+    "price_per_quintal": 1650,
+    "govt_msp_per_quintal": 1850,
+    "recent_avg_price": 1700,
+    "market_name": "Balangir APMC",
+    "unit": "₹/Quintal"
+  },
+  {
+    "district_id": "D_OD2",
+    "crop": "soybean",
+    "date": "2026-08-25",
+    "price_per_quintal": 1650,
+    "govt_msp_per_quintal": 1850,
+    "recent_avg_price": 1700,
+    "market_name": "Balangir APMC",
+    "unit": "₹/Quintal"
+  },
+  {
+    "district_id": "D_OD2",
+    "crop": "paddy",
+    "date": "2026-08-25",
+    "price_per_quintal": 1650,
+    "govt_msp_per_quintal": 1850,
+    "recent_avg_price": 1700,
+    "market_name": "Balangir APMC",
+    "unit": "₹/Quintal"
+  },
+  {
+    "district_id": "D_OD2",
+    "crop": "wheat",
+    "date": "2026-08-25",
+    "price_per_quintal": 1650,
+    "govt_msp_per_quintal": 1850,
+    "recent_avg_price": 1700,
+    "market_name": "Balangir APMC",
+    "unit": "₹/Quintal"
+  },
+  {
+    "district_id": "D_OD2",
+    "crop": "maize",
+    "date": "2026-08-25",
+    "price_per_quintal": 1650,
+    "govt_msp_per_quintal": 1850,
+    "recent_avg_price": 1700,
+    "market_name": "Balangir APMC",
+    "unit": "₹/Quintal"
+  },
+  {
+    "district_id": "D_OD2",
+    "crop": "bajra",
+    "date": "2026-08-25",
+    "price_per_quintal": 1650,
+    "govt_msp_per_quintal": 1850,
+    "recent_avg_price": 1700,
+    "market_name": "Balangir APMC",
+    "unit": "₹/Quintal"
+  },
+  {
+    "district_id": "D_OD3",
+    "crop": "onion",
+    "date": "2026-08-25",
+    "price_per_quintal": 1650,
+    "govt_msp_per_quintal": 1850,
+    "recent_avg_price": 1700,
+    "market_name": "Bargarh APMC",
+    "unit": "₹/Quintal"
+  },
+  {
+    "district_id": "D_OD3",
+    "crop": "cotton",
+    "date": "2026-08-25",
+    "price_per_quintal": 1650,
+    "govt_msp_per_quintal": 1850,
+    "recent_avg_price": 1700,
+    "market_name": "Bargarh APMC",
+    "unit": "₹/Quintal"
+  },
+  {
+    "district_id": "D_OD3",
+    "crop": "soybean",
+    "date": "2026-08-25",
+    "price_per_quintal": 1650,
+    "govt_msp_per_quintal": 1850,
+    "recent_avg_price": 1700,
+    "market_name": "Bargarh APMC",
+    "unit": "₹/Quintal"
+  },
+  {
+    "district_id": "D_OD3",
+    "crop": "paddy",
+    "date": "2026-08-25",
+    "price_per_quintal": 1650,
+    "govt_msp_per_quintal": 1850,
+    "recent_avg_price": 1700,
+    "market_name": "Bargarh APMC",
+    "unit": "₹/Quintal"
+  },
+  {
+    "district_id": "D_OD3",
+    "crop": "wheat",
+    "date": "2026-08-25",
+    "price_per_quintal": 1650,
+    "govt_msp_per_quintal": 1850,
+    "recent_avg_price": 1700,
+    "market_name": "Bargarh APMC",
+    "unit": "₹/Quintal"
+  },
+  {
+    "district_id": "D_OD3",
+    "crop": "maize",
+    "date": "2026-08-25",
+    "price_per_quintal": 1650,
+    "govt_msp_per_quintal": 1850,
+    "recent_avg_price": 1700,
+    "market_name": "Bargarh APMC",
+    "unit": "₹/Quintal"
+  },
+  {
+    "district_id": "D_OD3",
+    "crop": "bajra",
+    "date": "2026-08-25",
+    "price_per_quintal": 1650,
+    "govt_msp_per_quintal": 1850,
+    "recent_avg_price": 1700,
+    "market_name": "Bargarh APMC",
+    "unit": "₹/Quintal"
+  },
+  {
+    "district_id": "D_AS1",
+    "crop": "onion",
+    "date": "2026-08-25",
+    "price_per_quintal": 1650,
+    "govt_msp_per_quintal": 1850,
+    "recent_avg_price": 1700,
+    "market_name": "Nagaon APMC",
+    "unit": "₹/Quintal"
+  },
+  {
+    "district_id": "D_AS1",
+    "crop": "cotton",
+    "date": "2026-08-25",
+    "price_per_quintal": 1650,
+    "govt_msp_per_quintal": 1850,
+    "recent_avg_price": 1700,
+    "market_name": "Nagaon APMC",
+    "unit": "₹/Quintal"
+  },
+  {
+    "district_id": "D_AS1",
+    "crop": "soybean",
+    "date": "2026-08-25",
+    "price_per_quintal": 1650,
+    "govt_msp_per_quintal": 1850,
+    "recent_avg_price": 1700,
+    "market_name": "Nagaon APMC",
+    "unit": "₹/Quintal"
+  },
+  {
+    "district_id": "D_AS1",
+    "crop": "paddy",
+    "date": "2026-08-25",
+    "price_per_quintal": 1650,
+    "govt_msp_per_quintal": 1850,
+    "recent_avg_price": 1700,
+    "market_name": "Nagaon APMC",
+    "unit": "₹/Quintal"
+  },
+  {
+    "district_id": "D_AS1",
+    "crop": "wheat",
+    "date": "2026-08-25",
+    "price_per_quintal": 1650,
+    "govt_msp_per_quintal": 1850,
+    "recent_avg_price": 1700,
+    "market_name": "Nagaon APMC",
+    "unit": "₹/Quintal"
+  },
+  {
+    "district_id": "D_AS1",
+    "crop": "maize",
+    "date": "2026-08-25",
+    "price_per_quintal": 1650,
+    "govt_msp_per_quintal": 1850,
+    "recent_avg_price": 1700,
+    "market_name": "Nagaon APMC",
+    "unit": "₹/Quintal"
+  },
+  {
+    "district_id": "D_AS1",
+    "crop": "bajra",
+    "date": "2026-08-25",
+    "price_per_quintal": 1650,
+    "govt_msp_per_quintal": 1850,
+    "recent_avg_price": 1700,
+    "market_name": "Nagaon APMC",
+    "unit": "₹/Quintal"
+  },
+  {
+    "district_id": "D_AS2",
+    "crop": "onion",
+    "date": "2026-08-25",
+    "price_per_quintal": 1650,
+    "govt_msp_per_quintal": 1850,
+    "recent_avg_price": 1700,
+    "market_name": "Golaghat APMC",
+    "unit": "₹/Quintal"
+  },
+  {
+    "district_id": "D_AS2",
+    "crop": "cotton",
+    "date": "2026-08-25",
+    "price_per_quintal": 1650,
+    "govt_msp_per_quintal": 1850,
+    "recent_avg_price": 1700,
+    "market_name": "Golaghat APMC",
+    "unit": "₹/Quintal"
+  },
+  {
+    "district_id": "D_AS2",
+    "crop": "soybean",
+    "date": "2026-08-25",
+    "price_per_quintal": 1650,
+    "govt_msp_per_quintal": 1850,
+    "recent_avg_price": 1700,
+    "market_name": "Golaghat APMC",
+    "unit": "₹/Quintal"
+  },
+  {
+    "district_id": "D_AS2",
+    "crop": "paddy",
+    "date": "2026-08-25",
+    "price_per_quintal": 1650,
+    "govt_msp_per_quintal": 1850,
+    "recent_avg_price": 1700,
+    "market_name": "Golaghat APMC",
+    "unit": "₹/Quintal"
+  },
+  {
+    "district_id": "D_AS2",
+    "crop": "wheat",
+    "date": "2026-08-25",
+    "price_per_quintal": 1650,
+    "govt_msp_per_quintal": 1850,
+    "recent_avg_price": 1700,
+    "market_name": "Golaghat APMC",
+    "unit": "₹/Quintal"
+  },
+  {
+    "district_id": "D_AS2",
+    "crop": "maize",
+    "date": "2026-08-25",
+    "price_per_quintal": 1650,
+    "govt_msp_per_quintal": 1850,
+    "recent_avg_price": 1700,
+    "market_name": "Golaghat APMC",
+    "unit": "₹/Quintal"
+  },
+  {
+    "district_id": "D_AS2",
+    "crop": "bajra",
+    "date": "2026-08-25",
+    "price_per_quintal": 1650,
+    "govt_msp_per_quintal": 1850,
+    "recent_avg_price": 1700,
+    "market_name": "Golaghat APMC",
+    "unit": "₹/Quintal"
+  },
+  {
+    "district_id": "D_AS3",
+    "crop": "onion",
+    "date": "2026-08-25",
+    "price_per_quintal": 1650,
+    "govt_msp_per_quintal": 1850,
+    "recent_avg_price": 1700,
+    "market_name": "Barpeta APMC",
+    "unit": "₹/Quintal"
+  },
+  {
+    "district_id": "D_AS3",
+    "crop": "cotton",
+    "date": "2026-08-25",
+    "price_per_quintal": 1650,
+    "govt_msp_per_quintal": 1850,
+    "recent_avg_price": 1700,
+    "market_name": "Barpeta APMC",
+    "unit": "₹/Quintal"
+  },
+  {
+    "district_id": "D_AS3",
+    "crop": "soybean",
+    "date": "2026-08-25",
+    "price_per_quintal": 1650,
+    "govt_msp_per_quintal": 1850,
+    "recent_avg_price": 1700,
+    "market_name": "Barpeta APMC",
+    "unit": "₹/Quintal"
+  },
+  {
+    "district_id": "D_AS3",
+    "crop": "paddy",
+    "date": "2026-08-25",
+    "price_per_quintal": 1650,
+    "govt_msp_per_quintal": 1850,
+    "recent_avg_price": 1700,
+    "market_name": "Barpeta APMC",
+    "unit": "₹/Quintal"
+  },
+  {
+    "district_id": "D_AS3",
+    "crop": "wheat",
+    "date": "2026-08-25",
+    "price_per_quintal": 1650,
+    "govt_msp_per_quintal": 1850,
+    "recent_avg_price": 1700,
+    "market_name": "Barpeta APMC",
+    "unit": "₹/Quintal"
+  },
+  {
+    "district_id": "D_AS3",
+    "crop": "maize",
+    "date": "2026-08-25",
+    "price_per_quintal": 1650,
+    "govt_msp_per_quintal": 1850,
+    "recent_avg_price": 1700,
+    "market_name": "Barpeta APMC",
+    "unit": "₹/Quintal"
+  },
+  {
+    "district_id": "D_AS3",
+    "crop": "bajra",
+    "date": "2026-08-25",
+    "price_per_quintal": 1650,
+    "govt_msp_per_quintal": 1850,
+    "recent_avg_price": 1700,
+    "market_name": "Barpeta APMC",
+    "unit": "₹/Quintal"
+  },
+  {
+    "district_id": "D_KN1",
+    "crop": "onion",
+    "date": "2026-08-25",
+    "price_per_quintal": 1650,
+    "govt_msp_per_quintal": 1850,
+    "recent_avg_price": 1700,
+    "market_name": "Raichur APMC",
+    "unit": "₹/Quintal"
+  },
+  {
+    "district_id": "D_KN1",
+    "crop": "cotton",
+    "date": "2026-08-25",
+    "price_per_quintal": 1650,
+    "govt_msp_per_quintal": 1850,
+    "recent_avg_price": 1700,
+    "market_name": "Raichur APMC",
+    "unit": "₹/Quintal"
+  },
+  {
+    "district_id": "D_KN1",
+    "crop": "soybean",
+    "date": "2026-08-25",
+    "price_per_quintal": 1650,
+    "govt_msp_per_quintal": 1850,
+    "recent_avg_price": 1700,
+    "market_name": "Raichur APMC",
+    "unit": "₹/Quintal"
+  },
+  {
+    "district_id": "D_KN1",
+    "crop": "paddy",
+    "date": "2026-08-25",
+    "price_per_quintal": 1650,
+    "govt_msp_per_quintal": 1850,
+    "recent_avg_price": 1700,
+    "market_name": "Raichur APMC",
+    "unit": "₹/Quintal"
+  },
+  {
+    "district_id": "D_KN1",
+    "crop": "wheat",
+    "date": "2026-08-25",
+    "price_per_quintal": 1650,
+    "govt_msp_per_quintal": 1850,
+    "recent_avg_price": 1700,
+    "market_name": "Raichur APMC",
+    "unit": "₹/Quintal"
+  },
+  {
+    "district_id": "D_KN1",
+    "crop": "maize",
+    "date": "2026-08-25",
+    "price_per_quintal": 1650,
+    "govt_msp_per_quintal": 1850,
+    "recent_avg_price": 1700,
+    "market_name": "Raichur APMC",
+    "unit": "₹/Quintal"
+  },
+  {
+    "district_id": "D_KN1",
+    "crop": "bajra",
+    "date": "2026-08-25",
+    "price_per_quintal": 1650,
+    "govt_msp_per_quintal": 1850,
+    "recent_avg_price": 1700,
+    "market_name": "Raichur APMC",
+    "unit": "₹/Quintal"
+  },
+  {
+    "district_id": "D_KN2",
+    "crop": "onion",
+    "date": "2026-08-25",
+    "price_per_quintal": 1650,
+    "govt_msp_per_quintal": 1850,
+    "recent_avg_price": 1700,
+    "market_name": "Belagavi APMC",
+    "unit": "₹/Quintal"
+  },
+  {
+    "district_id": "D_KN2",
+    "crop": "cotton",
+    "date": "2026-08-25",
+    "price_per_quintal": 1650,
+    "govt_msp_per_quintal": 1850,
+    "recent_avg_price": 1700,
+    "market_name": "Belagavi APMC",
+    "unit": "₹/Quintal"
+  },
+  {
+    "district_id": "D_KN2",
+    "crop": "soybean",
+    "date": "2026-08-25",
+    "price_per_quintal": 1650,
+    "govt_msp_per_quintal": 1850,
+    "recent_avg_price": 1700,
+    "market_name": "Belagavi APMC",
+    "unit": "₹/Quintal"
+  },
+  {
+    "district_id": "D_KN2",
+    "crop": "paddy",
+    "date": "2026-08-25",
+    "price_per_quintal": 1650,
+    "govt_msp_per_quintal": 1850,
+    "recent_avg_price": 1700,
+    "market_name": "Belagavi APMC",
+    "unit": "₹/Quintal"
+  },
+  {
+    "district_id": "D_KN2",
+    "crop": "wheat",
+    "date": "2026-08-25",
+    "price_per_quintal": 1650,
+    "govt_msp_per_quintal": 1850,
+    "recent_avg_price": 1700,
+    "market_name": "Belagavi APMC",
+    "unit": "₹/Quintal"
+  },
+  {
+    "district_id": "D_KN2",
+    "crop": "maize",
+    "date": "2026-08-25",
+    "price_per_quintal": 1650,
+    "govt_msp_per_quintal": 1850,
+    "recent_avg_price": 1700,
+    "market_name": "Belagavi APMC",
+    "unit": "₹/Quintal"
+  },
+  {
+    "district_id": "D_KN2",
+    "crop": "bajra",
+    "date": "2026-08-25",
+    "price_per_quintal": 1650,
+    "govt_msp_per_quintal": 1850,
+    "recent_avg_price": 1700,
+    "market_name": "Belagavi APMC",
+    "unit": "₹/Quintal"
+  },
+  {
+    "district_id": "D_KN3",
+    "crop": "onion",
+    "date": "2026-08-25",
+    "price_per_quintal": 1650,
+    "govt_msp_per_quintal": 1850,
+    "recent_avg_price": 1700,
+    "market_name": "Dharwad APMC",
+    "unit": "₹/Quintal"
+  },
+  {
+    "district_id": "D_KN3",
+    "crop": "cotton",
+    "date": "2026-08-25",
+    "price_per_quintal": 1650,
+    "govt_msp_per_quintal": 1850,
+    "recent_avg_price": 1700,
+    "market_name": "Dharwad APMC",
+    "unit": "₹/Quintal"
+  },
+  {
+    "district_id": "D_KN3",
+    "crop": "soybean",
+    "date": "2026-08-25",
+    "price_per_quintal": 1650,
+    "govt_msp_per_quintal": 1850,
+    "recent_avg_price": 1700,
+    "market_name": "Dharwad APMC",
+    "unit": "₹/Quintal"
+  },
+  {
+    "district_id": "D_KN3",
+    "crop": "paddy",
+    "date": "2026-08-25",
+    "price_per_quintal": 1650,
+    "govt_msp_per_quintal": 1850,
+    "recent_avg_price": 1700,
+    "market_name": "Dharwad APMC",
+    "unit": "₹/Quintal"
+  },
+  {
+    "district_id": "D_KN3",
+    "crop": "wheat",
+    "date": "2026-08-25",
+    "price_per_quintal": 1650,
+    "govt_msp_per_quintal": 1850,
+    "recent_avg_price": 1700,
+    "market_name": "Dharwad APMC",
+    "unit": "₹/Quintal"
+  },
+  {
+    "district_id": "D_KN3",
+    "crop": "maize",
+    "date": "2026-08-25",
+    "price_per_quintal": 1650,
+    "govt_msp_per_quintal": 1850,
+    "recent_avg_price": 1700,
+    "market_name": "Dharwad APMC",
+    "unit": "₹/Quintal"
+  },
+  {
+    "district_id": "D_KN3",
+    "crop": "bajra",
+    "date": "2026-08-25",
+    "price_per_quintal": 1650,
+    "govt_msp_per_quintal": 1850,
+    "recent_avg_price": 1700,
+    "market_name": "Dharwad APMC",
+    "unit": "₹/Quintal"
+  },
+  {
+    "district_id": "D_UP1",
+    "crop": "onion",
+    "date": "2026-08-25",
+    "price_per_quintal": 1650,
+    "govt_msp_per_quintal": 1850,
+    "recent_avg_price": 1700,
+    "market_name": "Varanasi APMC",
+    "unit": "₹/Quintal"
+  },
+  {
+    "district_id": "D_UP1",
+    "crop": "cotton",
+    "date": "2026-08-25",
+    "price_per_quintal": 1650,
+    "govt_msp_per_quintal": 1850,
+    "recent_avg_price": 1700,
+    "market_name": "Varanasi APMC",
+    "unit": "₹/Quintal"
+  },
+  {
+    "district_id": "D_UP1",
+    "crop": "soybean",
+    "date": "2026-08-25",
+    "price_per_quintal": 1650,
+    "govt_msp_per_quintal": 1850,
+    "recent_avg_price": 1700,
+    "market_name": "Varanasi APMC",
+    "unit": "₹/Quintal"
+  },
+  {
+    "district_id": "D_UP1",
+    "crop": "paddy",
+    "date": "2026-08-25",
+    "price_per_quintal": 1650,
+    "govt_msp_per_quintal": 1850,
+    "recent_avg_price": 1700,
+    "market_name": "Varanasi APMC",
+    "unit": "₹/Quintal"
+  },
+  {
+    "district_id": "D_UP1",
+    "crop": "wheat",
+    "date": "2026-08-25",
+    "price_per_quintal": 1650,
+    "govt_msp_per_quintal": 1850,
+    "recent_avg_price": 1700,
+    "market_name": "Varanasi APMC",
+    "unit": "₹/Quintal"
+  },
+  {
+    "district_id": "D_UP1",
+    "crop": "maize",
+    "date": "2026-08-25",
+    "price_per_quintal": 1650,
+    "govt_msp_per_quintal": 1850,
+    "recent_avg_price": 1700,
+    "market_name": "Varanasi APMC",
+    "unit": "₹/Quintal"
+  },
+  {
+    "district_id": "D_UP1",
+    "crop": "bajra",
+    "date": "2026-08-25",
+    "price_per_quintal": 1650,
+    "govt_msp_per_quintal": 1850,
+    "recent_avg_price": 1700,
+    "market_name": "Varanasi APMC",
+    "unit": "₹/Quintal"
+  },
+  {
+    "district_id": "D_UP2",
+    "crop": "onion",
+    "date": "2026-08-25",
+    "price_per_quintal": 1650,
+    "govt_msp_per_quintal": 1850,
+    "recent_avg_price": 1700,
+    "market_name": "Prayagraj APMC",
+    "unit": "₹/Quintal"
+  },
+  {
+    "district_id": "D_UP2",
+    "crop": "cotton",
+    "date": "2026-08-25",
+    "price_per_quintal": 1650,
+    "govt_msp_per_quintal": 1850,
+    "recent_avg_price": 1700,
+    "market_name": "Prayagraj APMC",
+    "unit": "₹/Quintal"
+  },
+  {
+    "district_id": "D_UP2",
+    "crop": "soybean",
+    "date": "2026-08-25",
+    "price_per_quintal": 1650,
+    "govt_msp_per_quintal": 1850,
+    "recent_avg_price": 1700,
+    "market_name": "Prayagraj APMC",
+    "unit": "₹/Quintal"
+  },
+  {
+    "district_id": "D_UP2",
+    "crop": "paddy",
+    "date": "2026-08-25",
+    "price_per_quintal": 1650,
+    "govt_msp_per_quintal": 1850,
+    "recent_avg_price": 1700,
+    "market_name": "Prayagraj APMC",
+    "unit": "₹/Quintal"
+  },
+  {
+    "district_id": "D_UP2",
+    "crop": "wheat",
+    "date": "2026-08-25",
+    "price_per_quintal": 1650,
+    "govt_msp_per_quintal": 1850,
+    "recent_avg_price": 1700,
+    "market_name": "Prayagraj APMC",
+    "unit": "₹/Quintal"
+  },
+  {
+    "district_id": "D_UP2",
+    "crop": "maize",
+    "date": "2026-08-25",
+    "price_per_quintal": 1650,
+    "govt_msp_per_quintal": 1850,
+    "recent_avg_price": 1700,
+    "market_name": "Prayagraj APMC",
+    "unit": "₹/Quintal"
+  },
+  {
+    "district_id": "D_UP2",
+    "crop": "bajra",
+    "date": "2026-08-25",
+    "price_per_quintal": 1650,
+    "govt_msp_per_quintal": 1850,
+    "recent_avg_price": 1700,
+    "market_name": "Prayagraj APMC",
+    "unit": "₹/Quintal"
+  },
+  {
+    "district_id": "D_UP3",
+    "crop": "onion",
+    "date": "2026-08-25",
+    "price_per_quintal": 1650,
+    "govt_msp_per_quintal": 1850,
+    "recent_avg_price": 1700,
+    "market_name": "Gorakhpur APMC",
+    "unit": "₹/Quintal"
+  },
+  {
+    "district_id": "D_UP3",
+    "crop": "cotton",
+    "date": "2026-08-25",
+    "price_per_quintal": 1650,
+    "govt_msp_per_quintal": 1850,
+    "recent_avg_price": 1700,
+    "market_name": "Gorakhpur APMC",
+    "unit": "₹/Quintal"
+  },
+  {
+    "district_id": "D_UP3",
+    "crop": "soybean",
+    "date": "2026-08-25",
+    "price_per_quintal": 1650,
+    "govt_msp_per_quintal": 1850,
+    "recent_avg_price": 1700,
+    "market_name": "Gorakhpur APMC",
+    "unit": "₹/Quintal"
+  },
+  {
+    "district_id": "D_UP3",
+    "crop": "paddy",
+    "date": "2026-08-25",
+    "price_per_quintal": 1650,
+    "govt_msp_per_quintal": 1850,
+    "recent_avg_price": 1700,
+    "market_name": "Gorakhpur APMC",
+    "unit": "₹/Quintal"
+  },
+  {
+    "district_id": "D_UP3",
+    "crop": "wheat",
+    "date": "2026-08-25",
+    "price_per_quintal": 1650,
+    "govt_msp_per_quintal": 1850,
+    "recent_avg_price": 1700,
+    "market_name": "Gorakhpur APMC",
+    "unit": "₹/Quintal"
+  },
+  {
+    "district_id": "D_UP3",
+    "crop": "maize",
+    "date": "2026-08-25",
+    "price_per_quintal": 1650,
+    "govt_msp_per_quintal": 1850,
+    "recent_avg_price": 1700,
+    "market_name": "Gorakhpur APMC",
+    "unit": "₹/Quintal"
+  },
+  {
+    "district_id": "D_UP3",
+    "crop": "bajra",
+    "date": "2026-08-25",
+    "price_per_quintal": 1650,
+    "govt_msp_per_quintal": 1850,
+    "recent_avg_price": 1700,
+    "market_name": "Gorakhpur APMC",
     "unit": "₹/Quintal"
   }
 ]

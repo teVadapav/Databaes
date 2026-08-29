@@ -36,6 +36,7 @@
     }
   </script>
   <link rel="stylesheet" href="/static/styles.css">
+  <link rel="stylesheet" href="/static/onboarding.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;600;700&family=Noto+Sans:wght@400;600;700&family=Noto+Sans+Oriya:wght@400;600;700&family=Noto+Sans+Bengali:wght@400;600;700&family=Noto+Sans+Kannada:wght@400;600;700&display=swap" rel="stylesheet">
@@ -51,6 +52,21 @@
     }
     .farmer-btn:active {
       transform: scale(0.96);
+    }
+  </style>
+  <style>
+    * {
+      font-family: "Times New Roman", Times, serif !important;
+    }
+    body {
+      font-family: "Times New Roman", Times, serif !important;
+      background-color: #f0f9ff;
+    }
+    :root {
+      --primary-color: #0284c7;
+      --primary-hover: #0369a1;
+      --primary-light: #e0f2fe;
+      --primary-dark: #075985;
     }
   </style>
 </head>
@@ -69,15 +85,15 @@
           <div>
             <div class="flex items-center space-x-2">
               <span class="font-bold text-lg tracking-tight text-white">Smart Krishi</span>
-              <span class="bg-emerald-500/20 text-emerald-300 text-xs px-2 py-0.5 rounded-full font-mono font-semibold border border-emerald-500/30">v3.0 PS-02</span>
+              <span class="bg-sky-500/20 text-emerald-300 text-xs px-2 py-0.5 rounded-full font-mono font-semibold border border-sky-500/30">v3.0 PS-02</span>
             </div>
             <p class="text-xs text-slate-400 hidden sm:block">Crop Advisory & Distress Early-Warning System</p>
           </div>
         </div>
 
-        <!-- Global View Mode Switcher -->
+        <!-- Global View Mode Switcher & Setup Flow -->
         <nav class="flex items-center space-x-1 sm:space-x-2 bg-slate-800 p-1 rounded-xl border border-slate-700">
-          <button id="nav-farmer-btn" onclick="switchMainView('farmer')" class="px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold flex items-center space-x-1.5 transition-all bg-emerald-600 text-white shadow">
+          <button id="nav-farmer-btn" onclick="switchMainView('farmer')" class="px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold flex items-center space-x-1.5 transition-all bg-sky-600 text-white shadow">
             <span>👨‍🌾</span>
             <span>Farmer App</span>
           </button>
@@ -88,6 +104,14 @@
           <button id="nav-simulator-btn" onclick="switchMainView('simulator')" class="px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold flex items-center space-x-1.5 transition-all text-slate-300 hover:text-white hover:bg-slate-700">
             <span>📟</span>
             <span>IVR / SMS Fallback</span>
+          </button>
+          <button id="nav-setup-btn" onclick="Onboarding.openSetupFlow()" title="Farm Profile & Settings" class="px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold flex items-center space-x-1.5 transition-all bg-sky-500/20 text-emerald-300 hover:bg-sky-500/30 border border-sky-500/40">
+            <span>⚙️</span>
+            <span>Setup Flow</span>
+          </button>
+          <button id="nav-login-btn" onclick="Onboarding.openLoginModal()" title="Farmer Login" class="px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold flex items-center space-x-1.5 transition-all text-slate-300 hover:text-white hover:bg-slate-700">
+            <span>🔑</span>
+            <span>Login</span>
           </button>
         </nav>
 
@@ -103,77 +127,59 @@
     <!-- ========================================================================= -->
     <div id="view-farmer" class="block space-y-6">
       
-      <!-- Top Control Bar: Mode Toggle & Profile Switcher -->
-      <div class="bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <!-- Top Control Bar: Active Farmer Identity & Language Selector -->
+      <div class="bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         
-        <!-- Assisted vs Self-Service Mode Toggle -->
-        <div class="flex items-center space-x-3">
-          <div id="label-access-mode" class="text-xs font-bold tracking-wider text-slate-500" data-i18n="accessMode">Access Mode:</div>
-          <div class="inline-flex p-1 bg-slate-100 rounded-xl border border-slate-200">
-            <button id="btn-mode-assisted" onclick="setFarmerAccessMode('assisted')" class="px-3 py-1.5 rounded-lg text-xs sm:text-sm font-bold flex items-center space-x-1.5 transition-all bg-emerald-700 text-white shadow-sm">
-              <span>🤝</span>
-              <span data-i18n="assistedMode">Assisted Mode (Kisan Mitra / CSC)</span>
-            </button>
-            <button id="btn-mode-self" onclick="setFarmerAccessMode('self')" class="px-3 py-1.5 rounded-lg text-xs sm:text-sm font-bold flex items-center space-x-1.5 transition-all text-slate-600 hover:text-slate-900">
-              <span>📱</span>
-              <span data-i18n="selfService">Self-Service</span>
-            </button>
+        <!-- Active Farmer Identity (No dropdown, only logged in farmer details) -->
+        <div id="farmer-logged-in-badge" class="flex items-center space-x-3 bg-sky-50 border-2 border-sky-300 px-4 py-2.5 rounded-2xl shadow-sm">
+          <span class="text-2xl select-none">👨‍🌾</span>
+          <div>
+            <span class="text-[10px] uppercase font-black text-sky-900 tracking-wider block">Active Farmer:</span>
+            <div class="flex items-baseline space-x-2">
+              <span id="active-farmer-name-display" class="text-base sm:text-lg font-black text-slate-900">Aryan Patel</span>
+              <span id="active-farmer-meta-display" class="text-xs font-bold text-slate-500">Onion (Maharashtra Village)</span>
+            </div>
+          </div>
+          <div class="flex items-center space-x-2 ml-4">
+            <button onclick="Onboarding.openSetupFlow()" title="Edit Farm Profile" class="text-xs bg-sky-600 hover:bg-sky-700 active:scale-95 text-white font-bold px-3 py-1.5 rounded-xl transition shadow-sm cursor-pointer">Edit Profile</button>
+            <button onclick="Onboarding.openLoginModal()" title="Switch Account / Login" class="text-xs bg-slate-200 hover:bg-slate-300 active:scale-95 text-slate-700 font-bold px-3 py-1.5 rounded-xl transition cursor-pointer">Switch Farmer</button>
           </div>
         </div>
 
-        <!-- Farmer Profile Selector & Language Selector -->
-        <div class="flex flex-wrap items-center gap-3">
-          
-          <!-- Farmer Dropdown -->
-          <div class="flex items-center space-x-2">
-            <label for="farmer-select" class="text-xs font-bold uppercase text-slate-500" data-i18n="selectFarmer">Select Farmer:</label>
-            <select id="farmer-select" onchange="onFarmerSelected(this.value)" class="bg-emerald-50 border-2 border-emerald-600 text-emerald-950 font-bold text-sm rounded-xl px-3 py-2 focus:ring-4 focus:ring-emerald-200 outline-none">
-              <!-- Populated dynamically -->
-            </select>
-          </div>
-
-          <!-- Language Selector -->
-          <div class="flex items-center space-x-2">
-            <label for="lang-select" class="text-xs font-bold uppercase text-slate-500" data-i18n="language">Language:</label>
-            <select id="lang-select" onchange="onLanguageChanged(this.value)" class="bg-slate-100 border border-slate-300 text-slate-800 font-bold text-sm rounded-xl px-3 py-2 outline-none">
-              <option value="en">English</option>
-              <option value="hi">हिंदी (Hindi)</option>
-              <option value="mr">मराठी (Marathi)</option>
-              <option value="or">ଓଡ଼ିଆ (Odia)</option>
-              <option value="as">অসমীয়া (Assamese)</option>
-              <option value="kn">ಕನ್ನಡ (Kannada)</option>
-            </select>
-          </div>
-
+        <!-- Language Selector -->
+        <div class="flex items-center space-x-2.5 bg-slate-50 border border-slate-200 px-3.5 py-2.5 rounded-2xl">
+          <label for="lang-select" class="text-xs font-black uppercase text-slate-600" data-i18n="language">Language:</label>
+          <select id="lang-select" onchange="onLanguageChanged(this.value)" class="bg-white border border-slate-300 text-slate-800 font-bold text-sm rounded-xl px-3 py-1.5 outline-none shadow-sm cursor-pointer hover:border-slate-400 focus:ring-2 focus:ring-sky-400">
+            <option value="en">English</option>
+            <option value="hi">हिंदी (Hindi)</option>
+            <option value="mr">मराठी (Marathi)</option>
+            <option value="or">ଓଡ଼ିଆ (Odia)</option>
+            <option value="as">অসমীয়া (Assamese)</option>
+            <option value="kn">ಕನ್ನಡ (Kannada)</option>
+          </select>
         </div>
 
       </div>
 
       <!-- Farmer Identity & Digital Profile Bar -->
-      <div id="farmer-profile-card" class="bg-gradient-to-r from-emerald-800 to-green-700 text-white rounded-3xl p-6 sm:p-8 shadow-lg relative overflow-hidden">
-        <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+      <div id="farmer-profile-card" class="bg-gradient-to-r from-sky-900 via-sky-800 to-sky-700 text-white rounded-3xl p-6 sm:p-8 shadow-lg relative overflow-hidden">
+        <div class="relative z-10 space-y-3">
+          <!-- 1. Farmer Name & 2. Vegetation below name -->
           <div>
-            <div class="flex items-center space-x-3 mb-2">
-              <h1 id="fp-name" class="text-2xl sm:text-3xl font-extrabold tracking-tight">Ramesh Patil</h1>
-              <span id="fp-crop-badge" class="bg-yellow-400 text-slate-950 text-xs sm:text-sm font-extrabold px-3 py-1 rounded-full uppercase tracking-wider">🧅 Onion — Harvest</span>
-            </div>
-            <div class="flex flex-wrap items-center gap-y-1 gap-x-4 text-emerald-100 text-sm">
-              <span id="fp-location">📍 Chandwad, Nashik</span>
-              <span>•</span>
-              <span id="fp-landholding">📐 1.2 Hectares</span>
-              <span>•</span>
-              <span id="fp-loan">💳 Loan Due: 06 Sep 2026</span>
+            <h1 id="fp-name" class="text-2xl sm:text-4xl font-black tracking-tight text-white">Aryan Patel</h1>
+            <div class="mt-1 text-sm sm:text-base font-bold text-amber-300 flex items-center space-x-1.5">
+              <span id="fp-vegetation-label">Vegetation:</span>
+              <span id="fp-crop-badge" class="font-black text-white">Onion</span>
             </div>
           </div>
-
-          <!-- Adaptive Capacity Channel Badge -->
-          <div class="bg-black/20 backdrop-blur border border-white/10 rounded-2xl p-4 flex items-center space-x-4">
-            <div id="fp-channel-icon" class="text-3xl">☎️</div>
-            <div>
-              <div class="text-xs uppercase font-bold text-emerald-200 tracking-wider">Optimal Channel</div>
-              <div id="fp-channel-title" class="font-extrabold text-sm sm:text-base text-white">IVR Call & Plain SMS</div>
-              <div id="fp-device-note" class="text-xs text-emerald-100">Feature Phone (Poor Network)</div>
-            </div>
+          
+          <!-- Location, Landholding, Loan Due Date (DD-MM-YYYY) -->
+          <div class="flex flex-wrap items-center gap-y-1 gap-x-4 text-sky-100 text-xs sm:text-sm font-medium pt-1">
+            <span id="fp-location">📍 Chandwad, Nashik</span>
+            <span>•</span>
+            <span id="fp-landholding">📐 1.2 Hectares</span>
+            <span>•</span>
+            <span id="fp-loan">💳 Loan Due: 15-11-2026</span>
           </div>
         </div>
       </div>
@@ -182,13 +188,13 @@
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
         
         <!-- Button 1: Advisory -->
-        <button onclick="showFarmerTab('advisory')" id="tab-btn-advisory" class="farmer-btn bg-white hover:bg-emerald-50 border-3 border-emerald-600 rounded-3xl p-5 sm:p-6 text-left shadow-md flex flex-col justify-between space-y-3 ring-4 ring-emerald-500/20">
+        <button onclick="showFarmerTab('advisory')" id="tab-btn-advisory" class="farmer-btn bg-white hover:bg-sky-50 border-3 border-sky-600 rounded-3xl p-5 sm:p-6 text-left shadow-md flex flex-col justify-between space-y-3 ring-4 ring-sky-500/20">
           <div class="text-4xl">🌦️</div>
           <div>
             <div class="text-lg sm:text-xl font-extrabold text-slate-900" id="btn-text-advisory">Crop Advisory</div>
             <div class="text-xs text-slate-500 font-medium" data-i18n="cropAdvisorySub">Weather & Crop Care</div>
           </div>
-          <span onclick="playButtonAudio('cropAdvisory', event)" class="tts-listen-btn inline-flex items-center gap-1 text-xs font-bold text-emerald-700 hover:bg-emerald-100 px-2 py-1 rounded-lg cursor-pointer select-none transition-all" role="button" tabindex="0"><span class="tts-label">Tap to listen 🔊</span></span>
+          <span onclick="playButtonAudio('cropAdvisory', event)" class="tts-listen-btn inline-flex items-center gap-1 text-xs font-bold text-sky-700 hover:bg-sky-100 px-2 py-1 rounded-lg cursor-pointer select-none transition-all" role="button" tabindex="0"><span class="tts-label">Tap to listen 🔊</span></span>
         </button>
 
         <!-- Button 2: Mandi Price -->
@@ -236,9 +242,9 @@
             </div>
             
             <!-- Spoken Audio Player Button -->
-            <button id="btn-play-voice" onclick="playCurrentAdvisoryAudio()" class="px-5 py-3 rounded-2xl bg-emerald-700 hover:bg-emerald-800 text-white font-extrabold flex items-center justify-center space-x-2 shadow-lg shadow-emerald-700/20 active:scale-95 transition-all touch-target">
+            <button id="btn-play-voice" onclick="playCurrentAdvisoryAudio()" class="px-5 py-3 rounded-2xl bg-sky-700 hover:bg-sky-900 text-white font-extrabold flex items-center justify-center space-x-2 shadow-lg shadow-emerald-700/20 active:scale-95 transition-all touch-target">
               <span id="voice-icon" class="text-2xl">🔊</span>
-              <span id="voice-btn-text" class="text-base">Play Spoken Advisory (आवाज ऐका)</span>
+              <span id="voice-btn-text" class="text-base" data-i18n="voiceBtnText">Play Spoken Advisory (आवाज ऐका)</span>
             </button>
           </div>
 
@@ -252,8 +258,8 @@
           <!-- Contingency Crop Card (if applicable) -->
           <div id="contingency-box" class="hidden bg-amber-50 border-2 border-amber-300 rounded-2xl p-6 space-y-3">
             <div class="flex items-center space-x-2 text-amber-800 font-extrabold text-base">
-              <span>🌾</span>
-              <span>ICAR-CRIDA Contingency Crop Recommendations:</span>
+              
+              <span data-i18n="contingencyBoxTitle">ICAR-CRIDA Contingency Crop Recommendations:</span>
             </div>
             <div id="contingency-crops-list" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <!-- Rendered dynamically -->
@@ -266,7 +272,7 @@
               <span class="text-xs font-black text-slate-500 uppercase tracking-wider flex items-center space-x-1.5" data-i18n="weatherContextTitle">
                 <span>🌦️</span><span>Weather & Soil Indicators</span>
               </span>
-              <button onclick="playWeatherMetricAudio('all')" class="text-xs font-extrabold text-emerald-700 hover:text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 px-3 py-1 rounded-lg transition flex items-center space-x-1 shadow-sm active:scale-95 cursor-pointer">
+              <button onclick="playWeatherMetricAudio('all')" class="text-xs font-extrabold text-sky-700 hover:text-sky-900 bg-sky-50 hover:bg-sky-100 border border-sky-200 px-3 py-1 rounded-lg transition flex items-center space-x-1 shadow-sm active:scale-95 cursor-pointer">
                 <span>🔊</span><span data-i18n="listenAllWeather">Listen Weather & Soil 🔊</span>
               </button>
             </div>
@@ -299,13 +305,13 @@
                 <div class="text-[10px] text-slate-400 group-hover:text-indigo-600 font-semibold mt-1" data-i18n="tapToListenShort">Tap to listen 🔊</div>
               </button>
 
-              <button type="button" onclick="playWeatherMetricAudio('soil')" title="Tap to listen" class="group p-3.5 bg-slate-50 hover:bg-emerald-50/90 rounded-2xl border border-slate-200 hover:border-emerald-300 transition-all text-center flex flex-col justify-between cursor-pointer shadow-sm hover:shadow-md active:scale-95">
+              <button type="button" onclick="playWeatherMetricAudio('soil')" title="Tap to listen" class="group p-3.5 bg-slate-50 hover:bg-sky-50/90 rounded-2xl border border-slate-200 hover:border-sky-300 transition-all text-center flex flex-col justify-between cursor-pointer shadow-sm hover:shadow-md active:scale-95">
                 <div class="flex items-center justify-between w-full mb-1">
-                  <div class="text-[11px] text-slate-500 group-hover:text-emerald-700 font-bold text-left" data-i18n="soilTypeLabel">Soil Type</div>
+                  <div class="text-[11px] text-slate-500 group-hover:text-sky-700 font-bold text-left" data-i18n="soilTypeLabel">Soil Type</div>
                   <span class="text-xs opacity-70 group-hover:opacity-100 group-hover:scale-125 transition">🔊</span>
                 </div>
                 <div id="ctx-soil" class="text-sm sm:text-base font-black text-slate-800 group-hover:text-emerald-950">Black Cotton</div>
-                <div class="text-[10px] text-slate-400 group-hover:text-emerald-600 font-semibold mt-1" data-i18n="tapToListenShort">Tap to listen 🔊</div>
+                <div class="text-[10px] text-slate-400 group-hover:text-sky-600 font-semibold mt-1" data-i18n="tapToListenShort">Tap to listen 🔊</div>
               </button>
             </div>
           </div>
@@ -327,7 +333,7 @@
               </button>
               <div class="text-right">
                 <span id="mandi-name" class="text-xs font-bold text-slate-700 block">Lasalgaon APMC</span>
-                <div class="text-xs text-slate-400">Updated: 25 Aug 2026</div>
+                <div id="mandi-updated-date" class="text-xs text-slate-400">Updated: 25 Aug 2026</div>
               </div>
             </div>
           </div>
@@ -355,11 +361,11 @@
             </div>
 
             <!-- Govt MSP Line Card -->
-            <div class="bg-emerald-50 border-2 border-emerald-400 rounded-2xl p-6 text-center space-y-2 relative overflow-hidden">
-              <div class="absolute top-2 right-2 bg-emerald-600 text-white text-[10px] font-black uppercase px-2 py-0.5 rounded" data-i18n="govFloorPrice">Govt Floor Price</div>
-              <div class="text-sm font-bold text-emerald-800 uppercase tracking-wider" data-i18n="govMspLabel">Government MSP</div>
+            <div class="bg-sky-50 border-2 border-sky-400 rounded-2xl p-6 text-center space-y-2 relative overflow-hidden">
+              <div class="absolute top-2 right-2 bg-sky-600 text-white text-[10px] font-black uppercase px-2 py-0.5 rounded" data-i18n="govFloorPrice">Govt Floor Price</div>
+              <div class="text-sm font-bold text-sky-900 uppercase tracking-wider" data-i18n="govMspLabel">Government MSP</div>
               <div id="mandi-msp-price" class="text-4xl sm:text-5xl font-black text-emerald-900">₹1,500</div>
-              <div class="text-xs text-emerald-700 font-semibold" data-i18n="guaranteedMspLabel">per Quintal (Guaranteed Benchmark)</div>
+              <div class="text-xs text-sky-700 font-semibold" data-i18n="guaranteedMspLabel">per Quintal (Guaranteed Benchmark)</div>
             </div>
 
           </div>
@@ -407,6 +413,26 @@
             </button>
           </div>
 
+          <!-- Scheme Category Navigation Tabs -->
+          <div class="flex items-center space-x-2 overflow-x-auto pb-1 no-scrollbar" role="tablist" aria-label="Scheme Categories">
+            <button id="scheme-cat-for_you" onclick="switchSchemeCategory('for_you')" role="tab" aria-selected="true" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-extrabold flex items-center space-x-1.5 transition-all bg-sky-600 text-white shadow-sm border border-emerald-700 cursor-pointer">
+              <span data-i18n="tabForYou">🌟 For You</span>
+              <span id="scheme-count-for_you" class="px-1.5 py-0.5 rounded-full text-[10px] font-black bg-white/20 ml-1"></span>
+            </button>
+            <button id="scheme-cat-finance" onclick="switchSchemeCategory('finance')" role="tab" aria-selected="false" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-extrabold flex items-center space-x-1.5 transition-all bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200 cursor-pointer">
+              <span data-i18n="tabFinance">💳 Finance & Credit</span>
+              <span id="scheme-count-finance" class="px-1.5 py-0.5 rounded-full text-[10px] font-black bg-slate-200 text-slate-700 ml-1"></span>
+            </button>
+            <button id="scheme-cat-crop_management" onclick="switchSchemeCategory('crop_management')" role="tab" aria-selected="false" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-extrabold flex items-center space-x-1.5 transition-all bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200 cursor-pointer">
+              <span data-i18n="tabCropManagement">🌱 Crop Management</span>
+              <span id="scheme-count-crop_management" class="px-1.5 py-0.5 rounded-full text-[10px] font-black bg-slate-200 text-slate-700 ml-1"></span>
+            </button>
+            <button id="scheme-cat-disaster" onclick="switchSchemeCategory('disaster')" role="tab" aria-selected="false" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-extrabold flex items-center space-x-1.5 transition-all bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200 cursor-pointer">
+              <span data-i18n="tabDisaster">🛡️ Disaster & Relief</span>
+              <span id="scheme-count-disaster" class="px-1.5 py-0.5 rounded-full text-[10px] font-black bg-slate-200 text-slate-700 ml-1"></span>
+            </button>
+          </div>
+
           <div id="farmer-schemes-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <!-- Populated dynamically with interactive audio cards -->
           </div>
@@ -424,11 +450,11 @@
       <!-- Officer Header & Spoken Briefing Banner -->
       <div class="bg-white p-5 sm:p-6 rounded-3xl border border-slate-200 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <span class="px-3 py-1 rounded-full text-xs font-extrabold bg-emerald-100 text-emerald-800 uppercase tracking-wider" data-i18n="officerBadge">Administration & Extension Portal</span>
+          <span class="px-3 py-1 rounded-full text-xs font-extrabold bg-sky-100 text-sky-900 uppercase tracking-wider" data-i18n="officerBadge">Administration & Extension Portal</span>
           <h1 class="text-2xl font-black text-slate-900 mt-1" data-i18n="officerMainTitle">District Agro-Distress Monitoring & Interventions</h1>
           <p class="text-xs sm:text-sm text-slate-500 mt-0.5" data-i18n="officerMainSub">ICAR-CRIDA FDI framework early-warning dashboard for block agriculture officers and field workers.</p>
         </div>
-        <button id="btn-officer-briefing" onclick="playOfficerBriefingAudio()" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-bold text-xs sm:text-sm flex items-center space-x-2 shadow-md transition whitespace-nowrap self-start sm:self-auto">
+        <button id="btn-officer-briefing" onclick="playOfficerBriefingAudio()" class="px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-700 active:scale-95 text-white font-bold text-xs sm:text-sm flex items-center space-x-2 shadow-md transition whitespace-nowrap self-start sm:self-auto">
           <span>🔊</span>
           <span data-i18n="playOfficerBriefing">Listen to District Briefing</span>
         </button>
@@ -560,14 +586,14 @@
           <table class="w-full text-left text-sm text-slate-700">
             <thead class="bg-slate-50 text-slate-900 uppercase font-bold text-xs border-b border-slate-200">
               <tr>
-                <th class="px-6 py-4" data-i18n="thFarmerVillage">Farmer & Village</th>
-                <th class="px-4 py-4" data-i18n="thDistrict">District</th>
+                <th class="px-5 py-4">Farmer & Login ID</th>
+                <th class="px-4 py-4">Credentials & Device</th>
                 <th class="px-4 py-4" data-i18n="thCropStage">Crop & Stage</th>
                 <th class="px-4 py-4" data-i18n="thDistressScore">Distress Score</th>
                 <th class="px-4 py-4" data-i18n="thTopTrigger">Top Trigger Signal</th>
                 <th class="px-4 py-4" data-i18n="thRecommendedScheme">Recommended Scheme</th>
                 <th class="px-4 py-4" data-i18n="thContactChannel">Contact Channel</th>
-                <th class="px-6 py-4 text-right" data-i18n="thActions">Actions</th>
+                <th class="px-5 py-4 text-right">Actions & Delete</th>
               </tr>
             </thead>
             <tbody id="officer-table-body" class="divide-y divide-slate-100">
@@ -653,26 +679,26 @@
           <div>
             <div class="text-xs font-bold uppercase text-slate-400 mb-3 text-center" data-i18n="pressKeypad">Press Phone Keypad:</div>
             <div class="grid grid-cols-3 gap-3 max-w-xs mx-auto">
-              <button onclick="pressIvrKey('1')" class="bg-slate-800 hover:bg-emerald-700 active:scale-95 text-white font-black text-xl py-3 rounded-2xl border border-slate-700 transition flex flex-col items-center">
+              <button onclick="pressIvrKey('1')" class="bg-slate-800 hover:bg-sky-700 active:scale-95 text-white font-black text-xl py-3 rounded-2xl border border-slate-700 transition flex flex-col items-center">
                 <span>1</span>
                 <span class="text-[9px] font-normal text-slate-400" data-i18n="keyAdvisory">ADVISORY</span>
               </button>
-              <button onclick="pressIvrKey('2')" class="bg-slate-800 hover:bg-emerald-700 active:scale-95 text-white font-black text-xl py-3 rounded-2xl border border-slate-700 transition flex flex-col items-center">
+              <button onclick="pressIvrKey('2')" class="bg-slate-800 hover:bg-sky-700 active:scale-95 text-white font-black text-xl py-3 rounded-2xl border border-slate-700 transition flex flex-col items-center">
                 <span>2</span>
                 <span class="text-[9px] font-normal text-slate-400" data-i18n="keyMandi">MANDI/MSP</span>
               </button>
-              <button onclick="pressIvrKey('3')" class="bg-slate-800 hover:bg-emerald-700 active:scale-95 text-white font-black text-xl py-3 rounded-2xl border border-slate-700 transition flex flex-col items-center">
+              <button onclick="pressIvrKey('3')" class="bg-slate-800 hover:bg-sky-700 active:scale-95 text-white font-black text-xl py-3 rounded-2xl border border-slate-700 transition flex flex-col items-center">
                 <span>3</span>
                 <span class="text-[9px] font-normal text-slate-400" data-i18n="keySchemes">SCHEMES</span>
               </button>
               <button onclick="pressIvrKey('4')" class="bg-slate-800/50 text-slate-500 font-black text-xl py-3 rounded-2xl border border-slate-800 transition">4</button>
               <button onclick="pressIvrKey('5')" class="bg-slate-800/50 text-slate-500 font-black text-xl py-3 rounded-2xl border border-slate-800 transition">5</button>
               <button onclick="pressIvrKey('6')" class="bg-slate-800/50 text-slate-500 font-black text-xl py-3 rounded-2xl border border-slate-800 transition">6</button>
-              <button onclick="pressIvrKey('*')" class="bg-slate-800 hover:bg-emerald-700 active:scale-95 text-white font-black text-xl py-3 rounded-2xl border border-slate-700 transition flex flex-col items-center">
+              <button onclick="pressIvrKey('*')" class="bg-slate-800 hover:bg-sky-700 active:scale-95 text-white font-black text-xl py-3 rounded-2xl border border-slate-700 transition flex flex-col items-center">
                 <span>*</span>
                 <span class="text-[9px] font-normal text-slate-400">⌂ MENU</span>
               </button>
-              <button onclick="pressIvrKey('0')" class="bg-slate-800 hover:bg-emerald-700 active:scale-95 text-white font-black text-xl py-3 rounded-2xl border border-slate-700 transition flex flex-col items-center">
+              <button onclick="pressIvrKey('0')" class="bg-slate-800 hover:bg-sky-700 active:scale-95 text-white font-black text-xl py-3 rounded-2xl border border-slate-700 transition flex flex-col items-center">
                 <span>0</span>
                 <span class="text-[9px] font-normal text-slate-400" data-i18n="keyOfficer">OFFICER</span>
               </button>
@@ -689,12 +715,12 @@
                 <span data-i18n="quickLangSwitch">Keypad Language Direct Switch:</span>
               </div>
               <div class="flex flex-wrap gap-1.5 justify-center">
-                <button onclick="switchIvrLanguage('hi')" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-800 hover:bg-emerald-600 text-slate-200 border border-slate-700 transition">हिंदी (91)</button>
-                <button onclick="switchIvrLanguage('mr')" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-800 hover:bg-emerald-600 text-slate-200 border border-slate-700 transition">मराठी (92)</button>
-                <button onclick="switchIvrLanguage('or')" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-800 hover:bg-emerald-600 text-slate-200 border border-slate-700 transition">ଓଡ଼ିଆ (93)</button>
-                <button onclick="switchIvrLanguage('as')" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-800 hover:bg-emerald-600 text-slate-200 border border-slate-700 transition">অসমীয়া (94)</button>
-                <button onclick="switchIvrLanguage('kn')" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-800 hover:bg-emerald-600 text-slate-200 border border-slate-700 transition">ಕನ್ನಡ (95)</button>
-                <button onclick="switchIvrLanguage('en')" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-800 hover:bg-emerald-600 text-slate-200 border border-slate-700 transition">English (96)</button>
+                <button onclick="switchIvrLanguage('hi')" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-800 hover:bg-sky-600 text-slate-200 border border-slate-700 transition">हिंदी (91)</button>
+                <button onclick="switchIvrLanguage('mr')" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-800 hover:bg-sky-600 text-slate-200 border border-slate-700 transition">मराठी (92)</button>
+                <button onclick="switchIvrLanguage('or')" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-800 hover:bg-sky-600 text-slate-200 border border-slate-700 transition">ଓଡ଼ିଆ (93)</button>
+                <button onclick="switchIvrLanguage('as')" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-800 hover:bg-sky-600 text-slate-200 border border-slate-700 transition">অসমীয়া (94)</button>
+                <button onclick="switchIvrLanguage('kn')" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-800 hover:bg-sky-600 text-slate-200 border border-slate-700 transition">ಕನ್ನಡ (95)</button>
+                <button onclick="switchIvrLanguage('en')" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-800 hover:bg-sky-600 text-slate-200 border border-slate-700 transition">English (96)</button>
               </div>
             </div>
 
@@ -714,7 +740,7 @@
                   <div class="text-xs text-slate-500" data-i18n="smsEmulatorSub">Plain-text 160-character GSM SMS Delivery</div>
                 </div>
               </div>
-              <button onclick="triggerSmsDelivery()" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg shadow transition" data-i18n="sendTestSms">
+              <button onclick="triggerSmsDelivery()" class="px-3 py-1.5 bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold rounded-lg shadow transition" data-i18n="sendTestSms">
                 Send Test SMS 📨
               </button>
             </div>
@@ -765,10 +791,10 @@
             <h3 id="modal-farmer-name" class="text-2xl font-black text-slate-900">Ramesh Patil</h3>
             <span id="modal-risk-badge" class="px-3 py-0.5 rounded-full text-xs font-black bg-amber-100 text-amber-800">MEDIUM RISK (52.9)</span>
           </div>
-          <p id="modal-farmer-sub" class="text-xs text-slate-500 mt-1">📍 Chandwad, Nashik • 🧅 Onion (Harvest Stage)</p>
+          <p id="modal-farmer-sub" class="text-xs text-slate-500 mt-1">📍 Chandwad, Nashik • Onion (Harvest Stage)</p>
         </div>
         <div class="flex items-center space-x-2">
-          <button id="btn-modal-briefing" onclick="playModalCaseBriefingAudio()" class="px-3 py-1.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs flex items-center space-x-1.5 shadow">
+          <button id="btn-modal-briefing" onclick="playModalCaseBriefingAudio()" class="px-3 py-1.5 rounded-xl bg-sky-700 hover:bg-sky-900 text-white font-bold text-xs flex items-center space-x-1.5 shadow">
             <span>🔊</span>
             <span data-i18n="modalListenBriefing">Listen Case Summary</span>
           </button>
@@ -817,7 +843,7 @@
 
       <!-- Actionable Government Scheme Interventions -->
       <div class="space-y-3">
-        <div class="text-xs font-extrabold text-emerald-800 uppercase tracking-wider flex items-center space-x-1">
+        <div class="text-xs font-extrabold text-sky-900 uppercase tracking-wider flex items-center space-x-1">
           <span>🏛️</span>
           <span data-i18n="modalInterventionsTitle">Actionable Scheme Interventions (Field Paperwork to Bring):</span>
         </div>
@@ -846,6 +872,7 @@
   <!-- TTS Status Toast -->
   <div id="tts-toast" class="tts-toast" role="status" aria-live="polite"></div>
 
+  <script src="/static/onboarding.js"></script>
   <script src="/static/app.js"></script>
 </body>
 </html>

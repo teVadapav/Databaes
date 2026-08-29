@@ -1,32 +1,152 @@
 [
-  { 
-    "id": "D1", 
-    "name": "Nashik", 
+  {
+    "id": "D1",
+    "name": "Nashik",
     "state": "Maharashtra",
-    "soil_type": "Black Cotton Soil", 
-    "avg_rainfall_mm": 120, 
+    "soil_type": "Black Cotton Soil",
+    "avg_rainfall_mm": 720,
     "normal_onset_week": "2026-06-10",
     "historical_vulnerability_index": 85,
-    "description": "Major horticulture hub; prone to severe market price volatility and localized monsoon breaks."
+    "description": "Major horticulture & onion hub in North Maharashtra; prone to market price volatility and localized dry spells."
   },
-  { 
-    "id": "D2", 
-    "name": "Vidarbha", 
+  {
+    "id": "D2",
+    "name": "Akola",
     "state": "Maharashtra",
-    "soil_type": "Red Loamy Soil", 
-    "avg_rainfall_mm": 95, 
+    "soil_type": "Black Cotton Soil",
+    "avg_rainfall_mm": 680,
     "normal_onset_week": "2026-06-15",
     "historical_vulnerability_index": 92,
-    "description": "Historically rainfed cotton-soybean belt with chronic agrarian distress and high climate sensitivity."
+    "description": "Historically rainfed cotton-soybean belt in Vidarbha with high climate sensitivity and groundwater deficit."
   },
-  { 
-    "id": "D3", 
-    "name": "Konkan", 
+  {
+    "id": "D3",
+    "name": "Yavatmal",
     "state": "Maharashtra",
-    "soil_type": "Laterite Soil", 
-    "avg_rainfall_mm": 250, 
+    "soil_type": "Black Cotton Soil",
+    "avg_rainfall_mm": 790,
+    "normal_onset_week": "2026-06-12",
+    "historical_vulnerability_index": 88,
+    "description": "Critical rainfed agrarian zone with high informal credit dependency and seasonal rainfall breaks."
+  },
+  {
+    "id": "D_OD1",
+    "name": "Kalahandi",
+    "state": "Odisha",
+    "soil_type": "Red Sandy Loam",
+    "avg_rainfall_mm": 1250,
+    "normal_onset_week": "2026-06-12",
+    "historical_vulnerability_index": 84,
+    "description": "South-western Odisha rainfed paddy and pulse pocket subject to periodic mid-season dry spells."
+  },
+  {
+    "id": "D_OD2",
+    "name": "Balangir",
+    "state": "Odisha",
+    "soil_type": "Red Loamy Soil",
+    "avg_rainfall_mm": 1180,
+    "normal_onset_week": "2026-06-14",
+    "historical_vulnerability_index": 82,
+    "description": "Drought-vulnerable belt with high concentration of smallholders dependent on monsoon rainfall."
+  },
+  {
+    "id": "D_OD3",
+    "name": "Bargarh",
+    "state": "Odisha",
+    "soil_type": "Alluvial Loam",
+    "avg_rainfall_mm": 1220,
+    "normal_onset_week": "2026-06-10",
+    "historical_vulnerability_index": 45,
+    "description": "Rice bowl of Western Odisha with Hirakud canal command network and high paddy productivity."
+  },
+  {
+    "id": "D_AS1",
+    "name": "Nagaon",
+    "state": "Assam",
+    "soil_type": "Alluvial Loam",
+    "avg_rainfall_mm": 1750,
     "normal_onset_week": "2026-06-05",
-    "historical_vulnerability_index": 30,
-    "description": "High-rainfall coastal belt with well-drained soils and resilient plantation/paddy systems."
+    "historical_vulnerability_index": 62,
+    "description": "Central Brahmaputra Valley agro-zone with mixed rice-jute cropping systems and seasonal flood risk."
+  },
+  {
+    "id": "D_AS2",
+    "name": "Golaghat",
+    "state": "Assam",
+    "soil_type": "Alluvial Loam",
+    "avg_rainfall_mm": 1820,
+    "normal_onset_week": "2026-06-04",
+    "historical_vulnerability_index": 55,
+    "description": "Upper Assam fertile floodplains characterized by paddy, tea, and sugarcane production."
+  },
+  {
+    "id": "D_AS3",
+    "name": "Barpeta",
+    "state": "Assam",
+    "soil_type": "Alluvial Loam",
+    "avg_rainfall_mm": 1950,
+    "normal_onset_week": "2026-06-06",
+    "historical_vulnerability_index": 68,
+    "description": "Lower Assam char areas and riverine belts prone to flash waterlogging and soil erosion."
+  },
+  {
+    "id": "D_KN1",
+    "name": "Raichur",
+    "state": "Karnataka",
+    "soil_type": "Black Cotton Soil",
+    "avg_rainfall_mm": 610,
+    "normal_onset_week": "2026-06-08",
+    "historical_vulnerability_index": 86,
+    "description": "North Karnataka dryland tract with major cotton, paddy, and sunflower acreage subject to drought."
+  },
+  {
+    "id": "D_KN2",
+    "name": "Belagavi",
+    "state": "Karnataka",
+    "soil_type": "Black Cotton Soil",
+    "avg_rainfall_mm": 740,
+    "normal_onset_week": "2026-06-06",
+    "historical_vulnerability_index": 58,
+    "description": "Transition agro-climatic zone supporting sugarcane, maize, and soybean cultivation."
+  },
+  {
+    "id": "D_KN3",
+    "name": "Dharwad",
+    "state": "Karnataka",
+    "soil_type": "Black Cotton Soil",
+    "avg_rainfall_mm": 710,
+    "normal_onset_week": "2026-06-07",
+    "historical_vulnerability_index": 64,
+    "description": "Hub of agricultural research and pulse-oilseed production in Northern Karnataka."
+  },
+  {
+    "id": "D_UP1",
+    "name": "Varanasi",
+    "state": "Uttar Pradesh",
+    "soil_type": "Alluvial Loam",
+    "avg_rainfall_mm": 980,
+    "normal_onset_week": "2026-06-20",
+    "historical_vulnerability_index": 60,
+    "description": "Eastern UP Gangetic plain with intensive paddy-wheat-vegetable cropping."
+  },
+  {
+    "id": "D_UP2",
+    "name": "Prayagraj",
+    "state": "Uttar Pradesh",
+    "soil_type": "Alluvial Loam",
+    "avg_rainfall_mm": 940,
+    "normal_onset_week": "2026-06-20",
+    "historical_vulnerability_index": 64,
+    "description": "Confluence agro-zone supporting pulses, wheat, and guava cultivation."
+  },
+  {
+    "id": "D_UP3",
+    "name": "Gorakhpur",
+    "state": "Uttar Pradesh",
+    "soil_type": "Alluvial Loam",
+    "avg_rainfall_mm": 1150,
+    "normal_onset_week": "2026-06-18",
+    "historical_vulnerability_index": 68,
+    "description": "Terai transition zone supporting sugarcane and paddy cultivation."
   }
 ]

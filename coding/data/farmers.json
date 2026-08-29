@@ -16,11 +16,15 @@
     "landholding_hectares": 1.2,
     "irrigation_type": "rainfed",
     "borewell_failed": true,
-    "income_sources": ["crop_cultivation"],
+    "income_sources": [
+      "crop_cultivation"
+    ],
     "has_pmfby_insurance": false,
     "has_kcc": false,
     "informal_debt": true,
-    "enrolled_schemes": ["PM-KISAN"],
+    "enrolled_schemes": [
+      "PM-KISAN"
+    ],
     "officer_id": "O1"
   },
   {
@@ -40,11 +44,16 @@
     "landholding_hectares": 1.8,
     "irrigation_type": "rainfed",
     "borewell_failed": false,
-    "income_sources": ["crop_cultivation"],
+    "income_sources": [
+      "crop_cultivation"
+    ],
     "has_pmfby_insurance": true,
     "has_kcc": false,
     "informal_debt": true,
-    "enrolled_schemes": ["PM-KISAN", "PMFBY"],
+    "enrolled_schemes": [
+      "PM-KISAN",
+      "PMFBY"
+    ],
     "officer_id": "O1"
   },
   {
@@ -64,11 +73,17 @@
     "landholding_hectares": 2.5,
     "irrigation_type": "protective_well",
     "borewell_failed": false,
-    "income_sources": ["crop_cultivation", "dairy"],
+    "income_sources": [
+      "crop_cultivation",
+      "dairy"
+    ],
     "has_pmfby_insurance": true,
     "has_kcc": true,
     "informal_debt": false,
-    "enrolled_schemes": ["PM-KISAN", "PMFBY"],
+    "enrolled_schemes": [
+      "PM-KISAN",
+      "PMFBY"
+    ],
     "officer_id": "O1"
   },
   {
@@ -88,11 +103,16 @@
     "landholding_hectares": 3.0,
     "irrigation_type": "canal",
     "borewell_failed": false,
-    "income_sources": ["crop_cultivation", "non_farm_salary"],
+    "income_sources": [
+      "crop_cultivation",
+      "non_farm_salary"
+    ],
     "has_pmfby_insurance": true,
     "has_kcc": true,
     "informal_debt": false,
-    "enrolled_schemes": ["PMFBY"],
+    "enrolled_schemes": [
+      "PMFBY"
+    ],
     "officer_id": "O2"
   },
   {
@@ -112,7 +132,9 @@
     "landholding_hectares": 0.8,
     "irrigation_type": "rainfed",
     "borewell_failed": false,
-    "income_sources": ["crop_cultivation"],
+    "income_sources": [
+      "crop_cultivation"
+    ],
     "has_pmfby_insurance": false,
     "has_kcc": false,
     "informal_debt": true,
@@ -136,11 +158,15 @@
     "landholding_hectares": 1.5,
     "irrigation_type": "rainfed",
     "borewell_failed": true,
-    "income_sources": ["crop_cultivation"],
+    "income_sources": [
+      "crop_cultivation"
+    ],
     "has_pmfby_insurance": false,
     "has_kcc": true,
     "informal_debt": true,
-    "enrolled_schemes": ["PM-KISAN"],
+    "enrolled_schemes": [
+      "PM-KISAN"
+    ],
     "officer_id": "O1"
   }
 ]
