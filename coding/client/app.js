@@ -1032,7 +1032,10 @@ async function playButtonAudio(buttonKey, event) {
 document.addEventListener('DOMContentLoaded', async () => {
   initLanguageSelector();
   initIvrSimulator();
-  await loadFarmersList();
+  await Promise.all([
+    loadFarmersList(),
+    fetchOfficerData()
+  ]);
 });
 
 function initLanguageSelector() {
@@ -1843,6 +1846,28 @@ async function playWeatherMetricAudio(metricKey) {
 }
 
 
+async function fetchOfficerData() {
+  try {
+    const res = await fetch(`${API_BASE}/officer/farmers`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(state.weights)
+    });
+    const data = await res.json();
+    state.officerFarmers = data.farmers || (Array.isArray(data) ? data : []);
+    state.officerMetrics = data.metrics || {
+      total_farmers: state.officerFarmers.length,
+      high_risk_count: state.officerFarmers.filter(f => (f.risk_band || '').toUpperCase() === 'HIGH').length,
+      medium_risk_count: state.officerFarmers.filter(f => (f.risk_band || '').toUpperCase() === 'MEDIUM').length,
+      low_risk_count: state.officerFarmers.filter(f => (f.risk_band || '').toUpperCase() === 'LOW').length,
+    };
+    renderOfficerMetrics();
+    renderOfficerTable();
+  } catch (err) {
+    console.error('Error fetching officer dashboard data:', err);
+  }
+}
+
 function renderOfficerMetrics() {
   const m = state.officerMetrics;
   if (!m) return;
@@ -1880,10 +1905,10 @@ function renderOfficerTable() {
   const lang = state.selectedLanguage || 'hi';
   const t = i18n[lang] || i18n['en'];
 
-  const filter = document.getElementById('filter-risk')?.value || 'ALL';
+  const filter = (document.getElementById('filter-risk')?.value || 'ALL').toUpperCase();
   const filtered = state.officerFarmers.filter(f => {
     if (filter === 'ALL') return true;
-    return f.risk_band === filter;
+    return (f.risk_band || '').toUpperCase() === filter;
   });
 
   tbody.innerHTML = filtered.map(f => {

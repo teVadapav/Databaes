@@ -1,8 +1,6 @@
-fastapi==0.141.1
-uvicorn==0.52.4
-pydantic==2.13.4
-pydantic_core==2.46.4
+fastapi>=0.100.0
+uvicorn[standard]>=0.22.0
+pydantic>=2.0.0
 gTTS>=2.4.0
+edge-tts>=6.1.0
 httpx>=0.24.0
-annotated-types==0.8.0
-annotated-doc==0.0.5
