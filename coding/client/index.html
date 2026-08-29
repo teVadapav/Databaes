@@ -101,6 +101,10 @@
             <span>📊</span>
             <span>Officer Dashboard</span>
           </button>
+          <button id="nav-sandbox-btn" onclick="switchMainView('sandbox')" class="px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold flex items-center space-x-1.5 transition-all text-slate-300 hover:text-white hover:bg-slate-700">
+            <span>🔬</span>
+            <span>Engine Sandbox</span>
+          </button>
           <button id="nav-simulator-btn" onclick="switchMainView('simulator')" class="px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold flex items-center space-x-1.5 transition-all text-slate-300 hover:text-white hover:bg-slate-700">
             <span>📟</span>
             <span>IVR / SMS Fallback</span>
@@ -161,25 +165,23 @@
 
       </div>
 
-      <!-- Farmer Identity & Digital Profile Bar -->
-      <div id="farmer-profile-card" class="bg-gradient-to-r from-sky-900 via-sky-800 to-sky-700 text-white rounded-3xl p-6 sm:p-8 shadow-lg relative overflow-hidden">
-        <div class="relative z-10 space-y-3">
-          <!-- 1. Farmer Name & 2. Vegetation below name -->
+      <!-- Farmer Identity & Digital Profile Bar (Exact Matching Hero Layout) -->
+      <div id="farmer-profile-card" class="bg-gradient-to-r from-emerald-800 via-green-800 to-emerald-900 text-white rounded-3xl p-6 sm:p-8 shadow-xl relative overflow-hidden">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
           <div>
-            <h1 id="fp-name" class="text-2xl sm:text-4xl font-black tracking-tight text-white">Aryan Patel</h1>
-            <div class="mt-1 text-sm sm:text-base font-bold text-amber-300 flex items-center space-x-1.5">
-              <span id="fp-vegetation-label">Vegetation:</span>
-              <span id="fp-crop-badge" class="font-black text-white">Onion</span>
+            <div class="flex items-center space-x-3 mb-2 flex-wrap gap-y-2">
+              <h2 id="fp-name" class="text-2xl sm:text-4xl font-black tracking-tight text-white">Aryan Patel</h2>
+              <span id="fp-location-badge" class="bg-emerald-700/80 text-emerald-100 text-xs px-3 py-1 rounded-full font-bold border border-emerald-500/40">
+                📍 Maharashtra Village, Nashik
+              </span>
             </div>
-          </div>
-          
-          <!-- Location, Landholding, Loan Due Date (DD-MM-YYYY) -->
-          <div class="flex flex-wrap items-center gap-y-1 gap-x-4 text-sky-100 text-xs sm:text-sm font-medium pt-1">
-            <span id="fp-location">📍 Chandwad, Nashik</span>
-            <span>•</span>
-            <span id="fp-landholding">📐 1.2 Hectares</span>
-            <span>•</span>
-            <span id="fp-loan">💳 Loan Due: 15-11-2026</span>
+            <div class="flex flex-wrap gap-2 text-xs font-semibold text-emerald-100 mt-2">
+              <span class="bg-emerald-950/60 px-3 py-1.5 rounded-xl border border-emerald-800/60">🌾 Crop: <strong id="fp-crop" class="text-white font-bold">Onion</strong></span>
+              <span class="bg-emerald-950/60 px-3 py-1.5 rounded-xl border border-emerald-800/60">🌱 Stage: <strong id="fp-stage" class="text-white font-bold">HARVEST</strong></span>
+              <span class="bg-emerald-950/60 px-3 py-1.5 rounded-xl border border-emerald-800/60">💧 Irrigation: <strong id="fp-irrigation" class="text-white font-bold">Rainfed</strong></span>
+              <span class="bg-emerald-950/60 px-3 py-1.5 rounded-xl border border-emerald-800/60">📐 Land: <strong id="fp-land" class="text-white font-bold">1.2 Ha</strong></span>
+              <span class="bg-emerald-950/60 px-3 py-1.5 rounded-xl border border-emerald-800/60">💳 Loan Due: <strong id="fp-loan-date" class="text-white font-bold">15-11-2026</strong></span>
+            </div>
           </div>
         </div>
       </div>

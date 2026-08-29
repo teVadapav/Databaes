@@ -660,6 +660,53 @@ const Onboarding = {
                   <input type="number" step="0.1" min="0.1" id="ob-land-area" class="form-input" value="${form.landArea}" required>
                 </div>
 
+                <!-- Irrigation & Borewell -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div class="form-group">
+                    <label class="form-label">Irrigation Source / सिंचन साधन</label>
+                    <select id="ob-irrigation-type" class="form-select">
+                      <option value="rainfed" ${form.irrigationType === 'rainfed' ? 'selected' : ''}>100% Rainfed (केवळ पावसावर अवलंबून)</option>
+                      <option value="protective_well" ${form.irrigationType === 'protective_well' ? 'selected' : ''}>Protective Well / Borewell (विहीर / बोअरवेल)</option>
+                      <option value="canal" ${form.irrigationType === 'canal' ? 'selected' : ''}>Canal / Assured Irrigation (कालवा / खात्रीशीर पाणी)</option>
+                    </select>
+                  </div>
+                  <div class="form-group flex items-center pt-6">
+                    <label class="flex items-center space-x-2.5 cursor-pointer text-sm font-bold text-slate-800">
+                      <input type="checkbox" id="ob-borewell-failed" ${form.borewellFailed ? 'checked' : ''} class="w-5 h-5 rounded text-sky-600 focus:ring-sky-500">
+                      <span>Borewell Failure History (बोअरवेल कोरडी पडली आहे)</span>
+                    </label>
+                  </div>
+                </div>
+
+                <!-- Safety Nets & Loans -->
+                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3 my-2">
+                  <span class="text-xs font-black text-slate-600 uppercase tracking-wider block">Safety Nets & Credit / सुरक्षा आणि कर्ज:</span>
+                  <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <label class="flex items-center space-x-2 text-xs font-bold text-slate-800 cursor-pointer">
+                      <input type="checkbox" id="ob-pmfby" ${form.hasPmfby ? 'checked' : ''} class="w-4 h-4 rounded text-sky-600">
+                      <span>PMFBY Insured (पिक विमा)</span>
+                    </label>
+                    <label class="flex items-center space-x-2 text-xs font-bold text-slate-800 cursor-pointer">
+                      <input type="checkbox" id="ob-kcc" ${form.hasKcc ? 'checked' : ''} class="w-4 h-4 rounded text-sky-600">
+                      <span>Has KCC (किसान क्रेडिट कार्ड)</span>
+                    </label>
+                    <label class="flex items-center space-x-2 text-xs font-bold text-rose-800 cursor-pointer">
+                      <input type="checkbox" id="ob-informal-debt" ${form.informalDebt ? 'checked' : ''} class="w-4 h-4 rounded text-rose-600">
+                      <span>Informal Debt (सावकारी कर्ज)</span>
+                    </label>
+                  </div>
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                    <div>
+                      <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">Loan Due Date (कर्ज परतफेड तारीख)</label>
+                      <input type="date" id="ob-loan-due-date" value="${form.loanDueDate || '2026-11-15'}" class="form-input text-xs">
+                    </div>
+                    <div>
+                      <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">Loan Amount ₹ (कर्ज रक्कम)</label>
+                      <input type="number" id="ob-loan-amount" value="${form.loanAmount || 50000}" class="form-input text-xs">
+                    </div>
+                  </div>
+                </div>
+
                 <!-- Soil Type & Device Type -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div class="form-group">
@@ -889,6 +936,13 @@ const Onboarding = {
     OnboardingState.formData.landArea = parseFloat(landInput?.value || '2.5');
     OnboardingState.formData.soilType = soilInput?.value || 'black';
     OnboardingState.formData.deviceType = deviceInput?.value || 'android_smartphone';
+    OnboardingState.formData.irrigationType = document.getElementById('ob-irrigation-type')?.value || 'rainfed';
+    OnboardingState.formData.borewellFailed = !!document.getElementById('ob-borewell-failed')?.checked;
+    OnboardingState.formData.hasPmfby = !!document.getElementById('ob-pmfby')?.checked;
+    OnboardingState.formData.hasKcc = !!document.getElementById('ob-kcc')?.checked;
+    OnboardingState.formData.informalDebt = !!document.getElementById('ob-informal-debt')?.checked;
+    OnboardingState.formData.loanDueDate = document.getElementById('ob-loan-due-date')?.value || '2026-11-15';
+    OnboardingState.formData.loanAmount = parseFloat(document.getElementById('ob-loan-amount')?.value || '50000');
 
     this.goToStep(3);
   },

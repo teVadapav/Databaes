@@ -1160,7 +1160,7 @@ function switchMainView(viewName) {
   state.activeView = viewName;
   stopSpeech();
 
-  const views = ['farmer', 'officer', 'simulator'];
+  const views = ['farmer', 'officer', 'simulator', 'sandbox'];
   views.forEach(v => {
     const el = document.getElementById(`view-${v}`);
     const btn = document.getElementById(`nav-${v}-btn`);
@@ -1182,6 +1182,8 @@ function switchMainView(viewName) {
 
   if (viewName === 'officer') {
     fetchOfficerData();
+  } else if (viewName === 'sandbox') {
+    runSandboxEvaluation();
   }
 }
 
@@ -1413,53 +1415,61 @@ async function renderFarmerProfileCard() {
 
   const lang = state.selectedLanguage || (typeof localStorage !== 'undefined' && localStorage.getItem('sk_locale')) || 'en';
 
-  // 100% Native Localized values
   const localizedCrop = getLocalizedCrop(f.crop, lang);
+  const localizedStage = getLocalizedStage(f.crop_stage || 'harvest', lang);
   
   const distNames = {
     D1: { en: 'Nashik', hi: 'नासिक', mr: 'नाशिक', or: 'ନାସିକ', as: 'নাছিক', kn: 'ನಾಸಿಕ್' },
-    D2: { en: 'Akola', hi: 'अकोला', mr: 'अकोला', or: 'ଆକୋଲା', as: 'আকোলা', kn: 'ಅಕೋಲಾ' },
+    D2: { en: 'Akola', hi: 'अकोला', mr: 'अकोला', or: 'ଆକୋଲା', as: 'আকোला', kn: 'ಅಕೋಲಾ' },
     D3: { en: 'Yavatmal', hi: 'यवतमाल', mr: 'यवतमाळ', or: 'ୟବତମାଳ', as: 'য়াৱাতমাল', kn: 'ಯವತ್ಮಾಳ್' },
     D_OD1: { en: 'Kalahandi', hi: 'कालाहांडी', mr: 'कालाहांडी', or: 'କଳାହାଣ୍ଡି', as: 'কালাহাণ্ডি', kn: 'ಕಲಹಂಡಿ' },
     D_OD2: { en: 'Balangir', hi: 'बलांगीर', mr: 'बलांगीर', or: 'ବଲାଙ୍ଗୀର', as: 'বলাঙ্গীৰ', kn: 'ಬಲಂಗೀರ್' },
-    D_OD3: { en: 'Bargarh', hi: 'बरगढ़', mr: 'बरगड', or: 'ବରଗଡ଼', as: 'বৰগড়', kn: 'ಬರಗಢ' },
-    D_AS1: { en: 'Nagaon', hi: 'नगांव', mr: 'नगाव', or: 'ନଗାଓଁ', as: 'নগাঁও', kn: 'ನಾಗಾಂವ್' },
+    D_OD3: { en: 'Bargarh', hi: 'बरगढ़', mr: 'बरगड', or: 'ବରଗଡ଼', as: 'বৰগড়', kn: 'ಬರগಢ' },
+    D_AS1: { en: 'Nagaon', hi: 'नगांव', mr: 'नगाव', or: 'ନଗାଓଁ', as: 'নগাঁও', kn: 'ନಾಗಾಂವ್' },
     D_AS2: { en: 'Golaghat', hi: 'गोलाघाट', mr: 'गोलाघाट', or: 'ଗୋଲାଘାଟ', as: 'গোলাঘাট', kn: 'ಗೋಲಾಘಾಟ್' },
-    D_AS3: { en: 'Barpeta', hi: 'बारपेटा', mr: 'बारपेटा', or: 'ବାରପେଟା', as: 'বৰপেটা', kn: 'ಬರ್ಪೇಟಾ' },
+    D_AS3: { en: 'Barpeta', hi: 'बारपेटा', mr: 'बारपेटा', or: 'ବାରପେଟା', as: 'বৰপেটা', kn: 'বৰ্পೇಟಾ' },
     D_KN1: { en: 'Raichur', hi: 'रायचूर', mr: 'रायचूर', or: 'ରାୟଚୁର', as: 'ৰায়চুৰ', kn: 'ರಾಯಚೂರು' },
     D_KN2: { en: 'Belagavi', hi: 'बेलगावी', mr: 'बेळगाव', or: 'ବେଲଗାଭୀ', as: 'বেলাগাভী', kn: 'ಬೆಳಗಾವಿ' },
     D_KN3: { en: 'Dharwad', hi: 'धारवाड़', mr: 'धारवाड', or: 'ଧାରୱାଡ଼', as: 'ধাৰৱাৰ', kn: 'ಧಾರವಾಡ' },
     D_UP1: { en: 'Varanasi', hi: 'वाराणसी', mr: 'वाराणसी', or: 'ବାରାଣସୀ', as: 'বাৰাণসী', kn: 'ವಾರಣಾಸಿ' },
     D_UP2: { en: 'Prayagraj', hi: 'प्रयागराज', mr: 'प्रयागराज', or: 'ପ୍ରୟାଗରାଜ', as: 'প্ৰয়াগৰাজ', kn: 'ಪ್ರಯಾಗ್‌ರಾಜ್' },
-    D_UP3: { en: 'Gorakhpur', hi: 'गोरखपुर', mr: 'गोरखपूर', or: 'ଗୋରଖପୁର', as: 'গোৰখপুৰ', kn: 'ಗೋರಖ್‌ಪುರ' }
+    D_UP3: { en: 'Gorakhpur', hi: 'गोरखपुर', mr: 'गोरखपूर', or: 'ଗୋରਖପୁର', as: 'গোৰখপুৰ', kn: 'ಗೋರಖ್‌ಪುರ' }
   };
   const dName = distNames[f.district_id]?.[lang] || f.district_name || f.district_id;
   const locationStr = f.village ? `${f.village}, ${dName}` : dName;
 
-  const unitMap = { en: 'Hectares', hi: 'हेक्टेयर', mr: 'हेक्टर', or: 'ହେକ୍ଟର', as: 'হেক্টৰ', kn: 'ಹೆಕ್ಟೇರ್' };
-  const loanDueMap = { en: 'Loan Due', hi: 'ऋण देय तिथि', mr: 'कर्ज मुदत', or: 'ଋଣ ଶେଷ ତାରିଖ', as: 'ঋণ পৰিশোধৰ তাৰিখ', kn: 'ಸಾಲ ಮರುಪಾವತಿ ದಿನಾಂಕ' };
-  const vegLabelMap = { en: 'Vegetation:', hi: 'वनस्पति:', mr: 'वनस्पती:', or: 'ଉଦ୍ଭିଦ:', as: 'উদ্ভিদ:', kn: 'ಸಸ್ಯವರ್ಗ:' };
+  const irrigationLabels = {
+    rainfed: { en: 'Rainfed', hi: 'बारानी (वर्षा आधारित)', mr: 'कोरडवाहू', or: 'ବର୍ଷାଧାରିତ', as: 'বৰষুণ-নিৰ্ভৰশীল', kn: 'ಮಳೆ ಆಶ್ರಿತ' },
+    protective_well: { en: 'Well / Borewell', hi: 'कुआं / नलकूप', mr: 'विहीर / बोअरवेल', or: 'କୂଅ / ନଳକୂପ', as: 'কুঁৱা / নলকূপ', kn: 'ಬಾವಿ / ಬೋರ್‌ವೆಲ್' },
+    canal: { en: 'Canal Assured', hi: 'नहर संचित', mr: 'कालवा बागायत', or: 'କେନାଲ ପାଣି', as: 'খালৰ পানী', kn: 'ಕಾಲುವೆ ನೀರಾವರಿ' }
+  };
 
+  const unitMap = { en: 'Ha', hi: 'हेक्टेयर', mr: 'हेक्टर', or: 'ହେକ୍ଟର', as: 'হেক্টৰ', kn: 'ಹೆಕ್ಟೇರ್' };
+
+  // Set Top Name and Pill Location
   const fpName = document.getElementById('fp-name');
   if (fpName) fpName.textContent = f.name;
 
-  // 1) Below name: Vegetation:(crop name)
-  const fpVegLabel = document.getElementById('fp-vegetation-label');
-  if (fpVegLabel) fpVegLabel.textContent = vegLabelMap[lang] || 'Vegetation:';
+  const fpLocationBadge = document.getElementById('fp-location-badge');
+  if (fpLocationBadge) fpLocationBadge.textContent = `📍 ${locationStr}`;
 
-  const fpCropBadge = document.getElementById('fp-crop-badge');
-  if (fpCropBadge) fpCropBadge.textContent = localizedCrop;
+  // Set Row of 5 Badges
+  const fpCrop = document.getElementById('fp-crop');
+  if (fpCrop) fpCrop.textContent = localizedCrop;
 
-  const fpLocation = document.getElementById('fp-location');
-  if (fpLocation) fpLocation.textContent = `📍 ${locationStr}`;
+  const fpStage = document.getElementById('fp-stage');
+  if (fpStage) fpStage.textContent = localizedStage.toUpperCase();
 
-  const fpLandholding = document.getElementById('fp-landholding');
-  if (fpLandholding) fpLandholding.textContent = `📐 ${f.landholding_hectares || f.landholding_ha || '1.0'} ${unitMap[lang] || 'Hectares'}`;
+  const fpIrrigation = document.getElementById('fp-irrigation');
+  const irrigKey = (f.irrigation_type || 'rainfed').toLowerCase();
+  if (fpIrrigation) fpIrrigation.textContent = (irrigationLabels[irrigKey] && irrigationLabels[irrigKey][lang]) || f.irrigation_type || 'Rainfed';
 
-  // 2) Date formatted strictly as DD-MM-YYYY
+  const fpLand = document.getElementById('fp-land');
+  if (fpLand) fpLand.textContent = `${f.landholding_hectares || f.landholding_ha || '1.0'} ${unitMap[lang] || 'Ha'}`;
+
   const formattedLoanDate = formatDateToDDMMYYYY(f.loan_due_date || '2026-11-15');
-  const fpLoan = document.getElementById('fp-loan');
-  if (fpLoan) fpLoan.textContent = `💳 ${loanDueMap[lang] || 'Loan Due'}: ${formattedLoanDate}`;
+  const fpLoanDate = document.getElementById('fp-loan-date');
+  if (fpLoanDate) fpLoanDate.textContent = formattedLoanDate;
 }
 
 async function renderFarmerAdvisory() {
