@@ -313,28 +313,35 @@
         </div>
 
         <!-- Tab 2: Mandi Price vs MSP Section -->
+        <!-- Tab 2: Mandi Price Section -->
         <div id="farmer-tab-mandi" class="hidden space-y-6">
-          <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
             <div>
-              <span class="px-3 py-1 rounded-full text-xs font-extrabold bg-amber-100 text-amber-800 uppercase tracking-wider">APMC Market Surveillance</span>
-              <h2 class="text-xl sm:text-2xl font-black text-slate-900 mt-2">Mandi Price vs Government MSP</h2>
+              <span class="px-3 py-1 rounded-full text-xs font-extrabold bg-amber-100 text-amber-800 uppercase tracking-wider" data-i18n="mandiBadge">APMC Market Surveillance</span>
+              <h2 class="text-xl sm:text-2xl font-black text-slate-900 mt-2" data-i18n="mandiMainTitle">Mandi Price vs Government MSP</h2>
             </div>
-            <div class="text-right">
-              <span id="mandi-name" class="text-xs font-bold text-slate-500">Lasalgaon APMC</span>
-              <div class="text-xs text-slate-400">Updated: 25 Aug 2026</div>
+            <div class="flex items-center space-x-3">
+              <button onclick="playMandiAudio()" class="px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 active:scale-95 text-white font-bold text-xs sm:text-sm flex items-center space-x-2 shadow-md transition cursor-pointer">
+                <span>🔊</span>
+                <span data-i18n="listenMandi">Listen Mandi Price 🔊</span>
+              </button>
+              <div class="text-right">
+                <span id="mandi-name" class="text-xs font-bold text-slate-700 block">Lasalgaon APMC</span>
+                <div class="text-xs text-slate-400">Updated: 25 Aug 2026</div>
+              </div>
             </div>
           </div>
 
           <!-- MSP Comparison Banner & Warning -->
           <div id="mandi-alert-box" class="bg-red-50 border-2 border-red-400 rounded-2xl p-5 text-red-950 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div class="flex items-start space-x-3">
-              <div class="text-3xl">⚠️</div>
+              <div class="text-3xl" id="mandi-alert-icon">⚠️</div>
               <div>
-                <div class="font-extrabold text-lg">Price is BELOW Government MSP!</div>
+                <div class="font-extrabold text-lg" id="mandi-alert-title">Price is BELOW Government MSP!</div>
                 <p id="mandi-alert-text" class="text-sm font-medium mt-0.5">Current market rate is below MSP. Do NOT sell in distress. Consider e-NAM pledge loan or WDRA warehousing.</p>
               </div>
             </div>
-            <span class="bg-red-600 text-white font-black text-xs px-3 py-1.5 rounded-lg whitespace-nowrap">Distress Warning</span>
+            <span id="mandi-alert-badge" class="bg-red-600 text-white font-black text-xs px-3 py-1.5 rounded-lg whitespace-nowrap">Distress Warning</span>
           </div>
 
           <!-- Price Display Cards -->
@@ -342,54 +349,66 @@
             
             <!-- Current Price Card -->
             <div class="bg-slate-50 border-2 border-slate-200 rounded-2xl p-6 text-center space-y-2">
-              <div class="text-sm font-bold text-slate-500 uppercase tracking-wider">Today's Mandi Price</div>
+              <div class="text-sm font-bold text-slate-500 uppercase tracking-wider" data-i18n="todayMandiLabel">Today's Mandi Price</div>
               <div id="mandi-current-price" class="text-4xl sm:text-5xl font-black text-slate-900">₹1,100</div>
-              <div class="text-xs text-slate-500 font-semibold">per Quintal</div>
+              <div class="text-xs text-slate-500 font-semibold" data-i18n="perQuintalLabel">per Quintal</div>
             </div>
 
             <!-- Govt MSP Line Card -->
             <div class="bg-emerald-50 border-2 border-emerald-400 rounded-2xl p-6 text-center space-y-2 relative overflow-hidden">
-              <div class="absolute top-2 right-2 bg-emerald-600 text-white text-[10px] font-black uppercase px-2 py-0.5 rounded">Govt Floor Price</div>
-              <div class="text-sm font-bold text-emerald-800 uppercase tracking-wider">Government MSP</div>
+              <div class="absolute top-2 right-2 bg-emerald-600 text-white text-[10px] font-black uppercase px-2 py-0.5 rounded" data-i18n="govFloorPrice">Govt Floor Price</div>
+              <div class="text-sm font-bold text-emerald-800 uppercase tracking-wider" data-i18n="govMspLabel">Government MSP</div>
               <div id="mandi-msp-price" class="text-4xl sm:text-5xl font-black text-emerald-900">₹1,500</div>
-              <div class="text-xs text-emerald-700 font-semibold">per Quintal (Guaranteed Benchmark)</div>
+              <div class="text-xs text-emerald-700 font-semibold" data-i18n="guaranteedMspLabel">per Quintal (Guaranteed Benchmark)</div>
             </div>
 
           </div>
 
           <!-- Action Recommendation for Price Crash -->
           <div class="bg-slate-900 text-white rounded-2xl p-6 space-y-3">
-            <div class="text-sm font-bold text-emerald-400 uppercase tracking-wider">Recommended Market Action:</div>
-            <p class="text-sm sm:text-base leading-relaxed text-slate-200">
-              1. <strong>Avoid immediate Mandi distress sale:</strong> Current mandi realization causes an estimated ₹400/quintal loss.<br>
-              2. <strong>e-NAM & WDRA Warehouse Receipt:</strong> Store produce in nearby WDRA warehouse and avail 70% pledge loan at 7% interest.<br>
-              3. <strong>PM-AASHA Enrollment:</strong> Register at the Taluka procurement center for government price deficit support.
-            </p>
+            <div class="text-sm font-bold text-emerald-400 uppercase tracking-wider" data-i18n="recommendedActionLabel">Recommended Market Action:</div>
+            <div id="mandi-recommendations-list" class="text-sm sm:text-base leading-relaxed text-slate-200 space-y-1.5">
+              <p>1. <strong>Avoid immediate Mandi distress sale:</strong> Current mandi realization causes an estimated loss.</p>
+              <p>2. <strong>e-NAM & WDRA Warehouse Receipt:</strong> Store produce in nearby WDRA warehouse and avail 70% pledge loan at 7% interest.</p>
+              <p>3. <strong>PM-AASHA Enrollment:</strong> Register at the Taluka procurement center for government price deficit support.</p>
+            </div>
           </div>
 
         </div>
 
         <!-- Tab 3: Alerts Section -->
         <div id="farmer-tab-alerts" class="hidden space-y-6">
-          <div class="pb-4 border-b border-slate-100">
-            <span class="px-3 py-1 rounded-full text-xs font-extrabold bg-blue-100 text-blue-800 uppercase tracking-wider">Notifications & Reminders</span>
-            <h2 class="text-xl sm:text-2xl font-black text-slate-900 mt-2">Active Notifications for Your Farm</h2>
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
+            <div>
+              <span class="px-3 py-1 rounded-full text-xs font-extrabold bg-blue-100 text-blue-800 uppercase tracking-wider" data-i18n="alertsBadge">Notifications & Reminders</span>
+              <h2 class="text-xl sm:text-2xl font-black text-slate-900 mt-2" data-i18n="alertsMainTitle">Active Notifications for Your Farm</h2>
+            </div>
+            <button onclick="playAllAlertsAudio()" class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 active:scale-95 text-white font-bold text-xs sm:text-sm flex items-center space-x-2 shadow-md transition self-start sm:self-auto cursor-pointer">
+              <span>🔊</span>
+              <span data-i18n="listenAllAlerts">Listen All Alerts 🔊</span>
+            </button>
           </div>
 
           <div id="farmer-alerts-container" class="space-y-4">
-            <!-- Populated dynamically -->
+            <!-- Populated dynamically with interactive audio cards -->
           </div>
         </div>
 
         <!-- Tab 4: Govt Schemes Section -->
         <div id="farmer-tab-schemes" class="hidden space-y-6">
-          <div class="pb-4 border-b border-slate-100">
-            <span class="px-3 py-1 rounded-full text-xs font-extrabold bg-purple-100 text-purple-800 uppercase tracking-wider">Government Safety Net</span>
-            <h2 class="text-xl sm:text-2xl font-black text-slate-900 mt-2">Eligible Schemes Based on Your Stress Signals</h2>
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
+            <div>
+              <span class="px-3 py-1 rounded-full text-xs font-extrabold bg-purple-100 text-purple-800 uppercase tracking-wider" data-i18n="schemesBadge">Government Safety Net</span>
+              <h2 class="text-xl sm:text-2xl font-black text-slate-900 mt-2" data-i18n="schemesMainTitle">Eligible Schemes Based on Your Stress Signals</h2>
+            </div>
+            <button onclick="playAllSchemesAudio()" class="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-700 active:scale-95 text-white font-bold text-xs sm:text-sm flex items-center space-x-2 shadow-md transition self-start sm:self-auto cursor-pointer">
+              <span>🔊</span>
+              <span data-i18n="listenAllSchemes">Listen All Schemes 🔊</span>
+            </button>
           </div>
 
           <div id="farmer-schemes-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <!-- Populated dynamically -->
+            <!-- Populated dynamically with interactive audio cards -->
           </div>
         </div>
 

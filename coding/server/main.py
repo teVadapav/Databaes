@@ -559,93 +559,136 @@ def simulate_sms(payload: IvrRequest):
 # In-memory TTS audio cache
 TTS_CACHE = {}
 
-def odia_to_devanagari(text: str) -> str:
-    """Phonetically maps Odia Unicode characters (0x0B00-0x0B7F) to Devanagari (0x0900-0x097F)"""
+VOICE_MAP = {
+    'hi': 'hi-IN-SwaraNeural',
+    'mr': 'mr-IN-AarohiNeural',
+    'kn': 'kn-IN-SapnaNeural',
+    'en': 'en-IN-NeerjaExpressiveNeural',
+    'as': 'bn-IN-TanishaaNeural',
+    'or': 'hi-IN-SwaraNeural',
+}
+
+def odia_to_phonetic_devanagari(text: str) -> str:
+    """Phonetically maps Odia Unicode characters (0x0B00-0x0B7F) to Devanagari with proper Indic phonetics"""
+    replacements = {
+        '\u0B5C': '\u095C', '\u0B5D': '\u095D', '\u0B33': '\u0933',
+        '\u0B5F': '\u092F', '\u0B71': '\u0935', '\u0B01': '\u0901',
+        '\u0B02': '\u0902', '\u0B03': '\u0903', '\u0B05': '\u0905',
+        '\u0B06': '\u0906', '\u0B07': '\u0907', '\u0B08': '\u0908',
+        '\u0B09': '\u0909', '\u0B0A': '\u090A', '\u0B0B': '\u090B',
+        '\u0B0F': '\u090F', '\u0B10': '\u0910', '\u0B13': '\u0913',
+        '\u0B14': '\u0914', '\u0B15': '\u0915', '\u0B16': '\u0916',
+        '\u0B17': '\u0917', '\u0B18': '\u0918', '\u0B19': '\u0919',
+        '\u0B1A': '\u091A', '\u0B1B': '\u091B', '\u0B1C': '\u091C',
+        '\u0B1D': '\u091D', '\u0B1E': '\u091E', '\u0B1F': '\u091F',
+        '\u0B20': '\u0920', '\u0B21': '\u0921', '\u0B22': '\u0922',
+        '\u0B23': '\u0923', '\u0B24': '\u0924', '\u0B25': '\u0925',
+        '\u0B26': '\u0926', '\u0B27': '\u0927', '\u0B28': '\u0928',
+        '\u0B2A': '\u092A', '\u0B2B': '\u092B', '\u0B2C': '\u092C',
+        '\u0B2D': '\u092D', '\u0B2E': '\u092E', '\u0B2F': '\u092F',
+        '\u0B30': '\u0930', '\u0B32': '\u0932', '\u0B36': '\u0936',
+        '\u0B37': '\u0937', '\u0B38': '\u0938', '\u0B39': '\u0939',
+        '\u0B3E': '\u093E', '\u0B3F': '\u093F', '\u0B40': '\u0940',
+        '\u0B41': '\u0941', '\u0B42': '\u0942', '\u0B43': '\u0943',
+        '\u0B47': '\u0947', '\u0B48': '\u0948', '\u0B4B': '\u094B',
+        '\u0B4C': '\u094C', '\u0B4D': '\u094D', '\u0B56': '\u0956',
+        '\u0B57': '\u0957',
+    }
     result = []
     for ch in text:
-        code = ord(ch)
-        if 0x0B00 <= code <= 0x0B7F:
-            dev_code = code - 0x0B00 + 0x0900
-            result.append(chr(dev_code))
-        else:
-            result.append(ch)
-    return "".join(result)
+        result.append(replacements.get(ch, ch))
+    return ''.join(result)
 
-def assamese_to_bengali(text: str) -> str:
-    """Phonetically maps Assamese unique letters to Bengali phonetics"""
+def assamese_to_bengali_phonetic(text: str) -> str:
+    """Maps Assamese unique characters to Bengali phonetic equivalents for clear speech synthesis"""
     return text.replace('\u09F0', '\u09B0').replace('\u09F1', '\u09AC')
 
-def synthesize_speech(text: str, lang: str) -> bytes:
+async def synthesize_speech(text: str, lang: str) -> bytes:
     import re
     import urllib.request
     import urllib.parse
+    import edge_tts
 
     cache_key = f"{lang}:{text}"
     if cache_key in TTS_CACHE:
         return TTS_CACHE[cache_key]
 
     effective_lang = (lang or 'hi').lower().split('-')[0]
-    processed_text = text
     
+    # Preprocess text for natural regional phonetics
     if effective_lang == 'or':
-        processed_text = odia_to_devanagari(text)
-        target_tl = 'hi'
+        processed_text = odia_to_phonetic_devanagari(text)
     elif effective_lang == 'as':
-        processed_text = assamese_to_bengali(text)
-        target_tl = 'bn'
+        processed_text = assamese_to_bengali_phonetic(text)
     else:
-        target_tl = effective_lang
+        processed_text = text
 
-    # Split into chunks of max 180 chars on punctuation / sentence boundaries
-    parts = re.split(r'([.!?,।\n]+)', processed_text)
-    chunks = []
-    current_chunk = ""
-    for part in parts:
-        if len(current_chunk) + len(part) < 180:
-            current_chunk += part
-        else:
-            if current_chunk.strip():
-                chunks.append(current_chunk.strip())
-            current_chunk = part
-    if current_chunk.strip():
-        chunks.append(current_chunk.strip())
-    if not chunks:
-        chunks = [processed_text[:180]]
+    # 1. Primary engine: Microsoft Edge Neural TTS (Natural, expressive Indian voices)
+    try:
+        voice = VOICE_MAP.get(effective_lang, 'hi-IN-SwaraNeural')
+        comm = edge_tts.Communicate(processed_text, voice, rate='-3%')
+        audio_data = b''
+        async for chunk in comm.stream():
+            if chunk['type'] == 'audio':
+                audio_data += chunk['data']
+        if audio_data:
+            if len(TTS_CACHE) > 500:
+                TTS_CACHE.clear()
+            TTS_CACHE[cache_key] = audio_data
+            return audio_data
+    except Exception as e:
+        print(f"Edge TTS synthesis error ({effective_lang}): {e}, falling back to secondary engine")
 
-    audio_segments = []
-    for chunk in chunks:
-        if not chunk.strip():
-            continue
-        encoded_text = urllib.parse.quote(chunk.strip())
-        url = f"https://translate.google.com/translate_tts?ie=UTF-8&tl={target_tl}&client=tw-ob&q={encoded_text}"
-        req = urllib.request.Request(
-            url,
-            headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'}
-        )
-        try:
-            with urllib.request.urlopen(req, timeout=10) as response:
+    # 2. Secondary fallback engine: Google TTS
+    try:
+        target_tl = 'hi' if effective_lang == 'or' else 'bn' if effective_lang == 'as' else effective_lang
+        parts = re.split(r'([.!?,\u0964\n]+)', processed_text)
+        chunks = []
+        current_chunk = ""
+        for part in parts:
+            if len(current_chunk) + len(part) < 180:
+                current_chunk += part
+            else:
+                if current_chunk.strip():
+                    chunks.append(current_chunk.strip())
+                current_chunk = part
+        if current_chunk.strip():
+            chunks.append(current_chunk.strip())
+        if not chunks:
+            chunks = [processed_text[:180]]
+
+        audio_segments = []
+        for chunk in chunks:
+            if not chunk.strip():
+                continue
+            encoded_text = urllib.parse.quote(chunk.strip())
+            url = f"https://translate.google.com/translate_tts?ie=UTF-8&tl={target_tl}&client=tw-ob&q={encoded_text}"
+            req = urllib.request.Request(
+                url,
+                headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'}
+            )
+            with urllib.request.urlopen(req, timeout=8) as response:
                 audio_segments.append(response.read())
-        except Exception as e:
-            print(f"TTS chunk fetch error ({target_tl}): {e}")
 
-    audio_data = b"".join(audio_segments)
-    if audio_data:
-        if len(TTS_CACHE) > 500:
-            TTS_CACHE.clear()
-        TTS_CACHE[cache_key] = audio_data
-        return audio_data
+        audio_data = b"".join(audio_segments)
+        if audio_data:
+            TTS_CACHE[cache_key] = audio_data
+            return audio_data
+    except Exception as e:
+        print(f"Google TTS fallback error ({effective_lang}): {e}")
+
     raise Exception(f"Failed to synthesize speech for language {lang}")
 
 @app.get("/api/tts")
-def text_to_speech_proxy(text: str, lang: str = "hi"):
+async def text_to_speech_proxy(text: str, lang: str = "hi"):
     """
-    High-fidelity Text-To-Speech endpoint supporting all 6 languages:
+    High-fidelity Neural Text-To-Speech endpoint supporting all 6 languages:
     Odia, Assamese, Kannada, Marathi, Hindi, English.
     """
     if not text:
         raise HTTPException(status_code=400, detail="Text parameter is required")
     try:
-        audio_content = synthesize_speech(text, lang)
+        audio_content = await synthesize_speech(text, lang)
         return Response(content=audio_content, media_type="audio/mpeg")
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
