@@ -3593,3 +3593,312 @@ window.switchSchemeCategory = switchSchemeCategory;
 window.renderFarmerSchemes = renderFarmerSchemes;
 
 
+
+
+// --- ENGINE SANDBOX & MVP TESTER LOGIC ---
+let currentSandboxData = null;
+
+async function runSandboxEvaluation() {
+  const nameInput = document.getElementById('sb-farmer-name');
+  if (!nameInput) return; // Not on sandbox view
+
+  const payload = {
+    farmer: {
+      name: nameInput.value || 'Demo Farmer',
+      village: 'Kuarmunda',
+      district_id: document.getElementById('sb-district').value,
+      crop: document.getElementById('sb-crop').value,
+      crop_stage: document.getElementById('sb-stage').value,
+      landholding_hectares: parseFloat(document.getElementById('sb-land').value || 1.0),
+      irrigation_type: document.getElementById('sb-irrigation').value,
+      borewell_failed: document.getElementById('sb-borewell-failed').checked,
+      has_pmfby_insurance: document.getElementById('sb-pmfby').checked,
+      has_kcc: document.getElementById('sb-kcc').checked,
+      informal_debt: document.getElementById('sb-informal-debt').checked,
+      loan_due_date: formatDate(document.getElementById('sb-loan-date').value),
+      loan_amount_inr: 45000,
+      language: document.getElementById('sb-lang').value
+    },
+    current_mandi_price: parseFloat(document.getElementById('sb-cur-price').value || 0),
+    govt_msp: parseFloat(document.getElementById('sb-msp-price').value || 0),
+    rainfall_deviation_pct: parseFloat(document.getElementById('sb-rain-dev').value || 0),
+    dry_spell_days: parseInt(document.getElementById('sb-dry-days').value || 0),
+    onset_delay_days: parseInt(document.getElementById('sb-onset-delay').value || 0),
+    language: document.getElementById('sb-lang').value
+  };
+
+  try {
+    const res = await fetch(`${API_BASE}/simulator/evaluate`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    const data = await res.json();
+    if (data.status === 'success') {
+      currentSandboxData = data;
+      renderSandboxResults(data);
+    }
+  } catch (err) {
+    console.error('Error running sandbox simulation:', err);
+  }
+}
+
+function renderSandboxResults(data) {
+  const adv = data.advisory;
+  const dist = data.distress;
+  const trace = data.decision_trace;
+  const lang = data.inputs_received.language || 'or';
+
+  // 1. Advisory Card
+  const ruleBadge = document.getElementById('sb-out-rule-badge');
+  if (adv.rule_id === 'R-30') {
+    ruleBadge.textContent = '🚨 RULE R-30: MARKET DISTRESS OVERRIDE';
+    ruleBadge.className = 'px-3 py-1 rounded-full text-xs font-black bg-rose-600 text-white uppercase tracking-wider';
+  } else if (adv.rule_id === 'R-10') {
+    ruleBadge.textContent = '🌾 RULE R-10: CRIDA CONTINGENCY CROP SWITCH';
+    ruleBadge.className = 'px-3 py-1 rounded-full text-xs font-black bg-amber-600 text-white uppercase tracking-wider';
+  } else if (adv.rule_id === 'R-15') {
+    ruleBadge.textContent = '🌱 RULE R-15: DRY SPELL MOISTURE STRESS';
+    ruleBadge.className = 'px-3 py-1 rounded-full text-xs font-black bg-orange-600 text-white uppercase tracking-wider';
+  } else {
+    ruleBadge.textContent = '🌿 RULE R-20: PHENOLOGICAL STAGE BEST PRACTICE';
+    ruleBadge.className = 'px-3 py-1 rounded-full text-xs font-black bg-emerald-700 text-white uppercase tracking-wider';
+  }
+
+  const titleEl = document.getElementById('sb-out-advisory-title');
+  titleEl.textContent = adv.title[lang] || adv.title['en'] || adv.title['or'];
+
+  const textEl = document.getElementById('sb-out-advisory-text');
+  textEl.textContent = adv.text[lang] || adv.text['en'] || adv.text['or'];
+
+  // Contingency box
+  const cBox = document.getElementById('sb-out-contingency-box');
+  const cList = document.getElementById('sb-out-contingency-list');
+  if (adv.rule_id === 'R-10' && adv.contingency_crops && adv.contingency_crops.length > 0) {
+    cBox.classList.remove('hidden');
+    cList.innerHTML = adv.contingency_crops.map(c => `
+      <div class="bg-amber-50 p-2.5 rounded-xl border border-amber-200">
+        <div class="font-black text-amber-950 text-xs">${c.crop_name}</div>
+        <div class="text-[10px] text-amber-800 font-semibold">Variety: ${c.variety} • Duration: ${c.duration_days} days</div>
+      </div>
+    `).join('');
+  } else {
+    cBox.classList.add('hidden');
+  }
+
+  // 2. Decision Trace Checklist
+  const traceBox = document.getElementById('sb-out-decision-trace');
+  traceBox.innerHTML = trace.map(t => {
+    const isFired = t.outcome.includes('FIRED');
+    const badgeColor = isFired ? 'bg-emerald-100 text-emerald-900 border-emerald-300' : 'bg-slate-100 text-slate-500 border-slate-200';
+    
+    return `
+      <div class="py-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+        <div>
+          <div class="flex items-center space-x-2">
+            <span class="font-mono font-black text-xs text-slate-900">${t.rule_id}:</span>
+            <span class="font-bold text-slate-800 text-xs">${t.name}</span>
+          </div>
+          <div class="text-[11px] text-slate-500 mt-1 space-y-0.5">
+            ${t.conditions.map(c => `
+              <div class="flex items-center space-x-1.5">
+                <span>${c.met ? '✅' : '❌'}</span>
+                <span>${c.criterion}:</span>
+                <strong class="${c.met ? 'text-emerald-700' : 'text-slate-500'}">Actual [${c.actual}] vs Expected [${c.expected}]</strong>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+        <div class="self-start sm:self-center">
+          <span class="px-2.5 py-1 rounded-lg text-[10px] font-black uppercase border ${badgeColor}">
+            ${t.outcome}
+          </span>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  // 3. ICAR-CRIDA 6-Dimension Calculation Matrix
+  const riskBadge = document.getElementById('sb-out-risk-badge');
+  riskBadge.textContent = `${dist.risk_band.toUpperCase()} RISK (${dist.distress_score.toFixed(1)})`;
+  riskBadge.className = dist.risk_band === 'High' 
+    ? 'px-3 py-1 rounded-full text-xs font-black bg-rose-100 text-rose-800'
+    : dist.risk_band === 'Medium'
+    ? 'px-3 py-1 rounded-full text-xs font-black bg-amber-100 text-amber-800'
+    : 'px-3 py-1 rounded-full text-xs font-black bg-emerald-100 text-emerald-800';
+
+  const pts = dist.points_breakdown || {};
+  const raw = dist.raw_dimensions || {};
+
+  const dimBox = document.getElementById('sb-out-dim-matrix');
+  dimBox.innerHTML = `
+    <div class="p-2.5 bg-blue-50/60 rounded-xl border border-blue-200">
+      <div class="font-extrabold text-blue-900">E — Exposure (0.25)</div>
+      <div class="text-sm font-black text-blue-950 mt-0.5">${pts.exposure_pts || 0} pts</div>
+      <div class="text-[10px] text-blue-700">Raw E: ${raw.E || 0}</div>
+    </div>
+    <div class="p-2.5 bg-cyan-50/60 rounded-xl border border-cyan-200">
+      <div class="font-extrabold text-cyan-900">S — Sensitivity (0.15)</div>
+      <div class="text-sm font-black text-cyan-950 mt-0.5">${pts.sensitivity_pts || 0} pts</div>
+      <div class="text-[10px] text-cyan-700">Raw S: ${raw.S || 0}</div>
+    </div>
+    <div class="p-2.5 bg-emerald-50/60 rounded-xl border border-emerald-200">
+      <div class="font-extrabold text-emerald-900">100-AC — Low Cap (0.15)</div>
+      <div class="text-sm font-black text-emerald-950 mt-0.5">${pts.adaptive_capacity_pts || 0} pts</div>
+      <div class="text-[10px] text-emerald-700">Raw AC: ${raw.AC || 0}</div>
+    </div>
+    <div class="p-2.5 bg-amber-50/60 rounded-xl border border-amber-200">
+      <div class="font-extrabold text-amber-900">M — Mitigation Gap (0.15)</div>
+      <div class="text-sm font-black text-amber-950 mt-0.5">${pts.mitigation_deficit_pts || 0} pts</div>
+      <div class="text-[10px] text-amber-700">Raw M: ${raw.M || 0}</div>
+    </div>
+    <div class="p-2.5 bg-purple-50/60 rounded-xl border border-purple-200">
+      <div class="font-extrabold text-purple-900">T — Trigger Debt (0.20)</div>
+      <div class="text-sm font-black text-purple-950 mt-0.5">${pts.trigger_pts || 0} pts</div>
+      <div class="text-[10px] text-purple-700">Raw T: ${raw.T || 0}</div>
+    </div>
+    <div class="p-2.5 bg-rose-50/60 rounded-xl border border-rose-200">
+      <div class="font-extrabold text-rose-900">DF — Fragility (0.10)</div>
+      <div class="text-sm font-black text-rose-950 mt-0.5">${pts.district_fragility_pts || 0} pts</div>
+      <div class="text-[10px] text-rose-700">Raw DF: ${raw.DF || 0}</div>
+    </div>
+  `;
+
+  // 4. Schemes List
+  const schBox = document.getElementById('sb-out-schemes-list');
+  schBox.innerHTML = (dist.recommended_interventions || []).map(i => `
+    <div class="p-2.5 bg-slate-50 rounded-xl border border-slate-200 space-y-0.5">
+      <div class="flex justify-between items-center">
+        <span class="font-extrabold text-slate-900 text-xs">${i.scheme_id} • ${i.scheme_name}</span>
+        <span class="text-[9px] font-black px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-900">${i.urgency}</span>
+      </div>
+      <p class="text-[11px] text-slate-600 font-semibold">${i.action_item}</p>
+    </div>
+  `).join('');
+
+  // 5. SMS Preview
+  const sms = data.sms_preview || {};
+  document.getElementById('sb-out-sms-body').textContent = sms.text || '';
+  document.getElementById('sb-out-sms-count').textContent = `${sms.char_count || 0} chars (${sms.units || 1} SMS)`;
+}
+
+function loadSandboxPreset(presetKey) {
+  if (presetKey === 'market_crash') {
+    document.getElementById('sb-farmer-name').value = 'Suresh Majhi';
+    document.getElementById('sb-district').value = 'D1';
+    document.getElementById('sb-crop').value = 'paddy';
+    document.getElementById('sb-stage').value = 'harvest';
+    document.getElementById('sb-land').value = '0.9';
+    document.getElementById('sb-irrigation').value = 'rainfed';
+    document.getElementById('sb-borewell-failed').checked = false;
+    document.getElementById('sb-pmfby').checked = false;
+    document.getElementById('sb-kcc').checked = false;
+    document.getElementById('sb-informal-debt').checked = true;
+    document.getElementById('sb-loan-date').value = '2026-09-10';
+    document.getElementById('sb-lang').value = 'or';
+    document.getElementById('sb-cur-price').value = '1950';
+    document.getElementById('sb-msp-price').value = '2300';
+    document.getElementById('sb-rain-dev').value = '-39.3';
+    document.getElementById('sb-dry-days').value = '9';
+    document.getElementById('sb-onset-delay').value = '2';
+  } else if (presetKey === 'monsoon_delay') {
+    document.getElementById('sb-farmer-name').value = 'Pabitra Oram';
+    document.getElementById('sb-district').value = 'D2';
+    document.getElementById('sb-crop').value = 'maize';
+    document.getElementById('sb-stage').value = 'sowing';
+    document.getElementById('sb-land').value = '1.5';
+    document.getElementById('sb-irrigation').value = 'rainfed';
+    document.getElementById('sb-borewell-failed').checked = true;
+    document.getElementById('sb-pmfby').checked = false;
+    document.getElementById('sb-kcc').checked = false;
+    document.getElementById('sb-informal-debt').checked = true;
+    document.getElementById('sb-loan-date').value = '2026-09-20';
+    document.getElementById('sb-lang').value = 'or';
+    document.getElementById('sb-cur-price').value = '2100';
+    document.getElementById('sb-msp-price').value = '2090';
+    document.getElementById('sb-rain-dev').value = '-52.0';
+    document.getElementById('sb-dry-days').value = '14';
+    document.getElementById('sb-onset-delay').value = '18';
+  } else if (presetKey === 'dry_spell_debt') {
+    document.getElementById('sb-farmer-name').value = 'Bikash Kisan';
+    document.getElementById('sb-district').value = 'D3';
+    document.getElementById('sb-crop').value = 'tomato';
+    document.getElementById('sb-stage').value = 'vegetative';
+    document.getElementById('sb-land').value = '0.7';
+    document.getElementById('sb-irrigation').value = 'protective_well';
+    document.getElementById('sb-borewell-failed').checked = true;
+    document.getElementById('sb-pmfby').checked = false;
+    document.getElementById('sb-kcc').checked = false;
+    document.getElementById('sb-informal-debt').checked = true;
+    document.getElementById('sb-loan-date').value = '2026-09-02';
+    document.getElementById('sb-lang').value = 'hi';
+    document.getElementById('sb-cur-price').value = '1200';
+    document.getElementById('sb-msp-price').value = '1500';
+    document.getElementById('sb-rain-dev').value = '-44.0';
+    document.getElementById('sb-dry-days').value = '11';
+    document.getElementById('sb-onset-delay').value = '5';
+  } else if (presetKey === 'healthy_season') {
+    document.getElementById('sb-farmer-name').value = 'Dharanidhar Naik';
+    document.getElementById('sb-district').value = 'D1';
+    document.getElementById('sb-crop').value = 'arhar';
+    document.getElementById('sb-stage').value = 'vegetative';
+    document.getElementById('sb-land').value = '2.2';
+    document.getElementById('sb-irrigation').value = 'canal';
+    document.getElementById('sb-borewell-failed').checked = false;
+    document.getElementById('sb-pmfby').checked = true;
+    document.getElementById('sb-kcc').checked = true;
+    document.getElementById('sb-informal-debt').checked = false;
+    document.getElementById('sb-loan-date').value = '2026-12-15';
+    document.getElementById('sb-lang').value = 'en';
+    document.getElementById('sb-cur-price').value = '7600';
+    document.getElementById('sb-msp-price').value = '7000';
+    document.getElementById('sb-rain-dev').value = '4.5';
+    document.getElementById('sb-dry-days').value = '2';
+    document.getElementById('sb-onset-delay').value = '0';
+  }
+
+  runSandboxEvaluation();
+}
+
+async function speakSandboxAdvisory() {
+  if (!currentSandboxData || !currentSandboxData.advisory) return;
+
+  const adv = currentSandboxData.advisory;
+  const lang = currentSandboxData.inputs_received.language || state.selectedLanguage || 'en';
+  const text = adv.text[lang] || adv.text['en'] || adv.text['hi'] || adv.text['mr'] || adv.text['or'];
+  await speakText(text, lang, 'sandbox-engine');
+  return;
+
+  if ('speechSynthesis' in window) {
+    stopSpeech();
+
+    const utterance = new SpeechSynthesisUtterance(text);
+    if (lang === 'or') utterance.lang = 'or-IN';
+    else if (lang === 'hi') utterance.lang = 'hi-IN';
+    else utterance.lang = 'en-IN';
+
+    utterance.rate = 0.9;
+    utterance.pitch = 1.0;
+
+    utterance.onstart = () => {
+      state.isSpeaking = true;
+      const icon = document.getElementById('sb-speaker-icon');
+      if (icon) icon.textContent = '⏹️';
+    };
+
+    utterance.onend = () => {
+      state.isSpeaking = false;
+      const icon = document.getElementById('sb-speaker-icon');
+      if (icon) icon.textContent = '🔊';
+    };
+
+    utterance.onerror = () => {
+      state.isSpeaking = false;
+      const icon = document.getElementById('sb-speaker-icon');
+      if (icon) icon.textContent = '🔊';
+    };
+
+    window.speechSynthesis.speak(utterance);
+  }
+}
