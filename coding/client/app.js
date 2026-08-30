@@ -3570,10 +3570,35 @@ function playIvrAudioPrompt() {
 }
 
 let smsDelivered = false;
+let smsLanguage = 'en';
+
+async function onSmsLanguageSelect(lang) {
+  smsLanguage = lang;
+  smsDelivered = false;
+  await triggerSmsDelivery(null, lang, false);
+}
+
+async function resetSmsEmulator() {
+  smsDelivered = false;
+  const langSelect = document.getElementById('sim-sms-lang-select');
+  const lang = (langSelect && langSelect.value) || smsLanguage || state.selectedLanguage || 'en';
+  
+  const statusPill = document.getElementById('sms-status-pill');
+  if (statusPill) {
+    statusPill.className = "text-rose-400 font-bold";
+    statusPill.textContent = "STATUS: UNDELIVERED ⏳";
+  }
+  
+  const smsTime = document.getElementById('sms-time');
+  if (smsTime) smsTime.textContent = '16:45 IST';
+
+  await triggerSmsDelivery(null, lang, false);
+}
 
 async function triggerSmsDelivery(customFarmerId, customLang, isDispatch = false) {
   const farmerId = customFarmerId || state.selectedFarmerId || 'F1';
-  const lang = customLang || state.ivrLanguage || state.selectedLanguage || 'en';
+  const langSelect = document.getElementById('sim-sms-lang-select');
+  const lang = customLang || (langSelect ? langSelect.value : null) || smsLanguage || state.selectedLanguage || 'en';
   try {
     const dispatchBtn = document.getElementById('btn-dispatch-sms');
     if (dispatchBtn && isDispatch) {

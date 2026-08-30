@@ -917,17 +917,36 @@
         <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-200 flex flex-col justify-between space-y-6">
           
           <div>
-            <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-100 pb-3 mb-4 gap-2">
               <div class="flex items-center space-x-2">
                 <span class="text-2xl">📱</span>
                 <div>
-                  <h3 class="font-extrabold text-base text-slate-900" data-i18n="smsEmulatorTitle">Feature Phone SMS Emulator</h3>
-                  <div class="text-xs text-slate-500" data-i18n="smsEmulatorSub">Plain-text 160-character GSM SMS Delivery</div>
+                  <h3 class="font-extrabold text-base text-slate-900" data-i18n="smsEmulatorTitle">Outbound SMS Notification Emulator</h3>
+                  <div class="text-xs text-slate-500" data-i18n="smsEmulatorSub">Simulated GSM SMS payload builder across all 6 regional languages.</div>
                 </div>
               </div>
-              <button id="btn-dispatch-sms" onclick="triggerSmsDelivery(null, null, true)" class="px-3 py-1.5 bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold rounded-lg shadow transition" data-i18n="sendTestSms">
-                Dispatch SMS via Telephony Gateway 📨
-              </button>
+              <div class="flex flex-wrap items-center gap-2">
+                <!-- SMS Language Dropdown -->
+                <div class="flex items-center space-x-1 bg-slate-100 px-2.5 py-1.5 rounded-xl border border-slate-200">
+                  <span class="text-xs text-slate-500">🌐</span>
+                  <select id="sim-sms-lang-select" onchange="onSmsLanguageSelect(this.value)" class="bg-transparent text-slate-800 text-xs font-bold outline-none cursor-pointer">
+                    <option value="en">English</option>
+                    <option value="hi">हिंदी (Hindi)</option>
+                    <option value="mr">मराठी (Marathi)</option>
+                    <option value="or">ଓଡ଼ିଆ (Odia)</option>
+                    <option value="as">অসমীয়া (Assamese)</option>
+                    <option value="kn">ಕನ್ನಡ (Kannada)</option>
+                  </select>
+                </div>
+                <!-- Reset Button -->
+                <button onclick="resetSmsEmulator()" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl border border-slate-200 shadow-sm transition">
+                  Reset 🔄
+                </button>
+                <!-- Dispatch Button -->
+                <button id="btn-dispatch-sms" onclick="triggerSmsDelivery(null, null, true)" class="px-3 py-1.5 bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold rounded-xl shadow transition" data-i18n="sendTestSms">
+                  Dispatch SMS via Telephony Gateway 📨
+                </button>
+              </div>
             </div>
 
             <!-- Simulated Feature Phone Monochrome Screen -->
