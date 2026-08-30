@@ -6,3 +6,5 @@ env/
 venv/
 SIHclone1/
 .gemini/
+.tts_cache/
+*.mp3

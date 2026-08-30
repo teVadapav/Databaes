@@ -35,38 +35,92 @@
       }
     }
   </script>
-  <link rel="stylesheet" href="/static/styles.css">
-  <link rel="stylesheet" href="/static/onboarding.css">
+  <link rel="stylesheet" href="/static/styles.css?v=3897f1_4">
+  <link rel="stylesheet" href="/static/onboarding.css?v=3897f1_4">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;600;700&family=Noto+Sans:wght@400;600;700&family=Noto+Sans+Oriya:wght@400;600;700&family=Noto+Sans+Bengali:wght@400;600;700&family=Noto+Sans+Kannada:wght@400;600;700&display=swap" rel="stylesheet">
+  
   <style>
+    :root {
+      --primary-color: #3897f1;
+      --primary-hover: #2380de;
+      --primary-light: #ebf5fe;
+      --primary-dark: #16539a;
+      --accent-color: #3897f1;
+    }
     body {
       font-family: 'Outfit', 'Noto Sans Devanagari', -apple-system, sans-serif;
+      background-color: #f0f7ff;
     }
-    .touch-target {
-      min-height: 56px;
+    .onboarding-header {
+      background: linear-gradient(135deg, #16539a 0%, #2380de 50%, #3897f1 100%) !important;
     }
-    .farmer-btn {
-      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    .onboarding-progress-fill {
+      background: linear-gradient(90deg, #3897f1, #8eccfd) !important;
     }
-    .farmer-btn:active {
-      transform: scale(0.96);
+    .btn-primary-action {
+      background: linear-gradient(135deg, #3897f1 0%, #2380de 100%) !important;
+      box-shadow: 0 4px 12px rgba(56, 151, 241, 0.35) !important;
+    }
+    .btn-primary-action:hover {
+      background: linear-gradient(135deg, #2380de 0%, #16539a 100%) !important;
+    }
+    .lang-select-card.active {
+      border-color: #3897f1 !important;
+      background: #ebf5fe !important;
+      box-shadow: 0 0 0 3px rgba(56, 151, 241, 0.25) !important;
+    }
+    .lang-select-card.active .lang-card-check {
+      background: #3897f1 !important;
+    }
+    .lang-voice-pill {
+      color: #16539a !important;
+      background: #e0f0fe !important;
+    }
+    .lang-voice-pill:hover {
+      background: #c3e2fd !important;
+    }
+    .lang-voice-pill.playing {
+      background: #bae0fd !important;
+      color: #0b4582 !important;
+      box-shadow: 0 0 0 2px rgba(56, 151, 241, 0.4) !important;
+    }
+    .crop-chip.selected {
+      border-color: #3897f1 !important;
+      background: #3897f1 !important;
+      color: #ffffff !important;
+      box-shadow: 0 4px 8px -2px rgba(56, 151, 241, 0.35) !important;
+    }
+    .stage-select-card.active {
+      border-color: #3897f1 !important;
+      background: #ebf5fe !important;
+      box-shadow: 0 0 0 3px rgba(56, 151, 241, 0.25) !important;
+    }
+    .stage-select-card.active .stage-card-check {
+      background: #3897f1 !important;
+      border-color: #3897f1 !important;
+    }
+    .form-input:focus, .form-select:focus {
+      border-color: #3897f1 !important;
+      box-shadow: 0 0 0 3px rgba(56, 151, 241, 0.2) !important;
+    }
+    .unit-toggle-btn.active {
+      color: #16539a !important;
     }
   </style>
+
   <style>
-    * {
-      font-family: "Times New Roman", Times, serif !important;
+    :root {
+      --primary-color: #3897f1;
+      --primary-hover: #2380de;
+      --primary-light: #ebf5fe;
+      --primary-dark: #16539a;
+      --accent-color: #3897f1;
     }
     body {
-      font-family: "Times New Roman", Times, serif !important;
-      background-color: #f0f9ff;
-    }
-    :root {
-      --primary-color: #0284c7;
-      --primary-hover: #0369a1;
-      --primary-light: #e0f2fe;
-      --primary-dark: #075985;
+      font-family: 'Outfit', 'Noto Sans Devanagari', -apple-system, sans-serif;
+      background-color: #f0f7ff;
     }
   </style>
 </head>
@@ -93,7 +147,7 @@
 
         <!-- Global View Mode Switcher & Setup Flow -->
         <nav class="flex items-center space-x-1 sm:space-x-2 bg-slate-800 p-1 rounded-xl border border-slate-700">
-          <button id="nav-farmer-btn" onclick="switchMainView('farmer')" class="px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold flex items-center space-x-1.5 transition-all bg-sky-600 text-white shadow">
+          <button id="nav-farmer-btn" onclick="switchMainView('farmer')" class="px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold flex items-center space-x-1.5 transition-all bg-[#3897f1] text-white shadow">
             <span>👨‍🌾</span>
             <span>Farmer App</span>
           </button>
@@ -109,9 +163,9 @@
             <span>📟</span>
             <span>IVR / SMS Fallback</span>
           </button>
-          <button id="nav-setup-btn" onclick="Onboarding.openSetupFlow()" title="Farm Profile & Settings" class="px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold flex items-center space-x-1.5 transition-all bg-sky-500/20 text-emerald-300 hover:bg-sky-500/30 border border-sky-500/40">
+          <button id="nav-setup-btn" onclick="Onboarding.openSetupFlow()" title="Edit Farmer Profile" class="px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold flex items-center space-x-1.5 transition-all bg-sky-500/20 text-emerald-300 hover:bg-sky-500/30 border border-sky-500/40">
             <span>⚙️</span>
-            <span>Setup Flow</span>
+            <span>Edit Profile</span>
           </button>
           <button id="nav-login-btn" onclick="Onboarding.openLoginModal()" title="Farmer Login" class="px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold flex items-center space-x-1.5 transition-all text-slate-300 hover:text-white hover:bg-slate-700">
             <span>🔑</span>
@@ -180,7 +234,7 @@
           <div class="mobile-device-screen-scroll">
             
             <!-- Farmer Profile Card (Mobile Unified Identity & All Details from integrated2) -->
-            <div id="farmer-profile-card" class="bg-gradient-to-br from-sky-900 via-sky-800 to-sky-700 text-white rounded-2xl p-4 shadow-md space-y-3">
+            <div id="farmer-profile-card" class="bg-gradient-to-br from-[#124b8a] via-[#1d68ba] to-[#3897f1] text-white rounded-2xl p-4 shadow-md space-y-3">
               <!-- Top Row: Avatar, Farmer Name, Crop Badge, Action Buttons -->
               <div class="flex items-start justify-between gap-2">
                 <div class="flex items-center space-x-2.5 min-w-0">
@@ -195,9 +249,9 @@
                     </div>
                   </div>
                 </div>
-                <!-- Action Buttons: Setup Flow & Switch -->
+                <!-- Action Buttons: Edit Profile & Switch -->
                 <div id="farmer-logged-in-badge" class="flex items-center space-x-1.5 shrink-0">
-                  <button onclick="Onboarding.openSetupFlow()" title="Farmer Setup Flow" class="text-xs bg-sky-500 hover:bg-sky-400 active:scale-95 text-white font-bold px-2.5 py-1 rounded-xl transition shadow-xs cursor-pointer border border-sky-300/40">Setup Flow</button>
+                  <button onclick="Onboarding.openSetupFlow()" title="Edit Farmer Profile" class="text-xs bg-sky-500 hover:bg-sky-400 active:scale-95 text-white font-bold px-2.5 py-1 rounded-xl transition shadow-xs cursor-pointer border border-sky-300/40">Edit Profile</button>
                   <button onclick="Onboarding.openLoginModal()" title="Switch Account / Login" class="text-xs bg-white/20 hover:bg-white/30 active:scale-95 text-white font-bold px-2 py-1 rounded-xl transition cursor-pointer border border-white/20">Switch</button>
                 </div>
               </div>
@@ -205,7 +259,7 @@
               <!-- 2x2 Grid of Profile Details: Location, Landholding, Irrigation, Loan Due -->
               <div class="grid grid-cols-2 gap-2 pt-2 border-t border-sky-700/60 text-xs">
                 <div class="bg-sky-950/40 rounded-xl px-2.5 py-1.5 border border-sky-600/30 flex items-center space-x-1.5">
-                  <span id="fp-location" class="font-semibold text-sky-100 truncate">📍 Chandwad, Nashik</span>
+                  <span id="fp-location" class="font-semibold text-sky-100 break-words leading-tight text-[11px]">📍 Chandwad, Nashik</span>
                 </div>
                 <div class="bg-sky-950/40 rounded-xl px-2.5 py-1.5 border border-sky-600/30 flex items-center space-x-1.5">
                   <span id="fp-landholding" class="font-semibold text-sky-100 truncate">📐 1.2 Hectares</span>
@@ -424,9 +478,9 @@
                     <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-blue-100 text-blue-800 uppercase tracking-wider" data-i18n="alertsBadge">Notifications</span>
                     <h2 class="text-base font-black text-slate-900 mt-1" data-i18n="alertsMainTitle">Active Alerts</h2>
                   </div>
-                  <button onclick="playAllAlertsAudio()" class="px-3 py-1 rounded-lg bg-blue-600 hover:bg-blue-700 active:scale-95 text-white font-bold text-[10px] flex items-center space-x-1 shadow-xs transition cursor-pointer">
+                  <button onclick="playAllAlertsAudio()" class="px-3 py-1.5 rounded-xl bg-[#3897f1] hover:bg-[#2380de] active:scale-95 text-white font-bold text-xs flex items-center space-x-1.5 shadow-xs transition cursor-pointer whitespace-nowrap shrink-0">
                     <span>🔊</span>
-                    <span data-i18n="listenAllAlerts">Listen All 🔊</span>
+                    <span data-i18n="listenAllAlerts">Listen All</span>
                   </button>
                 </div>
 
@@ -450,7 +504,7 @@
 
                 <!-- Scheme Category Navigation Tabs -->
                 <div class="flex items-center space-x-1.5 overflow-x-auto pb-1 no-scrollbar" role="tablist" aria-label="Scheme Categories">
-                  <button id="scheme-cat-for_you" onclick="switchSchemeCategory('for_you')" role="tab" aria-selected="true" class="px-2.5 py-1 rounded-lg text-xs font-extrabold flex items-center space-x-1 transition bg-sky-600 text-white shadow-2xs cursor-pointer shrink-0">
+                  <button id="scheme-cat-for_you" onclick="switchSchemeCategory('for_you')" role="tab" aria-selected="true" class="px-2.5 py-1 rounded-lg text-xs font-extrabold flex items-center space-x-1 transition bg-[#3897f1] text-white shadow-2xs cursor-pointer shrink-0">
                     <span data-i18n="tabForYou">🌟 For You</span>
                     <span id="scheme-count-for_you" class="px-1.5 py-0.2 rounded-full text-[9px] font-black bg-white/20 ml-0.5"></span>
                   </button>
@@ -516,10 +570,23 @@
           <h1 class="text-2xl font-black text-slate-900 mt-1" data-i18n="officerMainTitle">District Agro-Distress Monitoring & Interventions</h1>
           <p class="text-xs sm:text-sm text-slate-500 mt-0.5" data-i18n="officerMainSub">ICAR-CRIDA FDI framework early-warning dashboard for block agriculture officers and field workers.</p>
         </div>
-        <button id="btn-officer-briefing" onclick="playOfficerBriefingAudio()" class="px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-700 active:scale-95 text-white font-bold text-xs sm:text-sm flex items-center space-x-2 shadow-md transition whitespace-nowrap self-start sm:self-auto">
-          <span>🔊</span>
-          <span data-i18n="playOfficerBriefing">Listen to District Briefing</span>
-        </button>
+        <div class="flex flex-wrap items-center gap-3 self-start sm:self-auto">
+          <div class="flex items-center space-x-1.5 bg-slate-100 px-3 py-2 rounded-xl border border-slate-200 shadow-sm">
+            <span class="text-sm">🌐</span>
+            <select id="officer-lang-select" onchange="onOfficerLanguageChange(this.value)" class="bg-transparent text-xs font-bold text-slate-700 outline-none cursor-pointer">
+              <option value="en">English</option>
+              <option value="hi">हिंदी (Hindi)</option>
+              <option value="mr">मराठी (Marathi)</option>
+              <option value="or">ଓଡ଼ିଆ (Odia)</option>
+              <option value="as">অসমীয়া (Assamese)</option>
+              <option value="kn">ಕನ್ನಡ (Kannada)</option>
+            </select>
+          </div>
+          <button id="btn-officer-briefing" onclick="playOfficerBriefingAudio()" class="px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-700 active:scale-95 text-white font-bold text-xs sm:text-sm flex items-center space-x-2 shadow-md transition whitespace-nowrap">
+            <span>🔊</span>
+            <span id="officer-briefing-label" data-i18n="playOfficerBriefing">Listen to District Briefing</span>
+          </button>
+        </div>
       </div>
 
       <!-- Top Metrics Summary Cards -->
@@ -577,7 +644,7 @@
                 <th class="px-4 py-4" data-i18n="thTopTrigger">Top Trigger Signal</th>
                 <th class="px-4 py-4" data-i18n="thRecommendedScheme">Recommended Scheme</th>
                 <th class="px-4 py-4" data-i18n="thContactChannel">Contact Channel</th>
-                <th class="px-5 py-4 text-right">Actions & Delete</th>
+                <th class="px-5 py-4 text-right" data-i18n="thActions">Actions</th>
               </tr>
             </thead>
             <tbody id="officer-table-body" class="divide-y divide-slate-100">
@@ -1132,7 +1199,7 @@
   <!-- TTS Status Toast -->
   <div id="tts-toast" class="tts-toast" role="status" aria-live="polite"></div>
 
-  <script src="/static/onboarding.js"></script>
-  <script src="/static/app.js"></script>
+  <script src="/static/onboarding.js?v=3897f1_11"></script>
+  <script src="/static/app.js?v=3897f1_11"></script>
 </body>
 </html>

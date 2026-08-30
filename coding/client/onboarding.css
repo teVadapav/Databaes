@@ -54,7 +54,7 @@
 
 /* Step Header & Progress Bar */
 .onboarding-header {
-  background: linear-gradient(135deg, #064e3b 0%, #047857 50%, #059669 100%);
+  background: linear-gradient(135deg, #16539a 0%, #2380de 50%, #3897f1 100%);
   color: #ffffff;
   padding: 1rem 1.25rem 0.85rem;
   position: relative;
@@ -71,7 +71,7 @@
 
 .onboarding-progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, #34d399, #6ee7b7);
+  background: linear-gradient(90deg, #3897f1, #8eccfd);
   border-radius: 9999px;
   transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -102,16 +102,16 @@
 }
 
 .lang-select-card:hover {
-  border-color: #10b981;
-  background: #f0fdf4;
+  border-color: #3897f1;
+  background: #f0f7ff;
   transform: translateY(-1px);
-  box-shadow: 0 4px 10px -2px rgba(16, 185, 129, 0.15);
+  box-shadow: 0 4px 10px -2px rgba(56, 151, 241, 0.15);
 }
 
 .lang-select-card.active {
-  border-color: #059669;
-  background: #ecfdf5;
-  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.25);
+  border-color: #3897f1;
+  background: #ebf5fe;
+  box-shadow: 0 0 0 3px rgba(56, 151, 241, 0.25);
   transform: translateY(-2px);
 }
 
@@ -145,15 +145,15 @@
 }
 
 .lang-select-card.active .lang-card-check {
-  background: #059669;
+  background: #3897f1;
 }
 
 /* Audio Pronunciation Preview Pill */
 .lang-voice-pill {
   font-size: 0.7rem;
   font-weight: 700;
-  color: #047857;
-  background: #d1fae5;
+  color: #16539a;
+  background: #e0f0fe;
   padding: 0.25rem 0.65rem;
   border-radius: 9999px;
   display: inline-flex;
@@ -164,7 +164,7 @@
 }
 
 .lang-voice-pill:hover {
-  background: #a7f3d0;
+  background: #c3e2fd;
 }
 
 .lang-voice-pill.loading {
@@ -174,9 +174,9 @@
 }
 
 .lang-voice-pill.playing {
-  background: #bbf7d0;
-  color: #14532d;
-  box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.4);
+  background: #bae0fd;
+  color: #0b4582;
+  box-shadow: 0 0 0 2px rgba(56, 151, 241, 0.4);
 }
 
 .lang-select-card.locked {
@@ -221,9 +221,9 @@
 }
 
 .form-input:focus, .form-select:focus {
-  border-color: #059669;
+  border-color: #3897f1;
   background: #ffffff;
-  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+  box-shadow: 0 0 0 3px rgba(56, 151, 241, 0.2);
 }
 
 .form-input.error, .form-select.error {
@@ -266,7 +266,7 @@
 
 .unit-toggle-btn.active {
   background: #ffffff;
-  color: #064e3b;
+  color: #16539a;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
 }
 
@@ -295,15 +295,15 @@
 }
 
 .crop-chip:hover {
-  border-color: #10b981;
-  background: #f0fdf4;
+  border-color: #3897f1;
+  background: #f0f7ff;
 }
 
 .crop-chip.selected {
-  border-color: #059669;
-  background: #059669;
+  border-color: #3897f1;
+  background: #3897f1;
   color: #ffffff;
-  box-shadow: 0 4px 8px -2px rgba(5, 150, 105, 0.35);
+  box-shadow: 0 4px 8px -2px rgba(56, 151, 241, 0.35);
   transform: scale(1.02);
 }
 
@@ -323,7 +323,7 @@
 }
 
 .btn-primary-action {
-  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  background: linear-gradient(135deg, #3897f1 0%, #2380de 100%);
   color: #ffffff;
   border: none;
   border-radius: 0.75rem;
@@ -335,14 +335,14 @@
   align-items: center;
   justify-content: center;
   gap: 0.4rem;
-  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.35);
+  box-shadow: 0 4px 12px rgba(56, 151, 241, 0.35);
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .btn-primary-action:hover {
-  background: linear-gradient(135deg, #047857 0%, #064e3b 100%);
+  background: linear-gradient(135deg, #2380de 0%, #16539a 100%);
   transform: translateY(-1px);
-  box-shadow: 0 6px 16px rgba(5, 150, 105, 0.45);
+  box-shadow: 0 6px 16px rgba(56, 151, 241, 0.45);
 }
 
 .btn-primary-action:active {
@@ -410,15 +410,15 @@
 }
 
 .stage-select-card:hover {
-  border-color: #10b981;
-  background: #f0fdf4;
+  border-color: #3897f1;
+  background: #f0f7ff;
   transform: translateY(-1px);
 }
 
 .stage-select-card.active {
-  border-color: #059669;
-  background: #ecfdf5;
-  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.25);
+  border-color: #3897f1;
+  background: #ebf5fe;
+  box-shadow: 0 0 0 3px rgba(56, 151, 241, 0.25);
 }
 
 .stage-card-check {
@@ -436,6 +436,6 @@
 }
 
 .stage-select-card.active .stage-card-check {
-  background: #059669;
-  border-color: #059669;
+  background: #3897f1;
+  border-color: #3897f1;
 }

@@ -67,6 +67,7 @@ const i18n = {
     "selfService": "Self-Service",
     "language": "Language:",
     "quickLangSwitch": "Quick Lang:",
+    "stopAudio": "Stop Audio ⏹️",
     "tapToListen": "Tap to listen 🔊",
     "tapToListenShort": "Tap to listen 🔊",
     "playing": "Playing audio…",
@@ -186,6 +187,7 @@ const i18n = {
     "selfService": "स्वयं सेवा (किसान मोड)",
     "language": "भाषा:",
     "quickLangSwitch": "त्वरित भाषा:",
+    "stopAudio": "ऑडियो रोकें ⏹️",
     "tapToListen": "सुनने के लिए टैप करें 🔊",
     "tapToListenShort": "सुनने के लिए टैप करें 🔊",
     "playing": "ऑडियो चल रहा है…",
@@ -305,6 +307,7 @@ const i18n = {
     "selfService": "स्वयं-सेवा (शेतकरी मोड)",
     "language": "भाषा:",
     "quickLangSwitch": "भाषा निवडा:",
+    "stopAudio": "ऑडिओ थांबवा ⏹️",
     "tapToListen": "ऐकण्यासाठी टॅप करा 🔊",
     "tapToListenShort": "ऐकण्यासाठी टॅप करा 🔊",
     "playing": "ऑडिओ सुरू आहे…",
@@ -425,6 +428,7 @@ const i18n = {
     "selfService": "ସ୍ୱୟଂ ସେବା (ଚାଷୀ ମୋଡ୍)",
     "language": "ଭାଷା:",
     "quickLangSwitch": "ଭାଷା ବାଛନ୍ତୁ:",
+    "stopAudio": "ଅଡିଓ ବନ୍ଦ କରନ୍ତୁ ⏹️",
     "tapToListen": "ଶୁଣିବା ପାଇଁ ଟ୍ୟାପ୍ କରନ୍ତୁ 🔊",
     "tapToListenShort": "ଶୁଣିବା ପାଇଁ ଟ୍ୟାପ୍ କରନ୍ତୁ 🔊",
     "playing": "ଅଡିଓ ଚାଲୁଅଛି…",
@@ -665,6 +669,7 @@ const i18n = {
     "selfService": "ಸ್ವಯಂ ಸೇವೆ (ರೈತ ಮೋಡ್)",
     "language": "ಭಾಷೆ:",
     "quickLangSwitch": "ಭಾಷೆ ಆಯ್ಕೆಮಾಡಿ:",
+    "stopAudio": "ಆಡಿಯೋ ನಿಲ್ಲಿಸಿ ⏹️",
     "tapToListen": "ಕೇಳಲು ಟ್ಯಾಪ್ ಮಾಡಿ 🔊",
     "tapToListenShort": "ಕೇಳಲು ಟ್ಯಾಪ್ ಮಾಡಿ 🔊",
     "playing": "ಆಡಿಯೋ ಚಾಲನೆಯಲ್ಲಿದೆ…",
@@ -820,23 +825,61 @@ const MARKET_NAMES_I18N = {
 };
 
 function getLocalizedCrop(crop, lang) {
-  const k = (crop || '').toLowerCase().trim();
-  return CROP_NAMES_I18N[k]?.[lang] || CROP_NAMES_I18N[k]?.['en'] || crop || 'Crop';
+  if (!crop) return 'Crop';
+  const k = String(crop).toLowerCase().trim();
+  if (CROP_NAMES_I18N[k]) return CROP_NAMES_I18N[k][lang] || CROP_NAMES_I18N[k]['en'] || crop;
+  for (const key in CROP_NAMES_I18N) {
+    if (k.includes(key)) return CROP_NAMES_I18N[key][lang] || CROP_NAMES_I18N[key]['en'] || crop;
+  }
+  return crop;
 }
 
 function getLocalizedStage(stage, lang) {
-  const k = (stage || '').toLowerCase().trim();
-  return STAGE_NAMES_I18N[k]?.[lang] || STAGE_NAMES_I18N[k]?.['en'] || stage || 'Stage';
+  if (!stage) return 'Stage';
+  const k = String(stage).toLowerCase().trim();
+  if (STAGE_NAMES_I18N[k]) return STAGE_NAMES_I18N[k][lang] || STAGE_NAMES_I18N[k]['en'] || stage;
+  for (const key in STAGE_NAMES_I18N) {
+    if (k.includes(key)) return STAGE_NAMES_I18N[key][lang] || STAGE_NAMES_I18N[key]['en'] || stage;
+  }
+  return stage;
 }
 
 function getLocalizedSoil(soil, lang) {
-  const k = (soil || '').toLowerCase().trim();
-  return SOIL_NAMES_I18N[k]?.[lang] || SOIL_NAMES_I18N[k]?.['en'] || soil || 'Soil';
+  if (!soil) return 'Soil';
+  const k = String(soil).toLowerCase().trim();
+  if (SOIL_NAMES_I18N[k]) return SOIL_NAMES_I18N[k][lang] || SOIL_NAMES_I18N[k]['en'] || soil;
+  if (k.includes('black') || k.includes('regur')) return SOIL_NAMES_I18N['black']?.[lang] || SOIL_NAMES_I18N['black']?.['en'] || soil;
+  if (k.includes('alluvial')) return SOIL_NAMES_I18N['alluvial']?.[lang] || SOIL_NAMES_I18N['alluvial']?.['en'] || soil;
+  if (k.includes('red')) return SOIL_NAMES_I18N['red']?.[lang] || SOIL_NAMES_I18N['red']?.['en'] || soil;
+  if (k.includes('laterite')) return SOIL_NAMES_I18N['laterite']?.[lang] || SOIL_NAMES_I18N['laterite']?.['en'] || soil;
+  if (k.includes('sandy') || k.includes('desert') || k.includes('arid')) return SOIL_NAMES_I18N['sandy']?.[lang] || SOIL_NAMES_I18N['sandy']?.['en'] || soil;
+  if (k.includes('saline') || k.includes('alkaline')) return SOIL_NAMES_I18N['saline']?.[lang] || SOIL_NAMES_I18N['saline']?.['en'] || soil;
+  if (k.includes('peaty') || k.includes('marsh')) return SOIL_NAMES_I18N['peaty']?.[lang] || SOIL_NAMES_I18N['peaty']?.['en'] || soil;
+  if (k.includes('loam')) return SOIL_NAMES_I18N['loamy']?.[lang] || SOIL_NAMES_I18N['loamy']?.['en'] || soil;
+  return soil;
 }
 
 function getLocalizedMarket(market, lang) {
-  const k = (market || '').toLowerCase().trim();
-  return MARKET_NAMES_I18N[k]?.[lang] || MARKET_NAMES_I18N[k]?.['en'] || market || 'APMC Mandi';
+  if (!market) return 'APMC Mandi';
+  const k = String(market).toLowerCase().trim();
+  if (MARKET_NAMES_I18N[k]) return MARKET_NAMES_I18N[k][lang] || MARKET_NAMES_I18N[k]['en'] || market;
+  for (const key in MARKET_NAMES_I18N) {
+    if (k.includes(key.split(' ')[0])) return MARKET_NAMES_I18N[key][lang] || MARKET_NAMES_I18N[key]['en'] || market;
+  }
+  return market;
+}
+
+function getTranslation(val, lang) {
+  if (!val) return '';
+  if (typeof val === 'object') {
+    return val[lang] || val['en'] || val['hi'] || Object.values(val)[0] || '';
+  }
+  const str = String(val).toLowerCase().trim();
+  if (CROP_NAMES_I18N[str]) return CROP_NAMES_I18N[str][lang] || CROP_NAMES_I18N[str]['en'] || val;
+  if (STAGE_NAMES_I18N[str]) return STAGE_NAMES_I18N[str][lang] || STAGE_NAMES_I18N[str]['en'] || val;
+  if (SOIL_NAMES_I18N[str]) return SOIL_NAMES_I18N[str][lang] || SOIL_NAMES_I18N[str]['en'] || val;
+  if (MARKET_NAMES_I18N[str]) return MARKET_NAMES_I18N[str][lang] || MARKET_NAMES_I18N[str]['en'] || val;
+  return val;
 }
 
 
@@ -851,6 +894,119 @@ const allActiveAudios = new Set();
  * Non-blocking background audio pre-fetcher.
  * Downloads and prepares audio into memory before the user even clicks the button!
  */
+
+/**
+ * Comprehensive instant-playback pre-warming engine.
+ * Pre-fetches all audio scripts for current farmer view in background so that
+ * when the user clicks any "Tap to listen" or "Listen All" button, playback is INSTANT!
+ */
+function warmUpAllAudioForCurrentView() {
+  const lang = state.selectedLanguage || (typeof localStorage !== 'undefined' && localStorage.getItem('sk_locale')) || 'en';
+  const adv = state.currentAdvisory;
+  const f = state.currentFarmer;
+
+  // 1. Warm Up Main Advisory Audio
+  if (adv) {
+    const title = (adv.title && adv.title[lang]) || (adv.title && adv.title['en']) || 'Crop Advisory';
+    const text = (adv.text && adv.text[lang]) || (adv.text && adv.text['en']) || '';
+    let contingencyDetails = '';
+    if (adv.contingency_crops && adv.contingency_crops.length > 0) {
+      const cropNames = adv.contingency_crops.map(c => (adv.crop_names && adv.crop_names[lang] && adv.crop_names[lang][c]) || c);
+      const contPrefix = lang === 'hi' ? 'अनुशंसित आकस्मिक फसलें: '
+        : lang === 'mr' ? 'शिफारस केलेली आपत्कालीन पिके: '
+        : lang === 'or' ? 'ବିକଳ୍ପ ଫସଲ ସୁପାରିଶ: '
+        : lang === 'as' ? 'বিকল্প শস্য পৰামৰ্শ: '
+        : lang === 'kn' ? 'ಪರ್ಯಾಯ ಬೆಳೆಗಳ ಶಿಫಾರಸು: '
+        : 'Recommended contingency crops: ';
+      contingencyDetails = ` ${contPrefix}${cropNames.join(', ')}`;
+    }
+    const fullAdvisoryScript = `${title}। ${text}${contingencyDetails}`;
+    if (fullAdvisoryScript.trim()) {
+      prefetchAudio(fullAdvisoryScript, lang);
+    }
+  }
+
+  // 2. Warm Up All Alert Audios (Individual Cards & Listen All)
+  if (state.currentAlerts && state.currentAlerts.length > 0) {
+    state.currentAlerts.forEach(a => {
+      const script = a.audioText || a.body;
+      if (script) prefetchAudio(script, lang);
+    });
+    const fullAlertsText = state.currentAlerts.map(a => a.audioText || a.body).join('। ');
+    if (fullAlertsText) prefetchAudio(fullAlertsText, lang);
+  }
+
+  // 3. Warm Up Mandi Spoken Audio
+  if (adv && adv.price_data) {
+    const pd = adv.price_data;
+    const cropName = (adv.crop_names && adv.crop_names[lang]) || adv.crop || 'Crop';
+    const mandiName = (adv.mandi_names && adv.mandi_names[lang]) || 'APMC Mandi';
+    let mandiScript = '';
+    if (pd.is_below_msp) {
+      const diff = pd.govt_msp - pd.current_price;
+      const warningMap = {
+        en: `Market distress alert! Today's mandi price for ${cropName} at ${mandiName} is ₹${pd.current_price} per quintal, which is ₹${diff} below the government MSP of ₹${pd.govt_msp}. Avoid distress sale and utilize warehouse pledge loans.`,
+        hi: `मंडी संकट चेतावनी! ${mandiName} में ${cropName} का आज का भाव ₹${pd.current_price} प्रति क्विंटल है, जो सरकारी समर्थन मूल्य ₹${pd.govt_msp} से ₹${diff} कम है। जल्दबाजी में फसल न बेचें और वेयरहाउस रसीद पर ऋण प्राप्त करें।`,
+        mr: `बाजार भाव इशारा! ${mandiName} मध्ये ${cropName} चा आजचा भाव ₹${pd.current_price} प्रति क्विंटल आहे, जो शासकीय हमीभाव ₹${pd.govt_msp} पेक्षा ₹${diff} कमी आहे. घाईघाईने विक्री टाळा आणि वखार पावतीवर कर्ज मिळवा.`,
+        or: `ମଣ୍ଡି ସତର୍କତା! ${mandiName} ରେ ${cropName} ର ଆଜିର ଦର କ୍ୱିଣ୍ଟାଲ ପିଛା ₹${pd.current_price} ଅଛି, ଯାହା ସରକାରୀ ଏମଏସପି ₹${pd.govt_msp} ରୁ ₹${diff} କମ୍। ବର୍ତ୍ତମାନ ବିକ୍ରି ନକରି ଗୋଦାମ ଋଣ ସୁବିଧା ନିଅନ୍ତୁ।`,
+        as: `বজাৰ সতৰ্কবাণী! ${mandiName} ত ${cropName} ৰ আজিৰ দৰ প্ৰতি কুইন্টলত ₹${pd.current_price} টকা, যি চৰকাৰী সমৰ্থন মূল্য ₹${pd.govt_msp} তকৈ ₹${diff} টকা কম। তৎক্ষণাত কম দামত বিক্ৰী নকৰিব আৰু গুদাম ঋণৰ সুবিধা লওক।`,
+        kn: `ಮಾರುಕಟ್ಟೆ ಎಚ್ಚರಿಕೆ! ${mandiName} ಯಲ್ಲಿ ${cropName} ನ ಇಂದಿನ ದರ ಕ್ವಿಂಟಾಲ್‌ಗೆ ₹${pd.current_price} ಆಗಿದೆ, ಇದು ಸರ್ಕಾರದ ಎಂಎಸ್‌ಪಿ ₹${pd.govt_msp} ಗಿಂತ ₹${diff} ಕಡಿಮೆಯಾಗಿದೆ. ನಷ್ಟದಲ್ಲಿ ಮಾರಾಟ ಮಾಡಬೇಡಿ ಮತ್ತು ಗೋದಾಮು ಸಾಲದ ಸೌಲಭ್ಯ ಪಡೆಯಿರಿ.`
+      };
+      mandiScript = warningMap[lang] || warningMap['en'];
+    } else {
+      const normalMap = {
+        en: `Today's mandi price for ${cropName} at ${mandiName} is ₹${pd.current_price} per quintal, which is stable and above government MSP.`,
+        hi: `${mandiName} में ${cropName} का आज का भाव ₹${pd.current_price} प्रति क्विंटल है, जो सरकारी समर्थन मूल्य से ऊपर और स्थिर है।`,
+        mr: `${mandiName} मध्ये ${cropName} चा आजचा भाव ₹${pd.current_price} प्रति क्विंटल आहे, जो हमीभावापेक्षा जास्त व समाधानकारक आहे.`,
+        or: `${mandiName} ରେ ${cropName} ର ଆଜିର ଦର କ୍ୱିଣ୍ଟାଲ ପିଛା ₹${pd.current_price} ଅଛି, ଯାହା ସନ୍ତୋଷଜନକ ଅଛି।`,
+        as: `${mandiName} ত ${cropName} ৰ আজিৰ দৰ প্ৰতি কুইন্টলত ₹${pd.current_price} টকা, যি স্বাভাৱিক আছে।`,
+        kn: `${mandiName} ಯಲ್ಲಿ ${cropName} ನ ಇಂದಿನ ದರ ಕ್ವಿಂಟಾಲ್‌ಗೆ ₹${pd.current_price} ಆಗಿದೆ, ಇದು ಸ್ಥಿರವಾಗಿದೆ.`
+      };
+      mandiScript = normalMap[lang] || normalMap['en'];
+    }
+    if (mandiScript) prefetchAudio(mandiScript, lang);
+  }
+
+  // 4. Warm Up Weather Metric Audios
+  ['rainfall', 'dryspell', 'onset', 'soil', 'all'].forEach(metricKey => {
+    // Generate script preview
+    const wd = (adv && adv.weather_data) ? adv.weather_data : { rainfall_deviation_pct: -3.0, dry_spell_days: 17 };
+    const dev = wd.rainfall_deviation_pct || 0;
+    const dry = wd.dry_spell_days || 0;
+    if (metricKey === 'rainfall') {
+      const rainMap = {
+        en: `Rainfall deviation is ${dev > 0 ? '+' : ''}${dev.toFixed(1)}%.`,
+        hi: `वर्षा विचलन ${dev > 0 ? '+' : ''}${dev.toFixed(1)}% है।`,
+        mr: `पावसाची तूट ${dev > 0 ? '+' : ''}${dev.toFixed(1)}% आहे.`,
+        or: `ବର୍ଷା ବିଚ୍ୟୁତି ${dev > 0 ? '+' : ''}${dev.toFixed(1)}% ଅଛି।`,
+        as: `বৰষুণৰ তাৰতম্য ${dev > 0 ? '+' : ''}${dev.toFixed(1)}%।`,
+        kn: `ಮಳೆ ವ್ಯತ್ಯಾಸ ${dev > 0 ? '+' : ''}${dev.toFixed(1)}% ಆಗಿದೆ.`
+      };
+      prefetchAudio(rainMap[lang] || rainMap['en'], lang);
+    } else if (metricKey === 'dryspell') {
+      const dryMap = {
+        en: `Dry spell duration is ${dry} days.`,
+        hi: `सूखा खंड अवधि ${dry} दिन है।`,
+        mr: `दुष्काळ खंड कालावधी ${dry} दिवस आहे.`,
+        or: `ଶୁଖିଲା ପାଗ ଅବଧି ${dry} ଦିନ ଅଛି।`,
+        as: `খৰাং অৱধি ${dry} দিন।`,
+        kn: `ಶುಷ್ಕ ದಿನಗಳ ಅವಧಿ ${dry} ದಿನಗಳು.`
+      };
+      prefetchAudio(dryMap[lang] || dryMap['en'], lang);
+    }
+  });
+
+  // 5. Warm Up Scheme Audios
+  if (state.currentSchemes && state.currentSchemes.length > 0) {
+    state.currentSchemes.forEach(item => {
+      const whyPrefix = lang === 'hi' ? 'आपको इसकी आवश्यकता क्यों है:' : lang === 'mr' ? 'आपल्याला याची गरज का आहे:' : lang === 'or' ? 'ଆପଣଙ୍କୁ ଏହା କାହିଁକି ଦରକାର:' : lang === 'as' ? 'আপোনাৰ কিয় প্ৰয়োজন:' : lang === 'kn' ? 'ನಿಮಗೆ ಇದು ಏಕೆ ಬೇಕು:' : 'Why you need this:';
+      const howPrefix = lang === 'hi' ? 'इससे आपको क्या फायदा होगा:' : lang === 'mr' ? 'यामुळे काय फायदा होईल:' : lang === 'or' ? 'ଏଥିରୁ ଆପଣଙ୍କୁ କି ଲାଭ ମିଳିବ:' : lang === 'as' ? 'ইয়াৰ দ্বাৰা কি লাভ হ’ব:' : lang === 'kn' ? 'ಇದರಿಂದ ನಿಮಗೆ ಏನು ಪ್ರಯೋಜನ:' : 'How it helps you:';
+      const spokenScript = `${item.scheme_name}। ${whyPrefix} ${item.why_needed}। ${howPrefix} ${item.how_it_helps}।`;
+      prefetchAudio(spokenScript, lang);
+    });
+  }
+}
+
 async function prefetchAudio(textToSpeak, langCode) {
   if (!textToSpeak || typeof textToSpeak !== 'string') return;
   const lang = langCode || state.selectedLanguage || 'en';
@@ -915,10 +1071,23 @@ function stopSpeech() {
     } catch (e) {}
   }
 
+  // 5. Also stop AudioTTSController in onboarding if active
+  if (typeof window !== 'undefined' && window.AudioTTSController) {
+    if (window.AudioTTSController.isPlaying || window.AudioTTSController.isLoading || window.AudioTTSController.activeAudio) {
+      window.AudioTTSController.stop();
+    }
+  }
+
   state.isSpeaking = false;
   state.currentAudioTrigger = null;
   updateVoiceButtonUI(false);
-  document.querySelectorAll('.tts-listen-btn').forEach(b => b.classList.remove('tts-playing'));
+  document.querySelectorAll('.tts-listen-btn').forEach(b => {
+    b.classList.remove('tts-playing');
+    const label = b.querySelector('.tts-label');
+    if (label && b.dataset.originalLabel) {
+      label.textContent = b.dataset.originalLabel;
+    }
+  });
 }
 
 /**
@@ -982,9 +1151,9 @@ async function speakText(textToSpeak, langCode, triggerKey) {
     };
 
     audio.onerror = (err) => {
-      console.warn('Audio playback error:', err);
+      console.warn('Audio playback error, trying native speech synthesis fallback:', err);
       if (thisSessionId === activeAudioSessionId) {
-        stopSpeech();
+        fallbackToNativeSpeech(textToSpeak, lang, thisSessionId);
       }
     };
 
@@ -999,7 +1168,11 @@ async function speakText(textToSpeak, langCode, triggerKey) {
     }
   } catch (err) {
     if (err.name !== 'AbortError') {
-      console.warn('Audio playback exception:', err);
+      console.warn('TTS fetch failed, using native speech synthesis fallback:', err);
+      if (thisSessionId === activeAudioSessionId) {
+        fallbackToNativeSpeech(textToSpeak, lang, thisSessionId);
+        return;
+      }
     }
     if (thisSessionId === activeAudioSessionId) {
       stopSpeech();
@@ -1007,13 +1180,41 @@ async function speakText(textToSpeak, langCode, triggerKey) {
   }
 }
 
+function fallbackToNativeSpeech(text, lang, sessionId) {
+  if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+    try {
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      const bcpMap = { en: 'en-IN', hi: 'hi-IN', mr: 'mr-IN', or: 'or-IN', as: 'as-IN', kn: 'kn-IN' };
+      utterance.lang = bcpMap[lang] || lang || 'hi-IN';
+      utterance.rate = 0.95;
+      utterance.onend = () => {
+        if (sessionId === activeAudioSessionId) stopSpeech();
+      };
+      utterance.onerror = () => {
+        if (sessionId === activeAudioSessionId) stopSpeech();
+      };
+      window.speechSynthesis.speak(utterance);
+      return;
+    } catch (e) {
+      console.warn('Native speech synthesis also failed:', e);
+    }
+  }
+  stopSpeech();
+}
 function updateVoiceButtonUI(playing) {
   const btn = document.getElementById('btn-play-voice');
   if (!btn) return;
-  if (playing) {
+  const lang = state.selectedLanguage || 'en';
+  const t = i18n[lang] || i18n['en'];
+  const labelEl = btn.querySelector('[data-i18n="playSpokenAdvisory"]') || btn.querySelector('span:last-child');
+
+  if (playing && state.currentAudioTrigger === 'advisory-main') {
     btn.classList.add('bg-purple-700', 'ring-2', 'ring-purple-400', 'animate-pulse');
+    if (labelEl) labelEl.textContent = t.stopAudio || 'Stop Audio ⏹️';
   } else {
     btn.classList.remove('bg-purple-700', 'ring-2', 'ring-purple-400', 'animate-pulse');
+    if (labelEl) labelEl.textContent = t.playSpokenAdvisory || 'Listen to Spoken Advisory';
   }
 }
 
@@ -1090,8 +1291,17 @@ async function playButtonAudio(buttonKey, event) {
   if (event) {
     const btn = event.currentTarget || event.target.closest('.tts-listen-btn');
     if (btn) {
-      document.querySelectorAll('.tts-listen-btn').forEach(b => b.classList.remove('tts-playing'));
+      document.querySelectorAll('.tts-listen-btn').forEach(b => {
+        b.classList.remove('tts-playing');
+        const l = b.querySelector('.tts-label');
+        if (l && b.dataset.originalLabel) l.textContent = b.dataset.originalLabel;
+      });
       btn.classList.add('tts-playing');
+      const label = btn.querySelector('.tts-label');
+      if (label) {
+        if (!btn.dataset.originalLabel) btn.dataset.originalLabel = label.textContent;
+        label.textContent = '⏹️ Stop';
+      }
     }
   }
 
@@ -1277,10 +1487,7 @@ async function onLanguageChanged(lang) {
       renderFarmerAdvisory(),
       renderFarmerMandiPrice(),
       renderFarmerAlerts(),
-      renderFarmerSchemes(),
-      renderOfficerMetrics(),
-      renderOfficerTable(),
-      startIvrCall(null, effectiveLang)
+      renderFarmerSchemes()
     ]);
   } catch (err) {
     console.warn('Language change re-render warning:', err);
@@ -1358,6 +1565,7 @@ async function selectFarmer(farmerId) {
       renderFarmerAlerts(),
       renderFarmerSchemes()
     ]);
+    setTimeout(() => warmUpAllAudioForCurrentView(), 50);
 
   } catch (err) {
     console.error('Error fetching farmer details:', err);
@@ -1381,6 +1589,7 @@ function applyI18n() {
   });
 
   document.querySelectorAll('[data-i18n]').forEach(el => {
+    if (el.closest('#view-officer') || el.closest('#view-simulator')) return;
     const key = el.getAttribute('data-i18n');
     if (t[key] !== undefined) el.textContent = t[key];
   });
@@ -1455,9 +1664,45 @@ async function renderFarmerProfileCard() {
     D_UP3: { en: 'Gorakhpur', hi: 'गोरखपुर', mr: 'गोरखपूर', or: 'ଗୋରଖପୁର', as: 'গোৰখপুৰ', kn: 'ಗೋರಖ್‌ಪುರ' }
   };
   const dName = distNames[f.district_id]?.[lang] || f.district_name || f.district_id;
-  const locationStr = f.village ? `${f.village}, ${dName}` : dName;
+  let locationStr = dName;
+  if (f.village && f.village.trim()) {
+    if (f.village.toLowerCase().includes(dName.toLowerCase())) {
+      locationStr = f.village;
+    } else {
+      locationStr = `${f.village}, ${dName}`;
+    }
+  } else if (f.state) {
+    locationStr = `${dName}, ${f.state}`;
+  }
 
-  const unitMap = { en: 'Hectares', hi: 'हेक्टेयर', mr: 'हेक्टर', or: 'ହେକ୍ଟର', as: 'হেক্টৰ', kn: 'ಹೆಕ್ಟೇರ್' };
+  const hectareUnitMap = { en: 'Hectares', hi: 'हेक्टेयर', mr: 'हेक्टर', or: 'ହେକ୍ଟର', as: 'হেক্টৰ', kn: 'ಹೆಕ್ಟೇರ್' };
+  const acreUnitMap = { en: 'Acres', hi: 'एकड़', mr: 'एकर', or: 'ଏକର', as: 'একৰ', kn: 'ಎಕರೆ' };
+
+  // Match area value and unit strictly from input / predashboard data
+  let areaVal = f.total_land_area;
+  let unitVal = (f.land_unit || '').toLowerCase();
+
+  if (areaVal === undefined || areaVal === null || !unitVal) {
+    try {
+      const obProf = JSON.parse(localStorage.getItem('sk_onboarding_profile') || '{}');
+      if (obProf && obProf.land_details && obProf.land_details.total_area !== undefined) {
+        const curUser = JSON.parse(localStorage.getItem('sk_auth_user') || '{}');
+        if (curUser.id === f.id || curUser.name === f.name || obProf.farmer_name === f.name) {
+          areaVal = obProf.land_details.total_area;
+          unitVal = (obProf.land_details.unit || '').toLowerCase();
+        }
+      }
+    } catch (e) {}
+  }
+
+  if (areaVal === undefined || areaVal === null) {
+    areaVal = f.landholding_hectares || f.landholding_ha || '1.0';
+    if (!unitVal) unitVal = 'hectares';
+  }
+
+  const isAcres = unitVal.includes('acre');
+  const displayUnit = isAcres ? (acreUnitMap[lang] || 'Acres') : (hectareUnitMap[lang] || 'Hectares');
+
   const loanDueMap = { en: 'Loan Due', hi: 'ऋण देय तिथि', mr: 'कर्ज मुदत', or: 'ଋଣ ଶେଷ ତାରିଖ', as: 'ঋণ পৰিশোধৰ তাৰিখ', kn: 'ಸಾಲ ಮರುಪಾವತಿ ದಿನಾಂಕ' };
   const vegLabelMap = { en: 'Vegetation:', hi: 'वनस्पति:', mr: 'वनस्पती:', or: 'ଉଦ୍ଭିଦ:', as: 'উদ্ভিদ:', kn: 'ಸಸ್ಯವರ್ಗ:' };
   const irrigationMap = {
@@ -1479,10 +1724,16 @@ async function renderFarmerProfileCard() {
   if (fpCropBadge) fpCropBadge.textContent = localizedCrop;
 
   const fpLocation = document.getElementById('fp-location');
-  if (fpLocation) fpLocation.textContent = `📍 ${locationStr}`;
+  if (fpLocation) {
+    fpLocation.textContent = `📍 ${locationStr}`;
+    fpLocation.title = locationStr;
+  }
 
   const fpLandholding = document.getElementById('fp-landholding');
-  if (fpLandholding) fpLandholding.textContent = `📐 ${f.landholding_hectares || f.landholding_ha || '1.0'} ${unitMap[lang] || 'Hectares'}`;
+  if (fpLandholding) {
+    fpLandholding.textContent = `📐 ${areaVal} ${displayUnit}`;
+    fpLandholding.title = `${areaVal} ${displayUnit}`;
+  }
 
   const irrKey = (f.irrigation_type || f.irrigation || 'rainfed').toLowerCase().trim();
   const localizedIrr = irrigationMap[irrKey]?.[lang] || irrigationMap[irrKey]?.en || f.irrigation_type || 'Rainfed';
@@ -2186,24 +2437,26 @@ async function renderFarmerAlerts() {
   }
 
   state.currentAlerts = alerts;
-  const tapListen = t.tapToListen || 'Tap to listen 🔊';
+  const cleanTapListen = (t.tapToListen || 'Tap to listen').replace(/🔊/g, '').trim();
 
   const cardsHtml = alerts.map((a, idx) => `
-    <div class="p-5 rounded-2xl border-2 ${a.color} flex flex-col sm:flex-row sm:items-start justify-between gap-3 shadow-sm hover:shadow-md transition">
-      <div class="flex items-start space-x-3.5">
-        <div class="text-3xl">${a.icon}</div>
-        <div>
-          <div class="flex items-center space-x-2">
-            <h4 class="font-extrabold text-base">${a.title}</h4>
-            <span class="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-black/10">${a.severity}</span>
+    <div class="p-4 rounded-2xl border-2 ${a.color} space-y-3 shadow-xs hover:shadow-md transition bg-white/80 overflow-hidden">
+      <div class="flex items-start space-x-3 min-w-0">
+        <div class="text-3xl shrink-0 select-none">${a.icon}</div>
+        <div class="min-w-0 flex-1">
+          <div class="flex items-center space-x-2 flex-wrap gap-y-1">
+            <h4 class="font-extrabold text-sm sm:text-base text-slate-900 leading-tight">${a.title}</h4>
+            <span class="text-[10px] font-black uppercase px-2 py-0.5 rounded bg-black/10 text-slate-800 shrink-0">${a.severity}</span>
           </div>
-          <p class="text-sm font-medium mt-1 leading-relaxed">${a.body}</p>
+          <p class="text-xs sm:text-sm font-medium mt-1.5 leading-relaxed text-slate-700">${a.body}</p>
         </div>
       </div>
-      <button onclick="playAlertCardAudio(${idx})" class="tts-listen-btn text-xs font-bold px-3 py-1.5 rounded-xl bg-white/80 hover:bg-white active:scale-95 transition cursor-pointer self-end sm:self-center shadow-sm flex items-center space-x-1 whitespace-nowrap">
-        <span>🔊</span>
-        <span class="tts-label">${tapListen}</span>
-      </button>
+      <div class="pt-2.5 border-t border-black/5 flex items-center justify-end">
+        <button onclick="playAlertCardAudio(${idx})" class="tts-listen-btn text-xs font-bold px-3 py-1.5 rounded-xl bg-white hover:bg-slate-50 active:scale-95 transition cursor-pointer shadow-xs border border-slate-200 flex items-center space-x-1.5 text-slate-800 shrink-0">
+          <span>🔊</span>
+          <span class="tts-label">${cleanTapListen}</span>
+        </button>
+      </div>
     </div>
   `);
 
@@ -3002,7 +3255,7 @@ async function renderFarmerSchemes() {
 
   const whyLabel = t.whyNeedLabel || '📌 Why You Need This:';
   const howLabel = t.howHelpsLabel || '✨ How It Benefits You:';
-  const tapListen = t.listenSchemeCard || t.tapToListen || 'Tap to listen 🔊';
+  const cleanTapListen = (t.listenSchemeCard || t.tapToListen || 'Tap to listen').replace(/🔊/g, '').trim();
   const portalLabel = t.officialPortal || 'Official Portal ↗';
 
   const catBadgeMap = {
@@ -3050,9 +3303,9 @@ async function renderFarmerSchemes() {
         </div>
 
         <div class="pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
-          <button onclick="playSchemeCardAudio(${idx}, event)" class="tts-listen-btn text-xs font-bold text-sky-800 hover:text-sky-950 bg-emerald-100 hover:bg-emerald-200 active:scale-95 px-3.5 py-2 rounded-xl transition cursor-pointer flex items-center space-x-1.5 shadow-sm">
+          <button onclick="playSchemeCardAudio(${idx}, event)" class="tts-listen-btn text-xs font-bold text-[#16539a] hover:text-[#0b4582] bg-[#e0f0fe] hover:bg-[#c3e2fd] active:scale-95 px-3 py-1.5 rounded-xl transition cursor-pointer flex items-center space-x-1.5 shadow-xs border border-[#bae0fd]">
             <span>🔊</span>
-            <span class="tts-label">${tapListen}</span>
+            <span class="tts-label">${cleanTapListen}</span>
           </button>
           ${item.portal_url ? `
             <a href="${item.portal_url}" target="_blank" rel="noopener noreferrer" class="text-xs font-extrabold text-slate-600 hover:text-purple-700 bg-slate-100 hover:bg-purple-50 px-3.5 py-2 rounded-xl transition flex items-center space-x-1 border border-slate-200 hover:border-purple-300">
@@ -3170,38 +3423,77 @@ async function playCurrentAdvisoryAudio() {
 async function playWeatherMetricAudio(metricKey) {
   const adv = state.currentAdvisory;
   const f = state.currentFarmer;
-  if (!adv || !adv.weather_data) return;
+  const wd = (adv && adv.weather_data) ? adv.weather_data : (f ? {
+    rainfall_deviation_pct: (f.rainfall_deviation_pct !== undefined ? f.rainfall_deviation_pct : -3.0),
+    dry_spell_days: (f.dry_spell_days !== undefined ? f.dry_spell_days : 17),
+    onset_delay_days: (f.onset_delay_days !== undefined ? f.onset_delay_days : 0),
+    onset_status: (f.onset_status || 'normal')
+  } : {
+    rainfall_deviation_pct: -3.0,
+    dry_spell_days: 17,
+    onset_delay_days: 0,
+    onset_status: 'normal'
+  });
 
-  const wd = adv.weather_data;
   const lang = state.selectedLanguage || (typeof localStorage !== 'undefined' && localStorage.getItem('sk_locale')) || 'en';
   const soil = f ? (f.soil_type || 'Black Cotton') : 'Black Cotton';
   const rainDev = Math.abs(wd.rainfall_deviation_pct || 0).toFixed(1);
   const isDeficit = (wd.rainfall_deviation_pct || 0) < 0;
+  const isZeroRain = (wd.rainfall_deviation_pct || 0) === 0;
   const dryDays = wd.dry_spell_days || 0;
-  const localizedSoil = await getTranslation(soil, lang);
+  const localizedSoil = getLocalizedSoil(soil, lang);
+  const delayDays = wd.onset_delay_days || 0;
+  const isDelayed = delayDays > 0 || wd.onset_status === 'delayed';
 
   let script = "";
   if (metricKey === 'rainfall') {
-    script = lang === 'hi' ? `वर्षा विचलन: मानसून वर्षा सामान्य से ${rainDev}% ${isDeficit ? 'कम' : 'अधिक'} है।`
-      : lang === 'mr' ? `पाऊस स्थिती: पाऊस सरासरीपेक्षा ${rainDev}% ${isDeficit ? 'कमी' : 'जास्त'} आहे.`
-      : lang === 'or' ? `ବର୍ଷା ସୂଚକ: ମୌସୁମୀ ବର୍ଷା ସ୍ୱାଭାବିକ ଠାରୁ ${rainDev}% ${isDeficit ? 'କମ୍' : 'ଅଧିକ'} ଅଛି।`
-      : lang === 'as' ? `বৰষুণৰ তথ্য: বৰষুণ সাধাৰণ স্তৰতকৈ ${rainDev}% ${isDeficit ? 'কম' : 'অধিক'}।`
-      : lang === 'kn' ? `ಮಳೆಯ ಪ್ರಮಾಣ: ಮಳೆ ಸಾಮಾನ್ಯಕ್ಕಿಂತ ${rainDev}% ${isDeficit ? 'ಕಡಿಮೆ' : 'ಹೆಚ್ಚು'} ಇದೆ.`
-      : `Rainfall status: Monsoon rainfall is ${rainDev}% ${isDeficit ? 'below' : 'above'} normal.`;
+    if (isZeroRain) {
+      script = lang === 'hi' ? 'वर्षा विचलन: मानसून वर्षा सामान्य स्तर पर है।'
+        : lang === 'mr' ? 'पाऊस स्थिती: पाऊस सामान्य पातळीवर आहे.'
+        : lang === 'or' ? 'ବର୍ଷା ସୂଚକ: ମୌସୁମୀ ବର୍ଷା ସ୍ୱାଭାବିକ ସ୍ତରରେ ଅଛି।'
+        : lang === 'as' ? 'বৰষুণৰ তথ্য: বৰষুণ সাধাৰণ স্তৰত আছে।'
+        : lang === 'kn' ? 'ಮಳೆಯ ಪ್ರಮಾಣ: ಮಳೆಯು ಸಾಮಾನ್ಯ ಮಟ್ಟದಲ್ಲಿದೆ.'
+        : 'Rainfall status: Monsoon rainfall is normal at 0% deviation.';
+    } else {
+      script = lang === 'hi' ? `वर्षा विचलन: मानसून वर्षा सामान्य से ${rainDev}% ${isDeficit ? 'कम' : 'अधिक'} है।`
+        : lang === 'mr' ? `पाऊस स्थिती: पाऊस सरासरीपेक्षा ${rainDev}% ${isDeficit ? 'कमी' : 'जास्त'} आहे.`
+        : lang === 'or' ? `ବର୍ଷା ସୂଚକ: ମୌସୁମୀ ବର୍ଷା ସ୍ୱାଭାବିକ ଠାରୁ ${rainDev}% ${isDeficit ? 'କମ୍' : 'ଅଧିକ'} ଅଛି।`
+        : lang === 'as' ? `বৰষুণৰ তথ্য: বৰষুণ সাধাৰণ স্তৰতকৈ ${rainDev}% ${isDeficit ? 'কম' : 'অধিক'}।`
+        : lang === 'kn' ? `ಮಳೆಯ ಪ್ರಮಾಣ: ಮಳೆ ಸಾಮಾನ್ಯಕ್ಕಿಂತ ${rainDev}% ${isDeficit ? 'ಕಡಿಮೆ' : 'ಹೆಚ್ಚು'} ಇದೆ.`
+        : `Rainfall status: Monsoon rainfall is ${rainDev}% ${isDeficit ? 'below' : 'above'} normal.`;
+    }
   } else if (metricKey === 'dryspell') {
-    script = lang === 'hi' ? `सूखे दिनों की अवधि: खेत में लगातार ${dryDays} दिनों से वर्षा का खंड है।`
-      : lang === 'mr' ? `पावसाचा खंड: शेतात सलग ${dryDays} दिवसांचा पावसाचा खंड पडला आहे.`
-      : lang === 'or' ? `ଶୁଖିଲା ପାଗ ଅବଧି: ଲଗାତାର ${dryDays} ଦିନ ଧରି ବର୍ଷାର ଅଭାବ ରହିଛି।`
-      : lang === 'as' ? `খৰাং দিনৰ দৈৰ্ঘ্য: একেৰাহে ${dryDays} দিন ধৰি বৰষুণ হোৱা নাই।`
-      : lang === 'kn' ? `ಮಳೆ ಕೊರತೆಯ ದಿನಗಳು: ಸತತ ${dryDays} ದಿನಗಳಿಂದ ಮಳೆ ಬಂದಿಲ್ಲ.`
-      : `Dry spell duration: There has been a dry spell of ${dryDays} consecutive days.`;
+    if (dryDays === 0) {
+      script = lang === 'hi' ? 'सूखे दिनों की अवधि: वर्तमान में कोई सूखा खंड नहीं है, पर्याप्त नमी उपलब्ध है।'
+        : lang === 'mr' ? 'पावसाचा खंड: सध्या कोणताही खंड नाही, जमिनीत पुरेसा ओलावा आहे.'
+        : lang === 'or' ? 'ଶୁଖିଲା ପାଗ ଅବଧି: ବର୍ତ୍ତମାନ କୌଣସି ଶୁଖିଲା ପାଗ ନାହିଁ, ପର୍ଯ୍ୟାପ୍ତ ଆର୍ଦ୍ରତା ଅଛି।'
+        : lang === 'as' ? 'খৰাং দিনৰ দৈৰ্ঘ্য: বৰ্তমান কোনো খৰাং নাই, আৰ্দ্ৰতা পৰ্যাপ্ত।'
+        : lang === 'kn' ? 'ಮಳೆ ಕೊರತೆಯ ದಿನಗಳು: ಪ್ರಸ್ತುತ ಯಾವುದೇ ಮಳೆ ಕೊರತೆಯಿಲ್ಲ, ತೇವಾಂಶ ಸಮರ್ಪಕವಾಗಿದೆ.'
+        : 'Dry spell duration: No active dry spell, soil moisture is adequate.';
+    } else {
+      script = lang === 'hi' ? `सूखे दिनों की अवधि: खेत में लगातार ${dryDays} दिनों से वर्षा का खंड है।`
+        : lang === 'mr' ? `पावसाचा खंड: शेतात सलग ${dryDays} दिवसांचा पावसाचा खंड पडला आहे.`
+        : lang === 'or' ? `ଶୁଖିଲା ପାଗ ଅବଧି: ଲଗାତାର ${dryDays} ଦିନ ଧରି ବର୍ଷାର ଅଭାବ ରହିଛି।`
+        : lang === 'as' ? `খৰাং দিনৰ দৈৰ্ঘ্য: একেৰাহে ${dryDays} দিন ধৰি বৰষুণ হোৱା নাই।`
+        : lang === 'kn' ? `ಮಳೆ ಕೊರತೆಯ ದಿನಗಳು: ಸತತ ${dryDays} ದಿನಗಳಿಂದ ಮಳೆ ಬಂದಿಲ್ಲ.`
+        : `Dry spell duration: There has been a dry spell of ${dryDays} consecutive days.`;
+    }
   } else if (metricKey === 'onset') {
-    script = lang === 'hi' ? `मानसून आगमन: मानसून आगमन में ${wd.onset_delay_days || 0} दिनों का विलंब हुआ है।`
-      : lang === 'mr' ? `मान्सून आगमन: मान्सून आगमनास ${wd.onset_delay_days || 0} दिवसांचा उशीर झाला आहे.`
-      : lang === 'or' ? `ମୌସୁମୀ ଆଗମନ: ମୌସୁମୀ ଆସିବାରେ ${wd.onset_delay_days || 0} ଦିନ ବିଳମ୍ବ ହୋଇଛି।`
-      : lang === 'as' ? `মৌচুমী আগমন: মৌচুমী আগমণত ${wd.onset_delay_days || 0} দিন পলম হৈছে।`
-      : lang === 'kn' ? `ಮುಂಗಾರು ಪ್ರವೇಶ: ಮುಂಗಾರು ಪ್ರವೇಶದಲ್ಲಿ ${wd.onset_delay_days || 0} ದಿನಗಳ ವಿಳಂಬವಾಗಿದೆ.`
-      : `Monsoon onset status: Monsoon arrival was delayed by ${wd.onset_delay_days || 0} days.`;
+    if (isDelayed) {
+      script = lang === 'hi' ? `मानसून आगमन: मानसून आगमन में ${delayDays} दिनों का विलंब हुआ है।`
+        : lang === 'mr' ? `मान्सून आगमन: मान्सून आगमनास ${delayDays} दिवसांचा उशीर झाला आहे.`
+        : lang === 'or' ? `ମୌସୁମୀ ଆଗମନ: ମୌସୁମୀ ଆସିବାରେ ${delayDays} ଦିନ ବିଳମ୍ବ ହୋଇଛି।`
+        : lang === 'as' ? `মৌচুমী আগমন: মৌচুমী আগমণত ${delayDays} দিন পলম হৈছে।`
+        : lang === 'kn' ? `ಮುಂಗಾರು ಪ್ರವೇಶ: ಮುಂಗಾರು ಪ್ರವೇಶದಲ್ಲಿ ${delayDays} ದಿನಗಳ ವಿಳಂಬವಾಗಿದೆ.`
+        : `Monsoon onset status: Monsoon arrival was delayed by ${delayDays} days.`;
+    } else {
+      script = lang === 'hi' ? 'मानसून आगमन: मानसून समय पर सामान्य रूप से आया है।'
+        : lang === 'mr' ? 'मान्सून आगमन: मान्सून वेळेवर आणि सामान्य स्थितीत आला आहे.'
+        : lang === 'or' ? 'ମୌସୁମୀ ଆଗମନ: ମୌସୁମୀ ସ୍ୱାଭାବିକ ସମୟରେ ଆସିଛି।'
+        : lang === 'as' ? 'মৌচুমী আগমন: মৌচুমী সময়মতে স্বাভাৱিকভাৱে আহিছে।'
+        : lang === 'kn' ? 'ಮುಂಗಾರು ಪ್ರವೇಶ: ಮುಂಗಾರು ನಿಗದಿತ ಸಮಯಕ್ಕೆ ಸರಿಯಾಗಿ ಪ್ರವೇಶಿಸಿದೆ.'
+        : 'Monsoon onset status: Monsoon onset is normal on schedule.';
+    }
   } else if (metricKey === 'soil') {
     script = lang === 'hi' ? `मिट्टी का प्रकार: आपके खेत की मिट्टी ${localizedSoil} है।`
       : lang === 'mr' ? `मातीचा प्रकार: आपल्या शेतातील माती ${localizedSoil} प्रकारची आहे.`
@@ -3219,11 +3511,9 @@ async function playWeatherMetricAudio(metricKey) {
   }
 
   if (script) {
-    await speakText(script, lang, 'mandi-price');
+    await speakText(script, lang, `weather-${metricKey}`);
   }
 }
-
-
 async function fetchOfficerData() {
   try {
     const res = await fetch(`${API_BASE}/officer/farmers`, {
@@ -3276,11 +3566,51 @@ const STAGE_TRANSLATIONS = {
   'pod development': { en: 'Pod Development', hi: 'फली विकास अवस्था', mr: 'शेंगा भरण्याची अवस्था', or: 'ଛୁଇଁ ବିକାଶ ପର୍ଯ୍ୟାୟ', as: 'শুঁটি বিকাশ', kn: 'ಕಾಯಿ ಕಟ್ಟುವ ಹಂತ' },
 };
 
+function onOfficerLanguageChange(lang) {
+  state.officerLanguage = lang;
+  updateOfficerDashboardI18n(lang);
+  renderOfficerTable();
+}
+
+function updateOfficerDashboardI18n(lang) {
+  const t = i18n[lang] || i18n['en'];
+  
+  const badge = document.querySelector('#view-officer [data-i18n="officerBadge"]');
+  if (badge && t.officerBadge) badge.textContent = t.officerBadge;
+
+  const title = document.querySelector('#view-officer [data-i18n="officerMainTitle"]');
+  if (title && t.officerMainTitle) title.textContent = t.officerMainTitle;
+
+  const sub = document.querySelector('#view-officer [data-i18n="officerMainSub"]');
+  if (sub && t.officerMainSub) sub.textContent = t.officerMainSub;
+
+  const briefingLbl = document.getElementById('officer-briefing-label');
+  if (briefingLbl && t.playOfficerBriefing) briefingLbl.textContent = t.playOfficerBriefing;
+
+  const regTitle = document.querySelector('#view-officer [data-i18n="registryTitle"]');
+  if (regTitle && t.registryTitle) regTitle.textContent = t.registryTitle;
+
+  const regSub = document.querySelector('#view-officer [data-i18n="registrySub"]');
+  if (regSub && t.registrySub) regSub.textContent = t.registrySub;
+
+  const mTotal = document.querySelector('#view-officer [data-i18n="metricTotal"]');
+  if (mTotal && t.metricTotal) mTotal.textContent = t.metricTotal;
+
+  const mHigh = document.querySelector('#view-officer [data-i18n="metricHigh"]');
+  if (mHigh && t.metricHigh) mHigh.textContent = t.metricHigh;
+
+  const mMed = document.querySelector('#view-officer [data-i18n="metricMed"]');
+  if (mMed && t.metricMed) mMed.textContent = t.metricMed;
+
+  const mLow = document.querySelector('#view-officer [data-i18n="metricLow"]');
+  if (mLow && t.metricLow) mLow.textContent = t.metricLow;
+}
+
 function renderOfficerTable() {
   const tbody = document.getElementById('officer-table-body');
   if (!tbody) return;
 
-  const lang = state.selectedLanguage || (typeof localStorage !== 'undefined' && localStorage.getItem('sk_locale')) || 'en';
+  const lang = state.officerLanguage || (document.getElementById('officer-lang-select')?.value) || 'en';
   const t = i18n[lang] || i18n['en'];
 
   const filter = (document.getElementById('filter-risk')?.value || 'ALL').toUpperCase();
@@ -3364,10 +3694,6 @@ function renderOfficerTable() {
               <span>🔍</span>
               <span class="hidden xl:inline">Details</span>
             </button>
-            <button onclick="loginAsFarmer('${f.farmer_id}')" title="Login as ${safeName} in Farmer App" class="px-2.5 py-1.5 rounded-lg bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs shadow transition">
-              <span>👨‍🌾</span>
-              <span class="hidden xl:inline">Login As</span>
-            </button>
             <button onclick="deleteFarmerAccount('${f.farmer_id}', '${safeName}')" title="Delete Farmer Account" class="px-2.5 py-1.5 rounded-lg bg-red-100 hover:bg-red-600 text-red-700 hover:text-white border border-red-300 hover:border-red-600 font-bold text-xs transition">
               <span>🗑️</span>
               <span class="hidden xl:inline">Delete</span>
@@ -3400,6 +3726,19 @@ async function loginAsFarmer(farmerId) {
   switchMainView('farmer');
   await selectFarmer(farmerId);
   showTTSToast(`Logged in as ${fName} (${farmerId}) 🌾`);
+
+  // Personalized voice intro with farmer's name in their preferred language
+  const fLang = (farmer.preferred_language || farmer.language || state.selectedLanguage || 'hi').split('-')[0].toLowerCase();
+  const greetingsWithName = {
+    en: `Welcome ${fName}, to Smart Krishi Advisory.`,
+    hi: `नमस्ते ${fName} जी, स्मार्ट कृषि में आपका स्वागत है।`,
+    mr: `नमस्कार ${fName} जी, स्मार्ट कृषी सल्ला केंद्रात आपले स्वागत आहे.`,
+    or: `ନମସ୍କାର ${fName} ଆଜ୍ଞା, ସ୍ମାର୍ଟ କୃଷିକୁ ଆପଣଙ୍କୁ ସ୍ୱାଗତ।`,
+    as: `নমস্কাৰ ${fName} ডাঙৰীয়া, স্মাৰ্ট কৃষিলৈ আপোনাক স্বাগতম।`,
+    kn: `ನಮಸ್ಕಾರ ${fName} ಅವರೇ, ಸ್ಮಾರ್ಟ್ ಕೃಷಿ ಸಲಹಾ ಕೇಂದ್ರಕ್ಕೆ ಸ್ವಾಗತ.`
+  };
+  const welcomeText = greetingsWithName[fLang] || greetingsWithName.en;
+  await speakText(welcomeText, fLang, 'login-welcome');
 }
 
 async function deleteFarmerAccount(farmerId, farmerName) {
@@ -3509,7 +3848,7 @@ async function playOfficerBriefingAudio() {
   };
 
   const script = officerBriefings[lang] || officerBriefings['en'];
-  await speakText(script, lang, 'mandi-price');
+  await speakText(script, lang, 'officer-briefing');
 }
 
 // --- OFFICER DETAIL MODAL ---
@@ -3623,19 +3962,132 @@ async function playModalCaseBriefingAudio() {
   const lang = state.selectedLanguage || (typeof localStorage !== 'undefined' && localStorage.getItem('sk_locale')) || 'en';
   const cropKey = (farmer.crop || '').toLowerCase();
   const localizedCrop = (CROP_TRANSLATIONS[cropKey] && CROP_TRANSLATIONS[cropKey][lang]) || farmer.crop;
-  const topIntervention = (farmer.recommended_interventions && farmer.recommended_interventions[0]) || { scheme_name: 'PMFBY', action_item: 'Field visit' };
+  const topIntervention = (farmer.recommended_interventions && farmer.recommended_interventions[0]) || { scheme_id: 'S1', scheme_name: 'PMFBY', action_item: 'Field visit' };
+  const sId = topIntervention.scheme_id || 'S1';
+  
+  const schemeNamesLocal = {
+    S1: { en: 'PMFBY Crop Insurance', hi: 'प्रधानमंत्री फसल बीमा योजना (PMFBY)', mr: 'प्रधानमंत्री पीक विमा योजना (PMFBY)', or: 'ପ୍ରଧାନମନ୍ତ୍ରୀ ଫସଲ ବୀମା ଯୋଜନା (PMFBY)', as: 'প্ৰধানমন্ত্ৰী ফচল বীমা যোজনা (PMFBY)', kn: 'ಪ್ರಧಾನ ಮಂತ್ರಿ ಫಸಲ್ ಬಿಮಾ ಯೋಜನೆ (PMFBY)' },
+    'S1-ENROLL': { en: 'PMFBY Enrollment', hi: 'प्रधानमंत्री फसल बीमा नामांकन', mr: 'प्रधानमंत्री पीक विमा नोंदणी', or: 'ପ୍ରଧାନମନ୍ତ୍ରୀ ଫସଲ ବୀମା ପଞ୍ଜିକରଣ', as: 'প্ৰধানমন্ত্ৰী ফচল বীমা পঞ্জীয়ন', kn: 'ಪ್ರಧಾನ ಮಂತ್ರಿ ಫಸಲ್ ಬಿಮಾ ನೋಂದಣಿ' },
+    S2: { en: 'KCC Debt Restructuring', hi: 'किसान क्रेडिट कार्ड (KCC) ऋण पुनर्गठन', mr: 'किसान क्रेडिट कार्ड (KCC) कर्ज पुनर्गठन', or: 'କିସାନ କ୍ରେଡିଟ୍ କାର୍ଡ (KCC) ଋଣ ପୁନର୍ଗଠନ', as: 'কিষাণ ক্ৰেডিট কাৰ্ড (KCC) ঋণ পুনৰ্গঠন', kn: 'ಕಿಸಾನ್ ಕ್ರೆಡಿಟ್ ಕಾರ್ಡ್ (KCC) ಸಾಲ ಪುನಾರಚನೆ' },
+    S3: { en: 'PM-AASHA MSP Assurance', hi: 'पीएम-आशा समर्थन मूल्य योजना', mr: 'पीएम-आशा हमीभाव योजना', or: 'ପିଏମ୍-ଆଶା ସହାୟକ ମୂଲ୍ୟ ଯୋଜନା', as: 'পিএম-আশা সমৰ্থন মূল্য আঁচনি', kn: 'ಪಿಎಂ-ಆಶಾ ಬೆಂಬಲ ಬೆಲೆ ಯೋಜನೆ' },
+    S4: { en: 'State Drought Relief', hi: 'राज्य विशेष सूखा राहत', mr: 'राज्य दुष्काळ साहाय्य', or: 'ରାଜ୍ୟ ମରୁଡ଼ି ସହାୟତା', as: 'ৰাজ্যিক খৰাং সাহায্য', kn: 'ರಾಜ್ಯ ಬರ ಪರಿಹಾರ' },
+    'S4-EXT': { en: 'PMKSY Micro-Irrigation', hi: 'पीएमकेएसवाई सूक्ष्म सिंचाई', mr: 'सूक्ष्म सिंचन अनुदान', or: 'କ୍ଷୁଦ୍ର ଜଳସେଚନ ରିହାତି', as: 'ক্ষুদ্ৰ জলসিঞ্চন ৰাজসাহায্য', kn: 'ಸೂಕ್ಷ್ಮ ನೀರಾವರಿ ಸಬ್ಸಿಡಿ' },
+    S5: { en: 'PM-KISAN Samman Nidhi', hi: 'प्रधानमंत्री किसान सम्मान निधि (PM-KISAN)', mr: 'प्रधानमंत्री किसान सन्मान निधी (PM-KISAN)', or: 'ପ୍ରଧାନମନ୍ତ୍ରୀ କିସାନ ସମ୍ମାନ ନିଧି (PM-KISAN)', as: 'প্ৰধানমন্ত্ৰী কিষাণ সন্মান নিধি (PM-KISAN)', kn: 'ಪ್ರಧಾನ ಮಂತ್ರಿ ಕಿಸಾನ್ ಸಮ್ಮಾನ್ ನಿಧಿ (PM-KISAN)' },
+    S_OD1: { en: 'KALIA Scheme', hi: 'कालिया योजना (ओडिशा)', mr: 'कालिया योजना (ओडिशा)', or: 'କାଳିଆ ଯୋଜନା (ଓଡ଼ିଶା)', as: 'কালিয়া আঁচনি (ওড়িশা)', kn: 'ಕಾಲಿಯಾ ಯೋಜನೆ (ಒಡಿಶಾ)' },
+    S_OD2: { en: 'OSDMA Flood Relief', hi: 'बाढ़ राहत एवं बीज किट', mr: 'पूर मदत व बियाणे किट', or: 'ବନ୍ୟା ସହାୟତା ଓ ବିହନ ପ୍ୟାକେଜ୍', as: 'বানপানী সাহায্য আৰু বীজ যোগান', kn: 'ಪ್ರವಾಹ ಪರಿಹಾರ ಮತ್ತು ಬೀಜ ಸಹಾಯ' },
+    S_OD3: { en: 'Farm Pond Subsidy', hi: 'खेत तालाब एवं सौर पंप', mr: 'शेततळे व सौर पंप अनुदान', or: 'କ୍ଷେତ ପୋଖରୀ ଓ ସୌର ପମ୍ପ ରିହାତି', as: 'পুখুৰী আৰু সৌৰ পাম্প ৰাজসাহায্য', kn: 'ಕೃಷಿ ಹೊಂಡ ಮತ್ತು ಸೌರ ಪಂಪ್ ಸಬ್ಸಿಡಿ' }
+  };
+
+  const schemeActionsLocal = {
+    S1: { en: 'File crop loss claim & initiate survey within 72 hrs.', hi: 'फसल क्षति दावा फॉर्म भरें एवं 72 घंटे में सर्वेक्षण करवाएं।', mr: 'पीक नुकसानीचा दावा अर्ज दाखल करा व ७२ तासांत पाहणी पूर्ण करा.', or: '୭୨ ଘଣ୍ଟା ମଧ୍ୟରେ ଫସଲ କ୍ଷୟକ୍ଷତି ଦାବି ଫର୍ମ ଦାଖଲ କରି ସର୍ଭେ କରାନ୍ତୁ।', as: '৭২ ঘণ্টাৰ ভিতৰত শস্যৰ ক্ষতিপূৰণ আবেদন জমা দিয়ক।', kn: '೭೨ ಗಂಟೆಗಳ ಒಳಗೆ ಬೆಳೆ ನಷ್ಟ ಪರಿಹಾರ ಅರ್ಜಿ ಸಲ್ಲಿಸಿ.' },
+    'S1-ENROLL': { en: 'Enroll in PMFBY at nearest CSC/bank.', hi: 'सीएससी केंद्र या बैंक जाकर तुरंत फसल बीमा कराएं।', mr: 'जवळच्या सीएससी किंवा बँकेत जाऊन पीक विमा नोंदणी करा.', or: 'ନିକଟସ୍ଥ ଜନସେବା କେନ୍ଦ୍ର କିମ୍ବା ବ୍ୟାଙ୍କରେ ତୁରନ୍ତ ଫସଲ ବୀମା କରାନ୍ତୁ।', as: 'চিএছচি কেন্দ্ৰ বা বেংকত তৎকালীনভাৱে শস্য বীমা কৰক।', kn: 'ಸಿಎಸ್‌ಸಿ ಕೇಂದ್ರ ಅಥವಾ ಬ್ಯಾಂಕ್‌ನಲ್ಲಿ ತಕ್ಷಣ ಬೆಳೆ ವಿಮೆ ನೋಂದಾಯಿಸಿ.' },
+    S2: { en: 'Submit KCC loan restructuring request.', hi: 'मोहलत एवं ब्याज छूट हेतु केसीसी ऋण पुनर्गठन आवेदन दें।', mr: 'मुदतवाढ आणि व्याज सवलतीसाठी केसीसी कर्ज पुनर्गठन अर्ज करा.', or: 'ରିହାତି ଅବଧି ପାଇଁ କେସିସି ଋଣ ପୁନର୍ଗଠନ ଆବେଦନ କରନ୍ତୁ।', as: 'সময় বৃদ্ধিৰ বাবে কেচিচি ঋণ পুনৰ্গঠন আবেদন দাখিল কৰক।', kn: 'ಕಾಲಾವಕಾಶಕ್ಕಾಗಿ ಕೆಸಿಸಿ ಸಾಲ ಪುನಾರಚನೆ ಅರ್ಜಿ ಸಲ್ಲಿಸಿ.' },
+    S3: { en: 'Register on e-NAM for MSP procurement or take warehouse loan.', hi: 'समर्थन मूल्य खरीद हेतु ई-नाम पर पंजीकरण करें या गोदाम रसीद पर ऋण लें।', mr: 'हमीभावाने विक्रीसाठी ई-नाम नोंदणी करा किंवा वखार पावती कर्ज घ्या.', or: 'ସହାୟକ ମୂଲ୍ୟରେ ବିକ୍ରୟ ପାଇଁ ଇ-ନାମ ପଞ୍ଜିକରଣ କରନ୍ତୁ କିମ୍ବା ଗୋଦାମ ଋଣ ନିଅନ୍ତୁ।', as: 'সমৰ্থন মূল্যত বিক্ৰীৰ বাবে ই-নাম পঞ্জীয়ন কৰক।', kn: 'ಬೆಂಬಲ ಬೆಲೆಗೆ ಮಾರಾಟ ಮಾಡಲು ಇ-ನಾಮ್ ನೋಂದಾಯಿಸಿ ಅಥವಾ ಗೋದಾಮು ಸಾಲ ಪಡೆಯಿರಿ.' },
+    S4: { en: 'Enroll in State Drought Relief for input subsidies.', hi: 'लागत सब्सिडी हेतु राज्य सूखा राहत में नामांकन करें।', mr: 'कृषी साहित्य सवलतीसाठी राज्य दुष्काळ मदत योजनेत अर्ज करा.', or: 'ସବସିଡି ସହାୟତା ପାଇଁ ରାଜ୍ୟ ମରୁଡ଼ି ସହାୟତା ପ୍ୟାକେଜରେ ପଞ୍ଜିକରଣ କରନ୍ତୁ।', as: 'ৰাজসাহায্যৰ বাবে ৰাজ্যিক খৰাং সাহায্য আঁচনিত নামভৰ্তি কৰক।', kn: 'ಸಬ್ಸಿಡಿ ಸೌಲಭ್ಯಕ್ಕಾಗಿ ರಾಜ್ಯ ಬರ ಪರಿಹಾರ ಯೋಜನೆಯಡಿ ನೋಂದಾಯಿಸಿ.' },
+    'S4-EXT': { en: 'Apply for 55% micro-irrigation subsidy under PMKSY.', hi: 'ड्रिप/स्प्रिंकलर सिंचाई पर 55% सब्सिडी हेतु आवेदन करें।', mr: 'ठिबक व तुषार सिंचनासाठी ५५% शासकीय अनुदानावर अर्ज करा.', or: 'ଡ୍ରିପ୍ ଓ ସ୍ପ୍ରିଙ୍କଲର ଜଳସେଚନ ପାଇଁ ୫୫% ସରକାରୀ ରିହାତି ଆବେଦନ କରନ୍ତୁ।', as: 'টোপাল আৰু স্প্ৰিংকলাৰ জলসিঞ্চনৰ বাবে ৫৫% ৰাজসাহায্যৰ আবেদন কৰক।', kn: 'ಹನಿ ಮತ್ತು ತುಂತುರು ನೀರಾವರಿಗಾಗಿ ಶೇ ೫೫ ರ ಸಬ್ಸಿಡಿ ಅರ್ಜಿ ಸಲ್ಲಿಸಿ.' },
+    S5: { en: 'Check Aadhaar linkage to release ₹2,000 installment.', hi: '2,000 रुपये की किस्त पाने हेतु आधार लिंक जांचें।', mr: '२,००० रुपयांच्या हप्त्यासाठी बँक आधार जोडणी तपासा.', or: '୨,୦୦୦ ଟଙ୍କାର କିସ୍ତି ପାଇବା ପାଇଁ ଆଧାର ଓ ବ୍ୟାଙ୍କ ଯାଞ୍ଚ କରନ୍ତୁ।', as: '২,০০০ টকাৰ কিস্তি লাভ কৰিবলৈ আধাৰ সংযোগ পৰীক্ষা কৰক।', kn: '೨,೦೦೦ ರೂ. ಕಂತು ಪಡೆಯಲು ಆಧಾರ್ ಜೋಡಣೆ ಪರಿಶೀಲಿಸಿ.' },
+    S_OD1: { en: 'Receive KALIA seasonal financial support.', hi: 'कालिया योजना सहायता प्राप्त करें।', mr: 'कालिया योजना साहाय्य मिळवा.', or: 'କାଳିଆ ଯୋଜନାରେ ସହାୟତା ପାଆନ୍ତୁ।', as: 'কালিয়া আঁচনিৰ সাহায্য গ্ৰহণ কৰক।', kn: 'ಕಾಲಿಯಾ ಯೋಜನೆಯಡಿ ಆರ್ಥಿಕ ನೆರವು ಪಡೆಯಿರಿ.' },
+    S_OD2: { en: 'Apply for flood input subsidy and collect seed minikits.', hi: 'बाढ़ क्षति सब्सिडी आवेदन करें और बीज किट लें।', mr: 'पूर मदत अर्ज करा आणि बियाणे किट मिळवा.', or: 'ବନ୍ୟା କ୍ଷତିପୂରଣ ରିହାତି ଆବେଦନ କରନ୍ତୁ ଏବଂ ବିହନ କିଟ୍ ସଂଗ୍ରହ କରନ୍ତୁ।', as: 'বানপানী ক্ষতিপূৰণ সাহায্য আবেদন কৰক।', kn: 'ಪ್ರವಾಹ ಪರಿಹಾರ ಸಬ್ಸಿಡಿ ಅರ್ಜಿ ಸಲ್ಲಿಸಿ ಬೀಜ ಕಿಟ್ ಪಡೆಯಿರಿ.' },
+    S_OD3: { en: 'Apply for farm pond and solar pump subsidy.', hi: 'खेत तालाब व सौर पंप सब्सिडी आवेदन करें।', mr: 'शेततळे व सौर पंप अनुदानासाठी अर्ज करा.', or: 'କ୍ଷେତ ପୋଖରୀ ଓ ସୌର ପମ୍ପ ଉପରେ ରିହାତି ଆବେଦନ କରନ୍ତୁ।', as: 'পুখুৰী আৰু সৌৰ পাম্পত ৰাজসাহায্য লওক।', kn: 'ಕೃಷಿ ಹೊಂಡ ಮತ್ತು ಸೌರ ಪಂಪ್‌ಗೆ ಸಬ್ಸಿಡಿ ಪಡೆಯಿರಿ.' }
+  };
+
+  const locSchemeName = (schemeNamesLocal[sId] && schemeNamesLocal[sId][lang]) || topIntervention.scheme_name;
+  const locSchemeAction = (schemeActionsLocal[sId] && schemeActionsLocal[sId][lang]) || topIntervention.action_item;
 
   const caseBriefings = {
-    hi: `किसान ${farmer.farmer_name}, गांव ${farmer.village}, फसल ${localizedCrop}। संकट स्कोर ${farmer.distress_score}, जोखिम स्तर ${farmer.risk_band}। मुख्य कारण: ${farmer.top_contributing_signal ? farmer.top_contributing_signal.label : 'जोखिम'}। अनुशंसित सरकारी योजना: ${topIntervention.scheme_name}। अधिकारी फील्ड कार्रवाई: ${topIntervention.action_item}।`,
-    mr: `शेतकरी ${farmer.farmer_name}, गाव ${farmer.village}, पीक ${localizedCrop}. संकट गुणांक ${farmer.distress_score}, गट ${farmer.risk_band}. मुख्य कारण: ${farmer.top_contributing_signal ? farmer.top_contributing_signal.label : 'धोका'}. शासकीय योजना: ${topIntervention.scheme_name}. कृषी अधिकारी कृती: ${topIntervention.action_item}.`,
-    or: `କୃଷକ ${farmer.farmer_name}, ଗ୍ରାମ ${farmer.village}, ଫସଲ ${localizedCrop}। ସଙ୍କଟ ସ୍କୋର ${farmer.distress_score}, ରିସ୍କ ସ୍ତର ${farmer.risk_band}। ମୁଖ୍ୟ କାରଣ: ${farmer.top_contributing_signal ? farmer.top_contributing_signal.label : 'ସଙ୍କଟ'}। ପ୍ରସ୍ତାବିତ ଯୋଜନା: ${topIntervention.scheme_name}। ଅଧିକାରୀ କାର୍ଯ୍ୟାନୁଷ୍ଠାନ: ${topIntervention.action_item}।`,
-    as: `কৃষক ${farmer.farmer_name}, গাঁও ${farmer.village}, শস্য ${localizedCrop}। সংকট নম্বৰ ${farmer.distress_score}, স্তৰ ${farmer.risk_band}। মূল কাৰণ: ${farmer.top_contributing_signal ? farmer.top_contributing_signal.label : 'সংকট'}। প্ৰস্তাৱিত আঁচনি: ${topIntervention.scheme_name}। বিষয়াৰ পদক্ষেপ: ${topIntervention.action_item}।`,
-    kn: `ರೈತ ${farmer.farmer_name}, ಗ್ರಾಮ ${farmer.village}, ಬೆಳೆ ${localizedCrop}. ಸಂಕಷ್ಟ ಅಂಕ ${farmer.distress_score}, ಹಂತ ${farmer.risk_band}. ಪ್ರಮುಖ ಕಾರಣ: ${farmer.top_contributing_signal ? farmer.top_contributing_signal.label : 'ಅಪಾಯ'}. ಶಿಫಾರಸು ಯೋಜನೆ: ${topIntervention.scheme_name}. ಅಧಿಕಾರಿಗಳ ಕ್ರಮ: ${topIntervention.action_item}.`,
-    en: `Farmer ${farmer.farmer_name} from village ${farmer.village}, cultivating ${farmer.crop}. Compound distress score ${farmer.distress_score}, classified as ${farmer.risk_band} Risk. Primary trigger: ${farmer.top_contributing_signal ? farmer.top_contributing_signal.label : 'distress signal'}. Recommended scheme: ${topIntervention.scheme_name}. Field action item: ${topIntervention.action_item}.`
+    hi: `किसान ${farmer.farmer_name}, गांव ${farmer.village}, फसल ${localizedCrop}। संकट स्कोर ${farmer.distress_score}, जोखिम स्तर ${farmer.risk_band}। अनुशंसित सरकारी योजना: ${locSchemeName}। अधिकारी फील्ड कार्रवाई: ${locSchemeAction}`,
+    mr: `शेतकरी ${farmer.farmer_name}, गाव ${farmer.village}, पीक ${localizedCrop}. संकट गुणांक ${farmer.distress_score}, गट ${farmer.risk_band}. शासकीय योजना: ${locSchemeName}. कृषी अधिकारी कृती: ${locSchemeAction}`,
+    or: `କୃଷକ ${farmer.farmer_name}, ଗ୍ରାମ ${farmer.village}, ଫସଲ ${localizedCrop}। ସଙ୍କଟ ସ୍କୋର ${farmer.distress_score}, ରିସ୍କ ସ୍ତର ${farmer.risk_band}। ପ୍ରସ୍ତାବିତ ଯୋଜନା: ${locSchemeName}। ଅଧିକାରୀ କାର୍ଯ୍ୟାନୁଷ୍ଠାନ: ${locSchemeAction}`,
+    as: `কৃষক ${farmer.farmer_name}, গাঁও ${farmer.village}, শস্য ${localizedCrop}। সংকট নম্বৰ ${farmer.distress_score}, স্তৰ ${farmer.risk_band}। প্ৰস্তাৱিত আঁচনি: ${locSchemeName}। বিষয়াৰ পদক্ষেপ: ${locSchemeAction}`,
+    kn: `ರೈತ ${farmer.farmer_name}, ಗ್ರಾಮ ${farmer.village}, ಬೆಳೆ ${localizedCrop}. ಸಂಕಷ್ಟ ಅಂಕ ${farmer.distress_score}, ಹಂತ ${farmer.risk_band}. ಶಿಫಾರಸು ಯೋಜನೆ: ${locSchemeName}. ಅಧಿಕಾರಿಗಳ ಕ್ರಮ: ${locSchemeAction}`,
+    en: `Farmer ${farmer.farmer_name} from village ${farmer.village}, cultivating ${farmer.crop}. Compound distress score ${farmer.distress_score}, classified as ${farmer.risk_band} Risk. Recommended scheme: ${locSchemeName}. Field action item: ${locSchemeAction}`
   };
 
   const script = caseBriefings[lang] || caseBriefings['en'];
-  await speakText(script, lang, 'mandi-price');
+  await speakText(script, lang, 'modal-case-briefing');
+}
+
+
+const IVR_KEYPAD_TRANSLATIONS = {
+  en: {
+    pressKeypad: "Press Phone Keypad:",
+    keyAdvisory: "ADVISORY",
+    keyMandi: "MANDI/MSP",
+    keySchemes: "SCHEMES",
+    keyOfficer: "OFFICER",
+    ivrSpeakPrompt: "Speak / Ask AI Kisan Mitra",
+    ivrRestartCall: "Restart Call 🔄"
+  },
+  hi: {
+    pressKeypad: "कीपैड दबाएं:",
+    keyAdvisory: "१: फसल सलाह",
+    keyMandi: "२: मंडी भाव",
+    keySchemes: "३: सरकारी योजनाएं",
+    keyOfficer: "०: अधिकारी से बात करें",
+    ivrSpeakPrompt: "बोलें / किसान मित्र से पूछें",
+    ivrRestartCall: "कॉल पुनः शुरू करें 🔄"
+  },
+  mr: {
+    pressKeypad: "कीपॅड दाबा:",
+    keyAdvisory: "१: पीक सल्ला",
+    keyMandi: "२: बाजार भाव",
+    keySchemes: "३: शासकीय योजना",
+    keyOfficer: "०: अधिकाऱ्यांशी संपर्क",
+    ivrSpeakPrompt: "बोला / किसान मित्राला विचारा",
+    ivrRestartCall: "कॉल पुन्हा सुरू करा 🔄"
+  },
+  or: {
+    pressKeypad: "କିପ୍ୟାଡ୍ ଦବାନ୍ତୁ:",
+    keyAdvisory: "୧: ଫସଲ ପରାମର୍ଶ",
+    keyMandi: "୨: ମଣ୍ଡି ଦର",
+    keySchemes: "୩: ସରକାରୀ ଯୋଜନା",
+    keyOfficer: "୦: ଅଧିକାରୀଙ୍କ ସହ କଥା",
+    ivrSpeakPrompt: "କୁହନ୍ତୁ / କୃଷି ମିତ୍ରଙ୍କୁ ପଚାରନ୍ତୁ",
+    ivrRestartCall: "କଲ୍ ପୁନରାରମ୍ଭ କରନ୍ତୁ 🔄"
+  },
+  as: {
+    pressKeypad: "কীপ্যাড টিপক:",
+    keyAdvisory: "১: শস্য দিহা",
+    keyMandi: "২: বজাৰ দৰ",
+    keySchemes: "৩: চৰকাৰী আঁচনি",
+    keyOfficer: "০: বিষয়াৰ সৈতে কথা",
+    ivrSpeakPrompt: "কওক / কৃষি মিত্ৰক সোধক",
+    ivrRestartCall: "কল পুনৰ আৰম্ভ কৰক 🔄"
+  },
+  kn: {
+    pressKeypad: "ಕೀಪ್ಯಾಡ್ ಒತ್ತಿ:",
+    keyAdvisory: "೧: ಬೆಳೆ ಸಲಹೆ",
+    keyMandi: "೨: ಮಾರುಕಟ್ಟೆ ಬೆಲೆ",
+    keySchemes: "೩: ಸರ್ಕಾರಿ ಯೋಜನೆ",
+    keyOfficer: "೦: ಅಧಿಕಾರಿಯೊಂದಿಗೆ ಮಾತು",
+    ivrSpeakPrompt: "ಮಾತನಾಡಿ / ಕಿಸಾನ್ ಮಿತ್ರರನ್ನು ಕೇಳಿ",
+    ivrRestartCall: "ಕರೆಯನ್ನು ಮರುಪ್ರಾರಂಭಿಸಿ 🔄"
+  }
+};
+
+function updateIvrKeypadLanguage(lang) {
+  const dict = IVR_KEYPAD_TRANSLATIONS[lang] || IVR_KEYPAD_TRANSLATIONS['en'];
+  
+  const keypadHeader = document.querySelector('[data-i18n="pressKeypad"]');
+  if (keypadHeader) keypadHeader.textContent = dict.pressKeypad;
+
+  const keyAdv = document.querySelector('[data-i18n="keyAdvisory"]');
+  if (keyAdv) keyAdv.textContent = dict.keyAdvisory;
+
+  const keyMandi = document.querySelector('[data-i18n="keyMandi"]');
+  if (keyMandi) keyMandi.textContent = dict.keyMandi;
+
+  const keySch = document.querySelector('[data-i18n="keySchemes"]');
+  if (keySch) keySch.textContent = dict.keySchemes;
+
+  const keyOff = document.querySelector('[data-i18n="keyOfficer"]');
+  if (keyOff) keyOff.textContent = dict.keyOfficer;
+
+  const speakPrompt = document.querySelector('[data-i18n="ivrSpeakPrompt"]');
+  if (speakPrompt) speakPrompt.textContent = dict.ivrSpeakPrompt;
+
+  const restartCall = document.querySelector('[data-i18n="ivrRestartCall"]');
+  if (restartCall) restartCall.textContent = dict.ivrRestartCall;
 }
 
 // --- MODULE 3: SMS & IVR FALLBACK SIMULATOR ---
@@ -3663,6 +4115,11 @@ async function startIvrCall(customFarmerId, customLang) {
 
     const screenEl = document.getElementById('ivr-screen-text');
     if (screenEl) screenEl.textContent = state.ivrState.voice_prompt_text;
+
+    // Eagerly prefetch IVR prompt audio for instant playback
+    if (state.ivrState.voice_prompt_text) {
+      prefetchAudio(state.ivrState.voice_prompt_text, state.ivrLanguage);
+    }
     
     const statusPill = document.getElementById('ivr-status-pill');
     if (statusPill) statusPill.textContent = '● IN CALL (MAIN MENU)';
@@ -3670,8 +4127,8 @@ async function startIvrCall(customFarmerId, customLang) {
     const langPill = document.getElementById('ivr-lang-pill');
     if (langPill) langPill.textContent = `LANG: ${(state.ivrState.language || lang).toUpperCase()}`;
 
-    // Auto-trigger SMS emulator to match
-    await triggerSmsDelivery(farmerId, state.ivrLanguage);
+    // Update only keypad labels
+    updateIvrKeypadLanguage(state.ivrLanguage);
 
   } catch (err) {
     console.error('Error starting IVR call:', err);
@@ -3697,17 +4154,15 @@ async function pressIvrKey(digit) {
     state.ivrState = data;
     ivrMenuState = data.state || 'MAIN_MENU';
 
+    if (data.voice_prompt_text) {
+      prefetchAudio(data.voice_prompt_text, data.language || state.ivrLanguage || lang);
+    }
+
     if (data.language) {
       state.ivrLanguage = data.language;
       const langPill = document.getElementById('ivr-lang-pill');
       if (langPill) langPill.textContent = `LANG: ${data.language.toUpperCase()}`;
-    }
-
-    // If language was changed through keypad, activate globally
-    if (data.language_changed && data.language) {
-      if (typeof onLanguageChanged === 'function') {
-        await onLanguageChanged(data.language);
-      }
+      updateIvrKeypadLanguage(data.language);
     }
 
     const screenEl = document.getElementById('ivr-screen-text');
@@ -3734,7 +4189,7 @@ async function pressIvrKey(digit) {
 
 function playIvrAudioPrompt() {
   if (state.ivrState && state.ivrState.voice_prompt_text) {
-    speakText(state.ivrState.voice_prompt_text, state.ivrState.language || state.ivrLanguage || state.selectedLanguage || 'en');
+    speakText(state.ivrState.voice_prompt_text, state.ivrState.language || state.ivrLanguage || state.selectedLanguage || 'en', 'ivr-prompt');
   }
 }
 
@@ -4062,7 +4517,24 @@ window.switchGlobalLanguage = onLanguageChanged;
 window.applyI18n = applyI18n;
 window.showTTSToast = showTTSToast;
 window.speakText = speakText;
+window.stopSpeech = stopSpeech;
+window.playWeatherMetricAudio = playWeatherMetricAudio;
+window.playButtonAudio = playButtonAudio;
+window.playCurrentAdvisoryAudio = playCurrentAdvisoryAudio;
+window.playMandiAudio = playMandiAudio;
+window.playAllAlertsAudio = playAllAlertsAudio;
+window.playAlertCardAudio = playAlertCardAudio;
+window.playAllSchemesAudio = playAllSchemesAudio;
+window.playSchemeCardAudio = playSchemeCardAudio;
+window.playOfficerBriefingAudio = playOfficerBriefingAudio;
+window.playModalCaseBriefingAudio = playModalCaseBriefingAudio;
+window.playIvrAudioPrompt = playIvrAudioPrompt;
 window.switchMainView = switchMainView;
 window.runSandboxEvaluation = runSandboxEvaluation;
 window.loadSandboxPreset = loadSandboxPreset;
 window.speakSandboxAdvisory = speakSandboxAdvisory;
+window.getLocalizedCrop = getLocalizedCrop;
+window.getLocalizedStage = getLocalizedStage;
+window.getLocalizedSoil = getLocalizedSoil;
+window.getLocalizedMarket = getLocalizedMarket;
+window.getTranslation = getTranslation;

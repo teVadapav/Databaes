@@ -100,6 +100,23 @@ def load_full_datastore():
         fd["has_pmfby_insurance"] = bool(fd.get("has_pmfby_insurance", 0))
         fd["has_kcc"] = bool(fd.get("has_kcc", 0))
         fd["informal_debt"] = bool(fd.get("informal_debt", 0))
+        try:
+            p_row = cursor.execute("""
+                SELECT total_land_area, land_unit, state, district_id 
+                FROM onboarding_profiles 
+                WHERE id = ? OR phone_number LIKE ? OR farmer_name = ?
+                ORDER BY created_at DESC LIMIT 1
+            """, (f"PROF_{fd['id']}", f"%{fd.get('phone', '').replace('-','').replace('+91','')}%", fd.get('name'))).fetchone()
+            if p_row:
+                fd["total_land_area"] = float(p_row[0])
+                fd["land_unit"] = str(p_row[1])
+                fd["state"] = str(p_row[2])
+            else:
+                fd["total_land_area"] = float(fd.get("landholding_hectares", 1.0))
+                fd["land_unit"] = "hectares"
+        except Exception:
+            fd["total_land_area"] = float(fd.get("landholding_hectares", 1.0))
+            fd["land_unit"] = "hectares"
         farmers.append(fd)
 
     schemes = [dict(row) for row in cursor.execute("SELECT * FROM schemes").fetchall()]
@@ -305,6 +322,9 @@ def get_authenticated_farmer_profile(
             "crop": farmer["crop"],
             "crop_stage": farmer["crop_stage"],
             "landholding_hectares": farmer["landholding_hectares"],
+            "total_land_area": farmer.get("total_land_area", farmer["landholding_hectares"]),
+            "land_unit": farmer.get("land_unit", "hectares"),
+            "state": farmer.get("state", district.get("state", "")),
             "soil_type": farmer.get("soil_type") or district.get("soil_type", "Black Cotton"),
             "preferred_language": farmer.get("language", "hi"),
             "device_type": farmer.get("device_type", "android_smartphone"),
@@ -458,12 +478,17 @@ def save_onboarding_profile(payload: FarmerOnboardingPayload):
         "tts_locale": payload.tts_locale or payload.preferred_language,
         "voice_profile": payload.voice_profile or "hi-IN-SwaraNeural",
         "landholding_hectares": area_hectares,
+        "total_land_area": payload.land_details.total_area,
+        "land_unit": payload.land_details.unit,
         "primary_crops": payload.primary_crops,
         "user": {
             "id": farmer_id,
             "name": payload.farmer_name,
             "phone": payload.phone_number,
             "district_id": payload.district,
+            "state": payload.state,
+            "total_land_area": payload.land_details.total_area,
+            "land_unit": payload.land_details.unit,
             "preferred_language": payload.preferred_language
         }
     }
@@ -1007,6 +1032,314 @@ def get_all_schemes():
     return data["schemes"]
 
 
+CROP_NAMES_MULTILINGUAL = {
+    "wheat": {
+        "en": "Wheat",
+        "hi": "गेहूं",
+        "mr": "गहू",
+        "or": "ଗହମ",
+        "as": "গম",
+        "kn": "ಗೋಧಿ"
+    },
+    "onion": {
+        "en": "Onion",
+        "hi": "प्याज",
+        "mr": "कांदा",
+        "or": "ପିଆଜ",
+        "as": "পিয়াঁজ",
+        "kn": "ಈರುಳ್ಳಿ"
+    },
+    "cotton": {
+        "en": "Cotton",
+        "hi": "कपास",
+        "mr": "कापूस",
+        "or": "କପା",
+        "as": "কপাহ",
+        "kn": "ಹತ್ತಿ"
+    },
+    "soybean": {
+        "en": "Soybean",
+        "hi": "सोयाबीन",
+        "mr": "सोयाबीन",
+        "or": "ସୋୟାବିନ୍",
+        "as": "ছয়াবিন",
+        "kn": "ಸೋಯಾಬೀನ್"
+    },
+    "tomato": {
+        "en": "Tomato",
+        "hi": "टमाटर",
+        "mr": "टोमॅटो",
+        "or": "ଟମାଟୋ",
+        "as": "টমেটো",
+        "kn": "ಟೊಮೆಟೊ"
+    },
+    "paddy": {
+        "en": "Paddy (Rice)",
+        "hi": "धान",
+        "mr": "भात (धान)",
+        "or": "ଧାନ",
+        "as": "ধান",
+        "kn": "ಭತ್ತ"
+    },
+    "rice": {
+        "en": "Rice",
+        "hi": "धान",
+        "mr": "भात",
+        "or": "ଧାନ",
+        "as": "ধান",
+        "kn": "ಭತ್ತ"
+    },
+    "maize": {
+        "en": "Maize",
+        "hi": "मक्का",
+        "mr": "मका",
+        "or": "ମକା",
+        "as": "মাকৈ",
+        "kn": "ಮೆಕ್ಕೆಜೋಳ"
+    },
+    "groundnut": {
+        "en": "Groundnut",
+        "hi": "मूंगफली",
+        "mr": "भुईमूग",
+        "or": "ଚିନାବାଦାମ",
+        "as": "বাদাম",
+        "kn": "ಕಡಲೆಕಾಯಿ"
+    },
+    "pigeonpea": {
+        "en": "Pigeonpea (Arhar)",
+        "hi": "अरहर (तुअर)",
+        "mr": "तूर",
+        "or": "ହରଡ଼",
+        "as": "অৰহৰ",
+        "kn": "ತೊಗರಿ"
+    },
+    "pulses": {
+        "en": "Pulses",
+        "hi": "दलहन",
+        "mr": "कडधान्ये",
+        "or": "ଡାଲି",
+        "as": "মাহজাতীয় শস্য",
+        "kn": "ದ್ವಿದಳ ಧಾನ್ಯ"
+    },
+    "sugarcane": {
+        "en": "Sugarcane",
+        "hi": "गन्ना",
+        "mr": "ऊस",
+        "or": "ଆଖୁ",
+        "as": "কুঁহিয়াৰ",
+        "kn": "ಕಬ್ಬು"
+    }
+}
+
+
+SCHEME_TRANSLATIONS = {
+    "S1": {
+        "name": {
+            "en": "PMFBY Crop Insurance",
+            "hi": "प्रधानमंत्री फसल बीमा योजना (PMFBY)",
+            "mr": "प्रधानमंत्री पीक विमा योजना (PMFBY)",
+            "or": "ପ୍ରଧାନମନ୍ତ୍ରୀ ଫସଲ ବୀମା ଯୋଜନା (PMFBY)",
+            "as": "প্ৰধানমন্ত্ৰী ফচল বীমা যোজনা (PMFBY)",
+            "kn": "ಪ್ರಧಾನ ಮಂತ್ರಿ ಫಸಲ್ ಬಿಮಾ ಯೋಜನೆ (PMFBY)"
+        },
+        "action": {
+            "en": "File PMFBY crop loss claim form & initiate survey within 72 hrs.",
+            "hi": "पीएमएफबीवाई फसल क्षति दावा फॉर्म भरें एवं 72 घंटे में सर्वेक्षण करवाएं।",
+            "mr": "पीक नुकसानीचा पीएमएफबीवाय दावा अर्ज दाखल करा व ७२ तासांत पाहणी पूर्ण करा.",
+            "or": "୭୨ ଘଣ୍ଟା ମଧ୍ୟରେ ଫସଲ କ୍ଷୟକ୍ଷତି ଦାବି ଫର୍ମ ଦାଖଲ କରି ସର୍ଭେ କରାନ୍ତୁ।",
+            "as": "৭২ ঘণ্টাৰ ভিতৰত শস্যৰ ক্ষতিপূৰণ আবেদন জমা দিয়ক আৰু জৰীপ কৰাওক।",
+            "kn": "೭೨ ಗಂಟೆಗಳ ಒಳಗೆ ಬೆಳೆ ನಷ್ಟ ಪರಿಹಾರ ಅರ್ಜಿ ಸಲ್ಲಿಸಿ ಸಮೀಕ್ಷೆ ಆರಂಭಿಸಿ."
+        }
+    },
+    "S1-ENROLL": {
+        "name": {
+            "en": "PMFBY Enrollment (Crop Insurance)",
+            "hi": "प्रधानमंत्री फसल बीमा योजना (PMFBY) नामांकन",
+            "mr": "प्रधानमंत्री पीक विमा योजना (PMFBY) नोंदणी",
+            "or": "ପ୍ରଧାନମନ୍ତ୍ରୀ ଫସଲ ବୀମା ଯୋଜନା (PMFBY) ପଞ୍ଜିକରଣ",
+            "as": "প্ৰধানমন্ত্ৰী ফচল বীমা যোজনা (PMFBY) পঞ্জীয়ন",
+            "kn": "ಪ್ರಧಾನ ಮಂತ್ರಿ ಫಸಲ್ ಬಿಮಾ ಯೋಜನೆ (PMFBY) ನೋಂದಣಿ"
+        },
+        "action": {
+            "en": "Immediately enroll in PMFBY at nearest CSC or bank branch.",
+            "hi": "निकटतम सीएससी केंद्र या बैंक शाखा जाकर तुरंत फसल बीमा कराएं।",
+            "mr": "जवळच्या सीएससी केंद्र किंवा बँकेत जाऊन त्वरित पीक विमा नोंदणी करा.",
+            "or": "ନିକଟସ୍ଥ ଜନସେବା କେନ୍ଦ୍ର କିମ୍ବା ବ୍ୟାଙ୍କରେ ତୁରନ୍ତ ଫସଲ ବୀମା କରାନ୍ତୁ।",
+            "as": "নিকটৱৰ্তী চিএছচি কেন্দ্ৰ বা বেংকত তৎকালীনভাৱে শস্য বীমা কৰক।",
+            "kn": "ಹತ್ತಿರದ ಸಿಎಸ್‌ಸಿ ಕೇಂದ್ರ ಅಥವಾ ಬ್ಯಾಂಕ್‌ನಲ್ಲಿ ತಕ್ಷಣ ಬೆಳೆ ವಿಮೆ ನೋಂದಾಯಿಸಿ."
+        }
+    },
+    "S2": {
+        "name": {
+            "en": "KCC Debt Restructuring",
+            "hi": "किसान क्रेडिट कार्ड (KCC) ऋण पुनर्गठन",
+            "mr": "किसान क्रेडिट कार्ड (KCC) कर्ज पुनर्गठन",
+            "or": "କିସାନ କ୍ରେଡିଟ୍ କାର୍ଡ (KCC) ଋଣ ପୁନର୍ଗଠନ",
+            "as": "কিষাণ ক্ৰেডিট কাৰ্ড (KCC) ঋণ পুনৰ্গঠন",
+            "kn": "ಕಿಸಾನ್ ಕ್ರೆಡಿಟ್ ಕಾರ್ಡ್ (KCC) ಸಾಲ ಪುನಾರಚನೆ"
+        },
+        "action": {
+            "en": "Submit KCC restructuring request for 1-year moratorium and interest relief.",
+            "hi": "1 वर्ष की मोहलत एवं ब्याज छूट हेतु केसीसी ऋण पुनर्गठन आवेदन दें।",
+            "mr": "१ वर्षाची मुदतवाढ आणि व्याज सवलतीसाठी केसीसी कर्ज पुनर्गठन अर्ज करा.",
+            "or": "୧ ବର୍ଷର ରିହାତି ଅବଧି ପାଇଁ କେସିସି ଋଣ ପୁନର୍ଗଠନ ଆବେଦନ କରନ୍ତୁ।",
+            "as": "১ বছৰৰ সময় বৃদ্ধিৰ বাবে কেচিচি ঋণ পুনৰ্গঠন আবেদন দাখিল কৰক।",
+            "kn": "೧ ವರ್ಷದ ಕಾಲಾವಕಾಶಕ್ಕಾಗಿ ಕೆಸಿಸಿ ಸಾಲ ಪುನಾರಚನೆ ಅರ್ಜಿ ಸಲ್ಲಿಸಿ."
+        }
+    },
+    "S3": {
+        "name": {
+            "en": "PM-AASHA & e-NAM MSP Assurance",
+            "hi": "पीएम-आशा एवं ई-नाम समर्थन मूल्य योजना",
+            "mr": "पीएम-आशा व ई-नाम हमीभाव योजना",
+            "or": "ପିଏମ୍-ଆଶା ଏବଂ ଇ-ନାମ ସହାୟକ ମୂଲ୍ୟ ଯୋଜନା",
+            "as": "পিএম-আশা আৰু ই-নাম সমৰ্থন মূল্য আঁচনি",
+            "kn": "ಪಿಎಂ-ಆಶಾ ಮತ್ತು ಇ-ನಾಮ್ ಬೆಂಬಲ ಬೆಲೆ ಯೋಜನೆ"
+        },
+        "action": {
+            "en": "Register on e-NAM for MSP procurement or take warehouse pledge loan.",
+            "hi": "समर्थन मूल्य पर खरीद हेतु ई-नाम पर पंजीकरण करें या गोदाम रसीद पर ऋण लें।",
+            "mr": "हमीभावाने विक्रीसाठी ई-नाम नोंदणी करा किंवा वखार पावती कर्ज घ्या.",
+            "or": "ସହାୟକ ମୂଲ୍ୟରେ ବିକ୍ରୟ ପାଇଁ ଇ-ନାମ ପଞ୍ଜିକରଣ କରନ୍ତୁ କିମ୍ବା ଗୋଦାମ ଋଣ ନିଅନ୍ତୁ।",
+            "as": "সমৰ্থন মূল্যত বিক্ৰীৰ বাবে ই-নাম পঞ্জীয়ন কৰক বা গুদাম ঋণ লওক।",
+            "kn": "ಬೆಂಬಲ ಬೆಲೆಗೆ ಮಾರಾಟ ಮಾಡಲು ಇ-ನಾಮ್ ನೋಂದಾಯಿಸಿ ಅಥವಾ ಗೋದಾಮು ಸಾಲ ಪಡೆಯಿರಿ."
+        }
+    },
+    "S4": {
+        "name": {
+            "en": "State Drought Relief Package",
+            "hi": "राज्य सूखा राहत पैकेज",
+            "mr": "राज्य दुष्काळ सहाय्य योजना",
+            "or": "ରାଜ୍ୟ ମରୁଡ଼ି ସହାୟତା ପ୍ୟାକେଜ୍",
+            "as": "ৰাজ্যিক খৰাং সাহায্য আঁচনি",
+            "kn": "ರಾಜ್ಯ ಬರ ಪರಿಹಾರ ಪ್ಯಾಕೇಜ್"
+        },
+        "action": {
+            "en": "Enroll in State Special Drought Relief for input & electricity subsidies.",
+            "hi": "लागत एवं बिजली शुल्क सब्सिडी हेतु राज्य विशेष सूखा राहत पैकेज में नामांकन करें।",
+            "mr": "कृषी साहित्य व वीज बिल सवलतीसाठी राज्य दुष्काळ मदत योजनेत अर्ज करा.",
+            "or": "ସବସିଡି ସହାୟତା ପାଇଁ ରାଜ୍ୟ ମରୁଡ଼ି ସହାୟତା ପ୍ୟାକେଜରେ ପଞ୍ଜିକରଣ କରନ୍ତୁ।",
+            "as": "ৰাজসাহায্যৰ বাবে ৰাজ্যিক খৰাং সাহায্য আঁচনিত নামভৰ্তি কৰক।",
+            "kn": "ಸಬ್ಸಿಡಿ ಸೌಲಭ್ಯಕ್ಕಾಗಿ ರಾಜ್ಯ ಬರ ಪರಿಹಾರ ಯೋಜನೆಯಡಿ ನೋಂದಾಯಿಸಿ."
+        }
+    },
+    "S4-EXT": {
+        "name": {
+            "en": "PMKSY Micro-Irrigation Subsidy",
+            "hi": "प्रधानमंत्री कृषि सिंचाई योजना (PMKSY सूक्ष्म सिंचाई)",
+            "mr": "प्रधानमंत्री कृषी सिंचन योजना (सूक्ष्म सिंचन अनुदान)",
+            "or": "ପ୍ରଧାନମନ୍ତ୍ରୀ କୃଷି ସିଞ୍ଚାଇ ଯୋଜନା (କ୍ଷୁଦ୍ର ଜଳସେଚନ ରିହାତି)",
+            "as": "প্ৰধানমন্ত্ৰী কৃষি সিঞ্চন যোজনা (ক্ষুদ্ৰ জলসিঞ্চন ৰাজসাহায্য)",
+            "kn": "ಪ್ರಧಾನ ಮಂತ್ರಿ ಕೃಷಿ ಸಿಂಚಾಯಿ ಯೋಜನೆ (ಸೂಕ್ಷ್ಮ ನೀರಾವರಿ ಸಬ್ಸಿಡಿ)"
+        },
+        "action": {
+            "en": "Apply for 55% drip/sprinkler micro-irrigation subsidy under PMKSY.",
+            "hi": "पीएमकेएसवाई के तहत ड्रिप/स्प्रिंकलर सिंचाई पर 55% सब्सिडी हेतु आवेदन करें।",
+            "mr": "ठिबक व तुषार सिंचनासाठी ५५% शासकीय अनुदानावर अर्ज करा.",
+            "or": "ଡ୍ରିପ୍ ଓ ସ୍ପ୍ରିଙ୍କଲର ଜଳସେଚନ ପାଇଁ ୫୫% ସରକାରୀ ରିହାତି ଆବେଦନ କରନ୍ତୁ।",
+            "as": "টোপাল আৰু স্প্ৰিংকলাৰ জলসিঞ্চনৰ বাবে ৫৫% ৰাজসাহায্যৰ আবেদন কৰক।",
+            "kn": "ಹನಿ ಮತ್ತು ತುಂತುರು ನೀರಾವರಿಗಾಗಿ ಶೇ ೫೫ ರ ಸಬ್ಸಿಡಿ ಅರ್ಜಿ ಸಲ್ಲಿಸಿ."
+        }
+    },
+    "S5": {
+        "name": {
+            "en": "PM-KISAN Samman Nidhi",
+            "hi": "प्रधानमंत्री किसान सम्मान निधि (PM-KISAN)",
+            "mr": "प्रधानमंत्री किसान सन्मान निधी (PM-KISAN)",
+            "or": "ପ୍ରଧାନମନ୍ତ୍ରୀ କିସାନ ସମ୍ମାନ ନିଧି (PM-KISAN)",
+            "as": "প্ৰধানমন্ত্ৰী কিষাণ সন্মান নিধি (PM-KISAN)",
+            "kn": "ಪ್ರಧಾನ ಮಂತ್ರಿ ಕಿಸಾನ್ ಸಮ್ಮಾನ್ ನಿಧಿ (PM-KISAN)"
+        },
+        "action": {
+            "en": "Check Aadhaar linkage to release ₹2,000 PM-KISAN installment.",
+            "hi": "2,000 रुपये की पीएम-किसान किस्त पाने हेतु आधार व बैंक खाता जांचें।",
+            "mr": "२,००० रुपयांच्या पीएम-किसान हप्त्यासाठी बँक आधार जोडणी तपासा.",
+            "or": "୨,୦୦୦ ଟଙ୍କାର ପିଏମ୍-କିସାନ କିସ୍ତି ପାଇବା ପାଇଁ ଆଧାର ଓ ବ୍ୟାଙ୍କ ଖାତା ଯାଞ୍ଚ କରନ୍ତୁ।",
+            "as": "২,০০০ টকাৰ কিস্তি লাভ কৰিবলৈ আধাৰ সংযোগ পৰীক্ষা কৰক।",
+            "kn": "೨,೦೦೦ ರೂ. ಪಿಎಂ-ಕಿಸಾನ್ ಕಂತು ಪಡೆಯಲು ಆಧಾರ್ ಜೋಡಣೆ ಪರಿಶೀಲಿಸಿ."
+        }
+    },
+    "S_OD1": {
+        "name": {
+            "en": "KALIA Scheme (Odisha)",
+            "hi": "कालिया योजना (ओडिशा)",
+            "mr": "कालिया योजना (ओडिशा)",
+            "or": "କାଳିଆ ଯୋଜନା (ଓଡ଼ିଶା)",
+            "as": "কালিয়া আঁচনি (ওড়িশা)",
+            "kn": "ಕಾಲಿಯಾ ಯೋಜನೆ (ಒಡಿಶಾ)"
+        },
+        "action": {
+            "en": "Receive ₹4,000 KALIA seasonal financial support.",
+            "hi": "कालिया योजना के तहत 4,000 रुपये मौसमी सहायता प्राप्त करें।",
+            "mr": "कालिया योजनेअंतर्गत ४,००० रुपये हंगामी आर्थिक साहाय्य मिळवा.",
+            "or": "କାଳିଆ ଯୋଜନାରେ ୪,୦୦୦ ଟଙ୍କାର ଋତୁକାଳୀନ ସହାୟତା ପାଆନ୍ତୁ।",
+            "as": "কালিয়া আঁচনিৰ ৪,০০০ টকাৰ আৰ্থিক সাহায্য গ্ৰহণ কৰକ।",
+            "kn": "ಕಾಲಿಯಾ ಯೋಜನೆಯಡಿ ೪,೦೦೦ ರೂ. ಕಾಲೋಚಿತ ಆರ್ಥಿಕ ನೆರವು ಪಡೆಯಿರಿ."
+        }
+    },
+    "S_OD2": {
+        "name": {
+            "en": "OSDMA Flood Relief",
+            "hi": "ओडिशा राज्य आपदा प्रबंधन (OSDMA) बाढ़ राहत",
+            "mr": "ओडिशा राज्य आपत्ती निवारण पूर मदत",
+            "or": "ଓଏସଡିଏମଏ ବନ୍ୟା ସହାୟତା ପ୍ୟାକେଜ୍",
+            "as": "বানপানী সাহায্য আৰু বীজ যোগান",
+            "kn": "ಪ್ರವಾಹ ಪರಿಹಾರ ಮತ್ತು ಬೀಜ ಸಹಾಯ"
+        },
+        "action": {
+            "en": "Apply for flood input subsidy and collect flood-resilient seeds.",
+            "hi": "बाढ़ फसल क्षति सब्सिडी आवेदन करें और जल-सहनशील बीज किट प्राप्त करें।",
+            "mr": "पूर नुकसान भरपाई अर्ज करा आणि पूर-सहनशील बियाणे किट मिळवा.",
+            "or": "ବନ୍ୟା କ୍ଷତିପୂରଣ ରିହାତି ଆବେଦନ କରନ୍ତୁ ଏବଂ ବନ୍ୟା-ସହଣୀୟ ବିହନ କିଟ୍ ସଂଗ୍ରହ କରନ୍ତୁ।",
+            "as": "বানপানী ক্ষতিপূৰণ সাহায্য আবেদন কৰক আৰু বান-প্ৰতিৰোধী বীজ সংগ্ৰহ কৰক।",
+            "kn": "ಪ್ರವಾಹ ಪರಿಹಾರ ಸಬ್ಸಿಡಿ ಅರ್ಜಿ ಸಲ್ಲಿಸಿ ಮುಳುಗಡೆ ನಿರೋಧಕ ಬೀಜ ಕಿಟ್ ಪಡೆಯಿರಿ."
+        }
+    },
+    "S_OD3": {
+        "name": {
+            "en": "Farm Pond & Solar Pump Subsidy",
+            "hi": "सौर पंप एवं खेत तालाब सब्सिडी",
+            "mr": "सौर पंप व शेततळे अनुदान",
+            "or": "ସୌର ପମ୍ପ ଏବଂ କ୍ଷେତ ପୋଖରୀ ରିହାତି",
+            "as": "সৌৰ পাম্প আৰু পুখুৰী ৰাজসাহায্য",
+            "kn": "ಸೌರ ಪಂಪ್ ಮತ್ತು ಕೃಷಿ ಹೊಂಡ ಸಬ್ಸಿಡಿ"
+        },
+        "action": {
+            "en": "Apply for 70% farm pond and solar pump subsidy for emergency irrigation.",
+            "hi": "आपातकालीन सिंचाई हेतु खेत तालाब व सौर पंप पर 70% सब्सिडी आवेदन करें।",
+            "mr": "तातडीच्या संरक्षणात्मक सिंचनासाठी शेततळे व सौर पंपावर ७०% अनुदानासाठी अर्ज करा.",
+            "or": "ଜରୁରୀକାଳୀନ ଜଳସେଚନ ପାଇଁ କ୍ଷେତ ପୋଖରୀ ଓ ସୌର ପମ୍ପ ଉପରେ ୭୦% ରିହାତି ଆବେଦନ କରନ୍ତୁ।",
+            "as": "জৰুৰী জলসিঞ্চনৰ বাবে পুখুৰী আৰু সৌৰ পাম্পত ৭০% ৰাজসাহায্য লওক।",
+            "kn": "ತುರ್ತು ನೀರಾವರಿಗಾಗಿ ಕೃಷಿ ಹೊಂಡ ಮತ್ತು ಸೌರ ಪಂಪ್‌ಗೆ ಶೇ ೭೦ ರ ಸಬ್ಸಿಡಿ ಪಡೆಯಿರಿ."
+        }
+    }
+}
+
+def get_localized_scheme_name(scheme_id: str, lang: str, fallback_name: str = "PMFBY") -> str:
+    s = SCHEME_TRANSLATIONS.get(scheme_id)
+    if s and "name" in s:
+        return s["name"].get(lang, s["name"].get("en", fallback_name))
+    # Check by matching name
+    for sid, data in SCHEME_TRANSLATIONS.items():
+        if sid in fallback_name or data["name"]["en"] in fallback_name:
+            return data["name"].get(lang, data["name"].get("en", fallback_name))
+    return fallback_name
+
+def get_localized_scheme_action(scheme_id: str, lang: str, fallback_action: str = "") -> str:
+    s = SCHEME_TRANSLATIONS.get(scheme_id)
+    if s and "action" in s:
+        return s["action"].get(lang, s["action"].get("en", fallback_action))
+    for sid, data in SCHEME_TRANSLATIONS.items():
+        if sid in fallback_action or sid in str(scheme_id):
+            return data["action"].get(lang, data["action"].get("en", fallback_action))
+    return fallback_action
+
+def get_localized_crop_name(crop: str, lang: str) -> str:
+    c = (crop or "").lower().strip()
+    if c in CROP_NAMES_MULTILINGUAL:
+        return CROP_NAMES_MULTILINGUAL[c].get(lang, CROP_NAMES_MULTILINGUAL[c].get("en", crop))
+    return crop
+
 @app.post("/api/simulate/ivr")
 def simulate_ivr(payload: IvrRequest):
     """
@@ -1030,16 +1363,18 @@ def simulate_ivr(payload: IvrRequest):
     menu_state = payload.menu_state or "MAIN_MENU"
 
     farmer_name = farmer.get("name", "Farmer")
-    crop_name = farmer.get("crop", "Crop")
+    raw_crop = farmer.get("crop", "Crop")
+    crop_name = get_localized_crop_name(raw_crop, lang)
 
     def get_main_menu_content(l):
+        loc_crop = get_localized_crop_name(raw_crop, l)
         greetings = {
-            "mr": f"नमस्कार {farmer_name} शेतकरी बंधू! आपल्या {crop_name} पिकासाठी कृषी सल्ला व साहाय्य केंद्रात आपले स्वागत आहे.",
-            "or": f"ନମସ୍କାର {farmer_name} କୃଷକ ଭାଇ! ଆପଣଙ୍କ {crop_name} ଫସଲ ପାଇଁ ସ୍ମାର୍ଟ କୃଷି ପରାମର୍ଶ କେନ୍ଦ୍ରକୁ ସ୍ୱାଗତ।",
-            "as": f"নমস্কাৰ {farmer_name} কৃষক ভাই! আপোনাৰ {crop_name} শস্যৰ বাবে স্মাৰ্ট কৃষি সেৱালৈ স্বাগতম।",
-            "kn": f"ನಮಸ್ಕಾರ {farmer_name} ರೈತ ಬಾಂಧವರೇ! ನಿಮ್ಮ {crop_name} ಬೆಳೆಗಾಗಿ ಸ್ಮಾರ್ಟ್ ಕೃಷಿ ಸಲಹಾ ಕೇಂದ್ರಕ್ಕೆ ತಮಗೆ ಸುಸ್ವಾಗತ.",
-            "hi": f"नमस्ते {farmer_name} किसान भाई! आपकी {crop_name} फसल हेतु स्मार्ट कृषि सलाह एवं सहायता केंद्र में आपका स्वागत है।",
-            "en": f"Welcome {farmer_name} to Kisan Krishi Advisory Helpline for your {crop_name} crop."
+            "mr": f"नमस्कार {farmer_name} शेतकरी बंधू! आपल्या {loc_crop} पिकासाठी कृषी सल्ला व साहाय्य केंद्रात आपले स्वागत आहे.",
+            "or": f"ନମସ୍କାର {farmer_name} କୃଷକ ଭାଇ! ଆପଣଙ୍କ {loc_crop} ଫସଲ ପାଇଁ ସ୍ମାର୍ଟ କୃଷି ପରାମର୍ଶ କେନ୍ଦ୍ରକୁ ସ୍ୱାଗତ।",
+            "as": f"নমস্কাৰ {farmer_name} কৃষক ভাই! আপোনাৰ {loc_crop} শস্যৰ বাবে স্মাৰ্ট কৃষি সেৱালৈ স্বাগতম।",
+            "kn": f"ನಮಸ್ಕಾರ {farmer_name} ರೈತ ಬಾಂಧವರೇ! ನಿಮ್ಮ {loc_crop} ಬೆಳೆಗಾಗಿ ಸ್ಮಾರ್ಟ್ ಕೃಷಿ ಸಲಹಾ ಕೇಂದ್ರಕ್ಕೆ ತಮಗೆ ಸುಸ್ವಾಗತ.",
+            "hi": f"नमस्ते {farmer_name} किसान भाई! आपकी {loc_crop} फसल हेतु स्मार्ट कृषि सलाह एवं सहायता केंद्र में आपका स्वागत है।",
+            "en": f"Welcome {farmer_name} to Kisan Krishi Advisory Helpline for your {loc_crop} crop."
         }
         menus = {
             "mr": "हवामान व पीक सल्ल्यासाठी १ दाबा. बाजार भाव व हमीभावासाठी २ दाबा. शासकीय योजना व मदतीसाठी ३ दाबा. भाषा बदलण्यासाठी ९ दाबा. कृषी अधिकाऱ्यांशी संपर्क साधण्यासाठी ० दाबा.",
@@ -1207,22 +1542,23 @@ def simulate_ivr(payload: IvrRequest):
     elif digit == "3":
         # Schemes
         interventions = distress.get("recommended_interventions", [])
-        top_scheme = interventions[0] if interventions else {"scheme_name": "PMFBY", "action_item": "Verify enrollment"}
-        scheme_n = top_scheme.get('scheme_name', 'PMFBY')
-        action_i = top_scheme.get('action_item', 'Apply at nearest center')
+        top_scheme = interventions[0] if interventions else {"scheme_id": "S1", "scheme_name": "PMFBY", "action_item": "Verify enrollment"}
+        sid = top_scheme.get("scheme_id", "S1")
+        scheme_n = get_localized_scheme_name(sid, lang, top_scheme.get("scheme_name", "PMFBY"))
+        action_i = get_localized_scheme_action(sid, lang, top_scheme.get("action_item", ""))
 
         if lang == "mr":
-            text = f"{farmer_name}, आपल्यासाठी शिफारस केलेली योजना: {scheme_n}. कृती: {action_i}. अधिक माहितीसाठी जवळच्या कृषी कार्यालयात संपर्क साधा."
+            text = f"{farmer_name}, आपल्यासाठी शिफारस केलेली योजना: {scheme_n}. कृती: {action_i} अधिक माहितीसाठी जवळच्या कृषी कार्यालयात संपर्क साधा."
         elif lang == "or":
-            text = f"{farmer_name}, ଆପଣଙ୍କ ପାଇଁ ସୁପାରିଶ କରାଯାଇଥିବା ଯୋଜନା: {scheme_n}। ପଦକ୍ଷେପ: {action_i}। ଅଧିକ ସହାୟତା ପାଇଁ କୃଷି ଅଧିକାରୀଙ୍କ ସହ ଯୋଗାଯୋଗ କରନ୍ତୁ।"
+            text = f"{farmer_name}, ଆପଣଙ୍କ ପାଇଁ ସୁପାରିଶ କରାଯାଇଥିବା ଯୋଜନା: {scheme_n}। ପଦକ୍ଷେପ: {action_i} ଅଧିକ ସହାୟତା ପାଇଁ କୃଷି ଅଧିକାରୀଙ୍କ ସହ ଯୋଗାଯୋଗ କରନ୍ତୁ।"
         elif lang == "as":
-            text = f"{farmer_name}, আপোনাৰ বাবে নিৰ্ধাৰিত আঁচনি: {scheme_n}। নিৰ্দেশনা: {action_i}। অধিক তথ্যৰ বাবে কৃষি কাৰ্যালয়ত যোগাযোগ কৰক।"
+            text = f"{farmer_name}, আপোনাৰ বাবে নিৰ্ধাৰিত আঁচনি: {scheme_n}। নিৰ্দেশনা: {action_i} অধিক তথ্যৰ বাবে কৃষি কাৰ্যালয়ত যোগাযোগ কৰক।"
         elif lang == "kn":
-            text = f"{farmer_name}, ನಿಮಗಾಗಿ ಶಿಫಾರಸು ಮಾಡಿದ ಯೋಜನೆ: {scheme_n}. ಕ್ರಮ: {action_i}. ಹೆಚ್ಚಿನ ಮಾಹಿತಿಗಾಗಿ ಕೃಷಿ ಇಲಾಖೆಯನ್ನು ಸಂಪರ್ಕಿಸಿ."
+            text = f"{farmer_name}, ನಿಮಗಾಗಿ ಶಿಫಾರಸು ಮಾಡಿದ ಯೋಜನೆ: {scheme_n}. ಕ್ರಮ: {action_i} ಹೆಚ್ಚಿನ ಮಾಹಿತಿಗಾಗಿ ಕೃಷಿ ಇಲಾಖೆಯನ್ನು ಸಂಪರ್ಕಿಸಿ."
         elif lang == "hi":
-            text = f"{farmer_name} किसान भाई, आपके लिए अनुशंसित योजना: {scheme_n}। निर्देश: {action_i}। अधिक सहायता हेतु ग्राम कृषि सहायक से संपर्क करें।"
+            text = f"{farmer_name} किसान भाई, आपके लिए अनुशंसित योजना: {scheme_n}। निर्देश: {action_i} अधिक सहायता हेतु ग्राम कृषि सहायक से संपर्क करें।"
         else:
-            text = f"{farmer_name}, recommended scheme intervention: {scheme_n}. Action: {action_i}."
+            text = f"{farmer_name}, recommended scheme intervention: {scheme_n}. Action: {action_i}"
 
         return {
             "farmer_id": farmer["id"],
@@ -1280,10 +1616,11 @@ def simulate_sms(payload: IvrRequest):
 
     # SMS body formatting for low-cost 160-char SMS units
     top_scheme = distress["recommended_interventions"][0] if distress.get("recommended_interventions") else None
-    raw_sname = (top_scheme.get('scheme_name') or 'PMFBY') if top_scheme else "PMFBY"
-    scheme_name = raw_sname.split('(')[0].strip() or "PMFBY"
+    sid = (top_scheme.get('scheme_id') or 'S1') if top_scheme else 'S1'
+    scheme_name = get_localized_scheme_name(sid, lang, (top_scheme.get('scheme_name') or 'PMFBY')).split('(')[0].strip() or "PMFBY"
 
-    crop_name = farmer.get("crop", "Crop")
+    raw_crop = farmer.get("crop", "Crop")
+    crop_name = get_localized_crop_name(raw_crop, lang)
     farmer_name = farmer.get("name", "Farmer")
 
     if advisory.get("rule_id") == "R-30":
@@ -1690,15 +2027,15 @@ def assamese_to_bengali_phonetic(text: str) -> str:
     """Maps Assamese unique characters to Bengali phonetic equivalents for clear speech synthesis"""
     return text.replace('\u09F0', '\u09B0').replace('\u09F1', '\u09AC')
 
+TTS_DISK_CACHE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".tts_cache")
+os.makedirs(TTS_DISK_CACHE_DIR, exist_ok=True)
+
 async def synthesize_speech(text: str, lang: str) -> bytes:
+    import hashlib
     import re
     import urllib.request
     import urllib.parse
     import edge_tts
-
-    cache_key = f"{lang}:{text}"
-    if cache_key in TTS_CACHE:
-        return TTS_CACHE[cache_key]
 
     effective_lang = (lang or 'hi').lower().split('-')[0]
     
@@ -1716,6 +2053,23 @@ async def synthesize_speech(text: str, lang: str) -> bytes:
         processed_text = normalized_text
         speech_rate = '-2%'
 
+    # Calculate deterministic hash for lightning-fast disk & memory lookup
+    cache_hash = hashlib.md5(f"{effective_lang}:{processed_text}:{speech_rate}".encode('utf-8')).hexdigest()
+    disk_cache_path = os.path.join(TTS_DISK_CACHE_DIR, f"{cache_hash}.mp3")
+
+    if cache_hash in TTS_CACHE:
+        return TTS_CACHE[cache_hash]
+
+    if os.path.exists(disk_cache_path):
+        try:
+            with open(disk_cache_path, "rb") as f:
+                audio_data = f.read()
+            if audio_data and len(audio_data) > 100:
+                TTS_CACHE[cache_hash] = audio_data
+                return audio_data
+        except Exception:
+            pass
+
     # 3. Primary engine: Microsoft Edge Neural TTS (Natural, expressive Indian voices)
     try:
         voice = VOICE_MAP.get(effective_lang, 'hi-IN-SwaraNeural')
@@ -1725,9 +2079,14 @@ async def synthesize_speech(text: str, lang: str) -> bytes:
             if chunk['type'] == 'audio':
                 audio_data += chunk['data']
         if audio_data:
-            if len(TTS_CACHE) > 500:
+            if len(TTS_CACHE) > 1000:
                 TTS_CACHE.clear()
-            TTS_CACHE[cache_key] = audio_data
+            TTS_CACHE[cache_hash] = audio_data
+            try:
+                with open(disk_cache_path, "wb") as f:
+                    f.write(audio_data)
+            except Exception:
+                pass
             return audio_data
     except Exception as e:
         print(f"Edge TTS synthesis error ({effective_lang}): {e}, falling back to secondary engine")
@@ -1765,7 +2124,12 @@ async def synthesize_speech(text: str, lang: str) -> bytes:
 
         audio_data = b"".join(audio_segments)
         if audio_data:
-            TTS_CACHE[cache_key] = audio_data
+            TTS_CACHE[cache_hash] = audio_data
+            try:
+                with open(disk_cache_path, "wb") as f:
+                    f.write(audio_data)
+            except Exception:
+                pass
             return audio_data
     except Exception as e:
         print(f"Google TTS fallback error ({effective_lang}): {e}")

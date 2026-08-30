@@ -13,7 +13,7 @@ const SUPPORTED_ONBOARDING_LOCALES = {
   kn: { code: 'kn', bcp47: 'kn-IN', name: 'Kannada', native: 'ಕನ್ನಡ', voice: 'kn-IN-SapnaNeural', script: 'kannada' }
 };
 
-// ─── 1. AUDIO / TTS SERVICE MODULE (With Concurrency Control) ───
+// ─── 1. AUDIO / TTS SERVICE MODULE (With Concurrency Control & Instant Stop) ───
 const AudioTTSController = {
   activeAudio: null,
   isPlaying: false,
@@ -52,6 +52,13 @@ const AudioTTSController = {
   },
 
   async stopCurrentAndPlayNext(languageCode, customText = null) {
+    // If clicking the active playing/loading language -> TOGGLE OFF (STOP AUDIO) IMMEDIATELY
+    if (this.currentLanguage === languageCode && (this.isPlaying || this.isLoading)) {
+      this.stop();
+      return;
+    }
+
+    // Stop any existing audio
     this.stop();
 
     this.concurrencyLock = true;
@@ -90,7 +97,7 @@ const AudioTTSController = {
           audio.onerror = (err) => {
             console.warn(`[AudioTTSController] TTS stream error (${languageCode}), falling back:`, err);
             if (typeof window.speakText === 'function') {
-              window.speakText(text, languageCode);
+              window.speakText(text, languageCode, `onboarding-${languageCode}`);
             }
             this.stop();
             resolve();
@@ -112,14 +119,12 @@ const AudioTTSController = {
       const pill = card.querySelector('.lang-voice-pill');
       if (!pill) return;
 
-      if (this.currentLanguage === lang) {
-        if (this.isLoading) {
-          pill.innerHTML = `<span>⏳</span><span>Loading...</span>`;
-          pill.className = 'lang-voice-pill loading';
-        } else if (this.isPlaying) {
-          pill.innerHTML = `<span>⏹️</span><span>Stop Audio</span>`;
-          pill.className = 'lang-voice-pill playing';
-        }
+      if (this.currentLanguage === lang && this.isLoading) {
+        pill.innerHTML = `<span>⏳</span><span>Loading...</span>`;
+        pill.className = 'lang-voice-pill loading';
+      } else if (this.currentLanguage === lang && this.isPlaying) {
+        pill.innerHTML = `<span>⏹️</span><span>Stop Audio</span>`;
+        pill.className = 'lang-voice-pill playing';
       } else {
         pill.innerHTML = `<span>🔊</span><span>Listen</span>`;
         pill.className = 'lang-voice-pill';
@@ -293,7 +298,11 @@ const Onboarding = {
     const initialLang = localStorage.getItem('sk_locale') || OnboardingState.selectedLanguage || 'en';
     OnboardingState.selectedLanguage = initialLang;
     if (typeof window.switchGlobalLanguage === 'function') {
-      window.switchGlobalLanguage(initialLang);
+      try { window.switchGlobalLanguage(initialLang); } catch (e) {}
+    }
+
+    if (typeof window.switchMainView === 'function') {
+      try { window.switchMainView('farmer'); } catch (e) {}
     }
 
     // Always render inside the phone screen container
@@ -306,26 +315,44 @@ const Onboarding = {
   },
 
   openSetupFlow() {
-    console.log('⚙️ Opening Setup Flow with pre-populated farmer data...');
+    console.log('⚙️ Opening Edit Profile with pre-populated farmer data...');
+    if (typeof window.switchMainView === 'function') {
+      window.switchMainView('farmer');
+    }
     const current = (window.state && window.state.currentFarmer) || AuthService.getUser();
     const saved = JSON.parse(localStorage.getItem('sk_onboarding_profile') || 'null');
 
+    // Retain previous area data exactly as entered in onboarding/predashboard
+    let landArea = 1.2;
+    let landUnit = 'hectares';
+
+    if (saved && saved.land_details && saved.land_details.total_area !== undefined && saved.land_details.total_area !== null) {
+      landArea = saved.land_details.total_area;
+      landUnit = (saved.land_details.unit || 'hectares').toLowerCase();
+    } else if (current && current.total_land_area !== undefined && current.total_land_area !== null) {
+      landArea = current.total_land_area;
+      landUnit = (current.land_unit || 'hectares').toLowerCase();
+    } else if (current && (current.landholding_hectares || current.landholding_ha)) {
+      landArea = current.landholding_hectares || current.landholding_ha;
+      landUnit = (current.land_unit || 'hectares').toLowerCase();
+    }
+
     OnboardingState.formData = {
-      farmerName: (current && current.name) || (saved && saved.farmer_name) || 'Ramesh Patil',
-      phone: (current && current.phone ? current.phone.replace('+91-', '').replace('+91', '').trim() : '') || (saved && saved.phone_number) || '9823110293',
-      state: (current && current.state) || (saved && saved.state) || 'Maharashtra',
-      district: (current && current.district_id) || (saved && saved.district) || 'D1',
-      landArea: (current && (current.landholding_hectares || current.landholding_ha)) || (saved && saved.land_details && saved.land_details.total_area) || 1.2,
-      landUnit: (saved && saved.land_details && saved.land_details.unit) || 'hectares',
-      soilType: (current && current.soil_type) || (saved && saved.land_details && saved.land_details.soil_type) || 'black',
-      deviceType: (current && current.device_type) || (saved && saved.device_type) || 'android_smartphone',
-      irrigationType: (current && current.irrigation_type) || (saved && saved.irrigation_type) || 'rainfed',
-      borewellFailed: current ? !!current.borewell_failed : (saved ? !!saved.borewell_failed : false),
-      hasPmfby: current ? !!current.has_pmfby_insurance : (saved ? !!saved.has_pmfby : true),
-      hasKcc: current ? !!current.has_kcc : (saved ? !!saved.has_kcc : true),
-      informalDebt: current ? !!current.informal_debt : (saved ? !!saved.informal_debt : false),
-      loanDueDate: (current && current.loan_due_date) || (saved && saved.loan_due_date) || '2026-11-15',
-      loanAmount: (current && current.loan_amount_inr) || (saved && saved.loan_amount) || 50000,
+      farmerName: (saved && saved.farmer_name) || (current && (current.farmer_name || current.name)) || 'Ramesh Patil',
+      phone: (saved && saved.phone_number) || (current && current.phone ? current.phone.replace('+91-', '').replace('+91', '').trim() : '') || '9823110293',
+      state: (saved && saved.state) || (current && current.state) || 'Maharashtra',
+      district: (saved && saved.district) || (current && (current.district || current.district_id)) || 'D1',
+      landArea: parseFloat(landArea) || 1.2,
+      landUnit: (landUnit || 'hectares').toLowerCase().includes('acre') ? 'acres' : 'hectares',
+      soilType: (saved && saved.land_details && saved.land_details.soil_type) || (current && current.soil_type) || 'black',
+      deviceType: (saved && saved.device_type) || (current && current.device_type) || 'android_smartphone',
+      irrigationType: (saved && saved.irrigation_type) || (current && current.irrigation_type) || 'rainfed',
+      borewellFailed: saved ? !!saved.borewell_failed : (current ? !!current.borewell_failed : false),
+      hasPmfby: saved ? (saved.has_pmfby !== undefined ? !!saved.has_pmfby : true) : (current ? (current.has_pmfby_insurance !== undefined ? !!current.has_pmfby_insurance : !!current.has_pmfby) : true),
+      hasKcc: saved ? (saved.has_kcc !== undefined ? !!saved.has_kcc : true) : (current ? (current.has_kcc !== undefined ? !!current.has_kcc : true) : true),
+      informalDebt: saved ? (saved.informal_debt !== undefined ? !!saved.informal_debt : false) : (current ? (current.informal_debt !== undefined ? !!current.informal_debt : false) : false),
+      loanDueDate: (saved && saved.loan_due_date) || (current && current.loan_due_date) || '2026-11-15',
+      loanAmount: (saved && (saved.loan_amount !== undefined && saved.loan_amount !== null ? saved.loan_amount : saved.loan_amount_inr)) || (current && (current.loan_amount_inr || current.loan_amount)) || 50000,
       selectedCrops: (saved && saved.primary_crops) || (current && current.crop ? [current.crop.toLowerCase()] : ['onion']),
       cropStage: (saved && saved.crop_stage) || (current && current.crop_stage ? current.crop_stage.toLowerCase() : 'vegetative')
     };
@@ -338,6 +365,9 @@ const Onboarding = {
   },
 
   openLoginModal() {
+    if (typeof window.switchMainView === 'function') {
+      window.switchMainView('farmer');
+    }
     OnboardingState.isLoginMode = true;
     this.renderOnboardingUI(false);
     this.showModal();
@@ -606,12 +636,24 @@ const Onboarding = {
 
   showModal() {
     const modal = document.getElementById('onboarding-modal-overlay');
-    if (modal) modal.classList.remove('hidden');
+    if (modal) {
+      modal.classList.remove('hidden');
+      modal.style.display = 'flex';
+      modal.style.opacity = '1';
+      modal.style.visibility = 'visible';
+    }
   },
 
   hideModal() {
+    AudioTTSController.stop();
+    if (typeof window.stopSpeech === 'function') {
+      try { window.stopSpeech(); } catch (e) {}
+    }
     const modal = document.getElementById('onboarding-modal-overlay');
-    if (modal) modal.classList.add('hidden');
+    if (modal) {
+      modal.classList.add('hidden');
+      modal.style.display = 'none';
+    }
   },
 
   getSelectedCropDisplay(lang = OnboardingState.selectedLanguage) {
@@ -639,6 +681,25 @@ const Onboarding = {
   },
 
   renderOnboardingUI(isEdit = false) {
+
+  // Pre-warm audio for all languages so listening is instant
+  setTimeout(() => {
+    Object.values(SUPPORTED_ONBOARDING_LOCALES).forEach(loc => {
+      const phrases = {
+        en: "Welcome to Smart Krishi Crop Advisory",
+        hi: "स्मार्ट कृषि फसल सलाह में आपका स्वागत है",
+        mr: "स्मार्ट कृषी पीक सल्ल्यामध्ये आपले स्वागत आहे",
+        or: "ସ୍ମାର୍ଟ କୃଷି ଫସଲ ପରାମର୍ଶକୁ ଆପଣଙ୍କୁ ସ୍ୱାଗତ",
+        as: "স্মাৰ্ট কৃষি শস্য পৰামৰ্শলৈ আপোনাক স্বাগতম",
+        kn: "ಸ್ಮಾರ್ಟ್ ಕೃಷಿ ಬೆಳೆ ಸಲಹಾ ಕೇಂದ್ರಕ್ಕೆ ಸ್ವಾಗತ"
+      };
+      const text = phrases[loc.code] || phrases.en;
+      if (typeof window.prefetchAudio === 'function') {
+        window.prefetchAudio(text, loc.code);
+      }
+    });
+  }, 100);
+
     let overlay = document.getElementById('onboarding-modal-overlay');
     const phoneScreen = document.querySelector('.mobile-device-screen') || document.body;
     if (!overlay) {
@@ -662,8 +723,7 @@ const Onboarding = {
             <div class="flex items-center space-x-2.5">
               <span class="text-2xl">🌱</span>
               <div>
-                <h2 class="text-lg font-black tracking-tight leading-tight">Smart Krishi • ${isEdit ? 'Farm Settings' : (OnboardingState.isLoginMode ? 'Farmer Login' : 'Setup Wizard')}</h2>
-                <p id="ob-step-subtitle" class="text-xs text-emerald-100 font-medium">PS-02 Smart Crop Advisory & Distress Early-Warning</p>
+                <h2 class="text-lg font-black tracking-tight leading-tight">Smart Krishi</h2>
               </div>
             </div>
             <div class="flex items-center space-x-2">
@@ -731,7 +791,7 @@ const Onboarding = {
                   <input type="text" id="ob-login-input" class="form-input" placeholder="e.g. 9823110293 or F1" required autofocus value="F1">
                 </div>
                 <div class="text-right">
-                  <button type="button" onclick="Onboarding.toggleLoginMode(false)" class="text-xs text-emerald-700 font-bold hover:underline">
+                  <button type="button" onclick="Onboarding.toggleLoginMode(false)" class="text-xs text-[#3897f1] font-bold hover:underline">
                     ${this.t('switchToRegister', currentLang)}
                   </button>
                 </div>
@@ -817,7 +877,7 @@ const Onboarding = {
                     <option value="canal" ${form.irrigationType === 'canal' ? 'selected' : ''}>${this.t('irrCanal', currentLang)}</option>
                   </select>
                   <label class="flex items-center space-x-2 text-xs font-semibold text-slate-700 cursor-pointer mt-2">
-                    <input type="checkbox" id="ob-borewell-failed" ${form.borewellFailed ? 'checked' : ''} class="w-4 h-4 text-emerald-600 rounded">
+                    <input type="checkbox" id="ob-borewell-failed" ${form.borewellFailed ? 'checked' : ''} class="w-4 h-4 text-[#3897f1] rounded">
                     <span>${this.t('borewellFailedLabel', currentLang)}</span>
                   </label>
                 </div>
@@ -827,11 +887,11 @@ const Onboarding = {
                   <div class="text-xs font-bold text-slate-800 uppercase tracking-wider">${this.t('safetyNetsLabel', currentLang)}</div>
                   <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs font-semibold text-slate-700">
                     <label class="flex items-center space-x-2 cursor-pointer">
-                      <input type="checkbox" id="ob-pmfby" ${form.hasPmfby ? 'checked' : ''} class="w-4 h-4 text-emerald-600 rounded">
+                      <input type="checkbox" id="ob-pmfby" ${form.hasPmfby ? 'checked' : ''} class="w-4 h-4 text-[#3897f1] rounded">
                       <span>${this.t('pmfbyLabel', currentLang)}</span>
                     </label>
                     <label class="flex items-center space-x-2 cursor-pointer">
-                      <input type="checkbox" id="ob-kcc" ${form.hasKcc ? 'checked' : ''} class="w-4 h-4 text-emerald-600 rounded">
+                      <input type="checkbox" id="ob-kcc" ${form.hasKcc ? 'checked' : ''} class="w-4 h-4 text-[#3897f1] rounded">
                       <span>${this.t('kccLabel', currentLang)}</span>
                     </label>
                   </div>
@@ -861,7 +921,7 @@ const Onboarding = {
                 </div>
 
                 <div class="text-right">
-                  <button type="button" onclick="Onboarding.toggleLoginMode(true)" class="text-xs text-emerald-700 font-bold hover:underline">
+                  <button type="button" onclick="Onboarding.toggleLoginMode(true)" class="text-xs text-[#3897f1] font-bold hover:underline">
                     ${this.t('switchToLogin', currentLang)}
                   </button>
                 </div>
@@ -960,8 +1020,8 @@ const Onboarding = {
             </div>
 
             <!-- Profile Summary Card -->
-            <div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 space-y-2">
-              <div class="text-xs font-bold text-emerald-800 uppercase tracking-wider">Registration Summary</div>
+            <div class="bg-[#ebf5fe] border border-[#c3e2fd] rounded-2xl p-4 space-y-2">
+              <div class="text-xs font-bold text-[#16539a] uppercase tracking-wider">Registration Summary</div>
               <div class="grid grid-cols-2 gap-2 text-xs text-slate-700">
                 <div><strong>Farmer:</strong> <span id="summary-farmer-name">-</span></div>
                 <div><strong>Language:</strong> <span id="summary-farmer-lang">-</span></div>
@@ -1146,7 +1206,7 @@ const Onboarding = {
       const data = await AuthService.login(val);
       this.hideModal();
       
-      const chosenLang = (OnboardingState.selectedLanguage || localStorage.getItem('sk_locale') || 'en').split('-')[0].toLowerCase();
+      const chosenLang = (data.user?.preferred_language || OnboardingState.selectedLanguage || localStorage.getItem('sk_locale') || 'en').split('-')[0].toLowerCase();
       localStorage.setItem('sk_locale', chosenLang);
 
       if (typeof window.loadFarmersList === 'function') {
@@ -1158,8 +1218,26 @@ const Onboarding = {
       if (typeof window.switchGlobalLanguage === 'function') {
         await window.switchGlobalLanguage(chosenLang);
       }
+      
+      const fName = (data.user && data.user.name) || 'Farmer';
       if (typeof window.showTTSToast === 'function') {
-        window.showTTSToast(`Welcome back, ${data.user.name}! 🌾`);
+        window.showTTSToast(`Welcome back, ${fName}! 🌾`);
+      }
+
+      // Personalized voice intro mentioning the farmer's name in their preferred language
+      const greetingsWithName = {
+        en: `Welcome ${fName}, to Smart Krishi Advisory.`,
+        hi: `नमस्ते ${fName} जी, स्मार्ट कृषि में आपका स्वागत है।`,
+        mr: `नमस्कार ${fName} जी, स्मार्ट कृषी सल्ला केंद्रात आपले स्वागत आहे.`,
+        or: `ନମସ୍କାର ${fName} ଆଜ୍ଞା, ସ୍ମାର୍ଟ କୃଷିକୁ ଆପଣଙ୍କୁ ସ୍ୱାଗତ।`,
+        as: `নমস্কাৰ ${fName} ডাঙৰীয়া, স্মাৰ্ট কৃষিলৈ আপোনাক স্বাগতম।`,
+        kn: `ನಮಸ್ಕಾರ ${fName} ಅವರೇ, ಸ್ಮಾರ್ಟ್ ಕೃಷಿ ಸಲಹಾ ಕೇಂದ್ರಕ್ಕೆ ಸ್ವಾಗತ.`
+      };
+      const welcomeText = greetingsWithName[chosenLang] || greetingsWithName.en;
+      if (typeof window.speakText === 'function') {
+        await window.speakText(welcomeText, chosenLang, 'login-welcome');
+      } else {
+        AudioTTSController.stopCurrentAndPlayNext(chosenLang, welcomeText);
       }
     } catch (e) {
       alert(e.message || 'Login failed. Please check phone number or ID.');
@@ -1233,14 +1311,24 @@ const Onboarding = {
       const irrEl = document.getElementById('fp-irrigation');
       const loanEl = document.getElementById('fp-loan');
 
+      const targetLang = (langKey || 'en').split('-')[0].toLowerCase();
+      const isAcres = (payload.land_details.unit || '').toLowerCase().includes('acre');
+      const acreUnitMap = { en: 'Acres', hi: 'एकड़', mr: 'एकर', or: 'ଏକର', as: 'একৰ', kn: 'ಎಕರೆ' };
+      const hectareUnitMap = { en: 'Hectares', hi: 'हेक्टेयर', mr: 'हेक्टर', or: 'ହେକ୍ଟର', as: 'হেক্টৰ', kn: 'ಹೆಕ್ಟೇರ್' };
+      const displayUnit = isAcres ? (acreUnitMap[targetLang] || 'Acres') : (hectareUnitMap[targetLang] || 'Hectares');
+
       if (nameEl) nameEl.textContent = payload.farmer_name;
       if (cropBadge) cropBadge.textContent = payload.primary_crops[0] || 'Onion';
-      if (locEl) locEl.textContent = `📍 ${payload.district}, ${payload.state}`;
-      if (landEl) landEl.textContent = `📐 ${payload.land_details.total_area} ${payload.land_details.unit}`;
+      if (locEl) {
+        locEl.textContent = `📍 ${payload.district}, ${payload.state}`;
+        locEl.title = `${payload.district}, ${payload.state}`;
+      }
+      if (landEl) {
+        landEl.textContent = `📐 ${payload.land_details.total_area} ${displayUnit}`;
+        landEl.title = `${payload.land_details.total_area} ${displayUnit}`;
+      }
       if (irrEl) irrEl.textContent = `💧 ${payload.irrigation_type === 'rainfed' ? 'Rainfed' : payload.irrigation_type === 'protective_well' ? 'Well / Borewell' : 'Canal'}`;
       if (loanEl) loanEl.textContent = `💳 Loan Due: ${payload.loan_due_date || '15-11-2026'}`;
-
-      const targetLang = (langKey || 'en').split('-')[0].toLowerCase();
       localStorage.setItem('sk_locale', targetLang);
 
       if (typeof window.switchMainView === 'function') {
@@ -1262,8 +1350,22 @@ const Onboarding = {
         await window.switchGlobalLanguage(targetLang);
       }
 
-      // Welcome voice greeting in user's preferred language using our voice system
-      AudioTTSController.stopCurrentAndPlayNext(langKey);
+      // Welcome voice greeting mentioning farmer's name in preferred language
+      const fName = payload.farmer_name || 'Farmer';
+      const greetingsWithName = {
+        en: `Welcome ${fName}, to Smart Krishi Advisory.`,
+        hi: `नमस्ते ${fName} जी, स्मार्ट कृषि में आपका स्वागत है।`,
+        mr: `नमस्कार ${fName} जी, स्मार्ट कृषी सल्ला केंद्रात आपले स्वागत आहे.`,
+        or: `ନମସ୍କାର ${fName} ଆଜ୍ଞା, ସ୍ମାର୍ଟ କୃଷିକୁ ଆପଣଙ୍କୁ ସ୍ୱାଗତ।`,
+        as: `নমস্কাৰ ${fName} ডাঙৰীয়া, স্মাৰ্ট কৃষিলৈ আপোনাক স্বাগতম।`,
+        kn: `ನಮಸ್ಕಾರ ${fName} ಅವರೇ, ಸ್ಮಾರ್ಟ್ ಕೃಷಿ ಸಲಹಾ ಕೇಂದ್ರಕ್ಕೆ ಸ್ವಾಗತ.`
+      };
+      const welcomeText = greetingsWithName[targetLang] || greetingsWithName.en;
+      if (typeof window.speakText === 'function') {
+        await window.speakText(welcomeText, targetLang, 'login-welcome');
+      } else {
+        AudioTTSController.stopCurrentAndPlayNext(targetLang, welcomeText);
+      }
 
     } catch (err) {
       console.error('Failed to submit onboarding profile:', err);
