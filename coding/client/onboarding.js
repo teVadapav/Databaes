@@ -893,7 +893,7 @@ const Onboarding = {
 
           <div class="onboarding-form-body space-y-5">
             <div>
-              <label class="form-label">${currentLang === 'hi' ? 'अपनी मुख्य फसलें चुनें:' : currentLang === 'mr' ? 'आपली मुख्य पिके निवडा:' : currentLang === 'or' ? 'ଆପଣଙ୍କ ପ୍ରମୁଖ ଫସଲ ବାଛନ୍ତୁ:' : currentLang === 'as' ? 'আপোনাৰ প্ৰধান শস্য বাছক:' : currentLang === 'kn' ? 'ನಿಮ್ಮ ಮುಖ್ಯ ಬೆಳೆಗಳನ್ನು ಆಯ್ಕೆಮಾಡಿ:' : 'Select cultivated crops:'}</label>
+              <label class="form-label">${currentLang === 'hi' ? 'अपनी मुख्य फसल चुनें (केवल एक):' : currentLang === 'mr' ? 'आपले मुख्य पीक निवडा (फक्त एक):' : currentLang === 'or' ? 'ଆପଣଙ୍କ ମୁଖ୍ୟ ଫସଲ ବାଛନ୍ତୁ:' : currentLang === 'as' ? 'আপোনাৰ প্ৰধান শস্য বাছক:' : currentLang === 'kn' ? 'ನಿಮ್ಮ ಮುಖ್ಯ ಬೆಳೆಯನ್ನು ಆಯ್ಕೆಮಾಡಿ:' : 'Select primary cultivated crop (Select 1):'}</label>
               <div class="grid grid-cols-2 gap-3 text-left">
                 ${[
                   { id: 'onion', en: 'Onion', hi: 'प्याज', mr: 'कांदा', or: 'ପିଆଜ', as: 'পিয়াঁজ', kn: 'ಈರುಳ್ಳಿ' },
@@ -909,7 +909,7 @@ const Onboarding = {
                   { id: 'sugarcane', en: 'Sugarcane', hi: 'गन्ना', mr: 'ऊस', or: 'ଆଖୁ', as: 'কুঁহियाৰ', kn: 'ಕಬ್ಬು' }
                 ].map(c => `
                   <button type="button" id="crop-chip-${c.id}" 
-                       class="crop-chip text-left flex items-center justify-between p-3 rounded-xl border-2 transition-all font-bold text-xs sm:text-sm ${form.selectedCrops.includes(c.id) ? 'selected' : ''}"
+                       class="crop-chip text-left flex items-center justify-between p-3 rounded-xl border-2 transition-all font-bold text-xs sm:text-sm ${(form.selectedCrops && form.selectedCrops[0] === c.id) ? 'selected' : ''}"
                        onclick="Onboarding.toggleCrop('${c.id}')">
                     <span class="text-left font-bold">${c[currentLang] || c['en']}</span>
                     <span class="text-xs font-black">✓</span>
@@ -1069,15 +1069,12 @@ const Onboarding = {
   },
 
   toggleCrop(cropId) {
-    const list = OnboardingState.formData.selectedCrops;
-    const idx = list.indexOf(cropId);
-    if (idx > -1) {
-      if (list.length > 1) list.splice(idx, 1);
-    } else {
-      list.push(cropId);
-    }
+    OnboardingState.formData.selectedCrops = [cropId];
+    document.querySelectorAll('.crop-chip').forEach(chip => {
+      chip.classList.remove('selected');
+    });
     const chip = document.getElementById(`crop-chip-${cropId}`);
-    if (chip) chip.classList.toggle('selected', list.includes(cropId));
+    if (chip) chip.classList.add('selected');
   },
 
   toggleLoginMode(isLogin) {
