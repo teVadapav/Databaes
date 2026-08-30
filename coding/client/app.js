@@ -1182,6 +1182,8 @@ function switchMainView(viewName) {
 
   if (viewName === 'officer') {
     fetchOfficerData();
+  } else if (viewName === 'sandbox') {
+    runSandboxEvaluation();
   }
 }
 
@@ -3583,3 +3585,234 @@ window.switchSchemeCategory = switchSchemeCategory;
 window.renderFarmerSchemes = renderFarmerSchemes;
 
 
+
+
+
+// ─── ENGINE SANDBOX & MVP TESTER LOGIC ───
+let currentSandboxData = null;
+
+async function runSandboxEvaluation() {
+  const nameInput = document.getElementById('sb-farmer-name');
+  if (!nameInput) return; // Not on sandbox view
+
+  const payload = {
+    farmer: {
+      name: nameInput.value || 'Demo Farmer',
+      village: 'Nashik Village',
+      district_id: document.getElementById('sb-district').value,
+      crop: document.getElementById('sb-crop').value,
+      crop_stage: document.getElementById('sb-stage').value,
+      landholding_hectares: parseFloat(document.getElementById('sb-land').value || 1.2),
+      soil_type: document.getElementById('sb-soil')?.value || 'black',
+      irrigation_type: document.getElementById('sb-irrigation').value,
+      borewell_failed: document.getElementById('sb-borewell-failed').checked,
+      has_pmfby_insurance: document.getElementById('sb-pmfby').checked,
+      has_kcc: document.getElementById('sb-kcc').checked,
+      informal_debt: document.getElementById('sb-informal-debt').checked,
+      loan_due_date: document.getElementById('sb-loan-date')?.value || '2026-11-15',
+      loan_amount_inr: 50000,
+      language: document.getElementById('sb-lang').value
+    },
+    current_mandi_price: parseFloat(document.getElementById('sb-cur-price').value || 0),
+    govt_msp: parseFloat(document.getElementById('sb-msp-price').value || 0),
+    rainfall_deviation_pct: parseFloat(document.getElementById('sb-rain-dev').value || 0),
+    dry_spell_days: parseInt(document.getElementById('sb-dry-days').value || 0),
+    onset_delay_days: parseInt(document.getElementById('sb-onset-delay').value || 0),
+    language: document.getElementById('sb-lang').value
+  };
+
+  try {
+    const res = await fetch('/api/simulator/evaluate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    currentSandboxData = data;
+    renderSandboxResults(data);
+  } catch (err) {
+    console.error('Failed to run Sandbox evaluation:', err);
+  }
+}
+
+function renderSandboxResults(data) {
+  const adv = data.advisory;
+  const dist = data.distress;
+  const trace = data.decision_trace;
+  const lang = data.inputs_received.language || state.selectedLanguage || 'en';
+
+  // 1. Advisory Card
+  const ruleBadge = document.getElementById('sb-out-rule-badge');
+  if (ruleBadge) {
+    if (adv.rule_id === 'R-30') {
+      ruleBadge.textContent = '🚨 RULE R-30: MARKET DISTRESS OVERRIDE';
+      ruleBadge.className = 'px-3 py-1 rounded-full text-xs font-black bg-red-100 text-red-800 border border-red-300 shadow-sm';
+    } else if (adv.rule_id === 'R-10') {
+      ruleBadge.textContent = '⚠️ RULE R-10: CRIDA CONTINGENCY CROP SWITCH';
+      ruleBadge.className = 'px-3 py-1 rounded-full text-xs font-black bg-amber-100 text-amber-800 border border-amber-300 shadow-sm';
+    } else if (adv.rule_id === 'R-15') {
+      ruleBadge.textContent = '💧 RULE R-15: PROTECTIVE IRRIGATION ADVISORY';
+      ruleBadge.className = 'px-3 py-1 rounded-full text-xs font-black bg-blue-100 text-blue-800 border border-blue-300 shadow-sm';
+    } else {
+      ruleBadge.textContent = '🌱 RULE R-20: STANDARD ICAR-CRIDA AGRONOMY';
+      ruleBadge.className = 'px-3 py-1 rounded-full text-xs font-black bg-green-100 text-green-800 border border-green-300 shadow-sm';
+    }
+  }
+
+  const titleEl = document.getElementById('sb-out-title');
+  if (titleEl) {
+    titleEl.textContent = (adv.title && adv.title[lang]) || (adv.title && adv.title['en']) || 'Crop Guidance Notice';
+  }
+
+  const textEl = document.getElementById('sb-out-text');
+  if (textEl) {
+    textEl.textContent = (adv.text && adv.text[lang]) || (adv.text && adv.text['en']) || '';
+  }
+
+  // 2. Decision Trace
+  const traceContainer = document.getElementById('sb-trace-container');
+  if (traceContainer) {
+    traceContainer.innerHTML = trace.map(t => {
+      const isFired = t.triggered;
+      return `
+        <div class="p-3.5 rounded-2xl border ${isFired ? 'bg-emerald-50/80 border-emerald-300 shadow-sm ring-2 ring-emerald-400/20' : 'bg-slate-50 border-slate-200 opacity-70'} flex items-start justify-between gap-3">
+          <div class="space-y-1">
+            <div class="flex items-center space-x-2">
+              <span class="text-xs font-black font-mono px-2 py-0.5 rounded ${isFired ? 'bg-emerald-600 text-white' : 'bg-slate-300 text-slate-700'}">P-${t.priority}</span>
+              <span class="font-bold text-xs sm:text-sm ${isFired ? 'text-emerald-950 font-extrabold' : 'text-slate-700'}">${t.rule}</span>
+            </div>
+            <div class="text-[11px] font-mono text-slate-500">Condition: ${t.condition}</div>
+            <div class="text-[11px] font-medium text-slate-600">Evaluated: ${t.evaluated}</div>
+          </div>
+          <span class="text-xs font-black uppercase px-2.5 py-1 rounded-full flex-shrink-0 ${isFired ? 'bg-emerald-600 text-white' : 'bg-slate-200 text-slate-600'}">
+            ${isFired ? '✓ Triggered' : '✕ Skipped'}
+          </span>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // 3. Distress Breakdown
+  const fdiScoreEl = document.getElementById('sb-fdi-score-badge');
+  const fdiScore = dist.distress_score !== undefined ? dist.distress_score : (dist.fdi_score || 0);
+  const band = dist.risk_band || (fdiScore >= 70 ? 'High' : fdiScore >= 40 ? 'Medium' : 'Low');
+
+  if (fdiScoreEl) {
+    fdiScoreEl.textContent = `${band.toUpperCase()} RISK (${fdiScore.toFixed(1)})`;
+    fdiScoreEl.className = band === 'High' ? 'px-3 py-1 rounded-full text-xs font-black bg-red-100 text-red-800 border border-red-300' :
+      band === 'Medium' ? 'px-3 py-1 rounded-full text-xs font-black bg-amber-100 text-amber-800 border border-amber-300' :
+      'px-3 py-1 rounded-full text-xs font-black bg-green-100 text-green-800 border border-green-300';
+  }
+
+  const fdiFormulaEl = document.getElementById('sb-fdi-formula');
+  if (fdiFormulaEl && dist.breakdown) {
+    const b = dist.breakdown;
+    fdiFormulaEl.innerHTML = `
+      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2 text-center text-xs">
+        <div class="bg-white p-2 rounded-xl border border-slate-200">
+          <div class="text-slate-400 font-bold">Exposure (E)</div>
+          <div class="font-black text-slate-900 text-sm mt-0.5">${(b.E !== undefined ? b.E : (b.exposure||0)).toFixed(1)}</div>
+        </div>
+        <div class="bg-white p-2 rounded-xl border border-slate-200">
+          <div class="text-slate-400 font-bold">Sensitivity (S)</div>
+          <div class="font-black text-slate-900 text-sm mt-0.5">${(b.S !== undefined ? b.S : (b.sensitivity||0)).toFixed(1)}</div>
+        </div>
+        <div class="bg-white p-2 rounded-xl border border-slate-200">
+          <div class="text-slate-400 font-bold">Adaptive (AC)</div>
+          <div class="font-black text-slate-900 text-sm mt-0.5">${(b.AC !== undefined ? b.AC : (b.adaptive_capacity||0)).toFixed(1)}</div>
+        </div>
+        <div class="bg-white p-2 rounded-xl border border-slate-200">
+          <div class="text-slate-400 font-bold">Mitigation (M)</div>
+          <div class="font-black text-slate-900 text-sm mt-0.5">${(b.M !== undefined ? b.M : (b.mitigation_deficit||0)).toFixed(1)}</div>
+        </div>
+        <div class="bg-white p-2 rounded-xl border border-slate-200">
+          <div class="text-slate-400 font-bold">Trigger (T)</div>
+          <div class="font-black text-slate-900 text-sm mt-0.5">${(b.T !== undefined ? b.T : (b.trigger||0)).toFixed(1)}</div>
+        </div>
+        <div class="bg-white p-2 rounded-xl border border-slate-200">
+          <div class="text-slate-400 font-bold">Fragility (DF)</div>
+          <div class="font-black text-slate-900 text-sm mt-0.5">${(b.DF !== undefined ? b.DF : (b.district_fragility||0)).toFixed(1)}</div>
+        </div>
+      </div>
+    `;
+  }
+}
+
+function loadSandboxPreset(presetKey) {
+  if (presetKey === 'market_crash') {
+    document.getElementById('sb-farmer-name').value = 'Ramesh Patil';
+    document.getElementById('sb-district').value = 'D1';
+    document.getElementById('sb-crop').value = 'onion';
+    document.getElementById('sb-stage').value = 'harvest';
+    document.getElementById('sb-land').value = '1.2';
+    document.getElementById('sb-irrigation').value = 'protective_well';
+    document.getElementById('sb-borewell-failed').checked = false;
+    document.getElementById('sb-pmfby').checked = true;
+    document.getElementById('sb-kcc').checked = true;
+    document.getElementById('sb-informal-debt').checked = true;
+    document.getElementById('sb-cur-price').value = '1100';
+    document.getElementById('sb-msp-price').value = '1500';
+    document.getElementById('sb-rain-dev').value = '-10';
+    document.getElementById('sb-dry-days').value = '2';
+    document.getElementById('sb-onset-delay').value = '0';
+  } else if (presetKey === 'drought_switch') {
+    document.getElementById('sb-farmer-name').value = 'Sunita Shinde';
+    document.getElementById('sb-district').value = 'D2';
+    document.getElementById('sb-crop').value = 'cotton';
+    document.getElementById('sb-stage').value = 'sowing';
+    document.getElementById('sb-land').value = '0.8';
+    document.getElementById('sb-irrigation').value = 'rainfed';
+    document.getElementById('sb-borewell-failed').checked = false;
+    document.getElementById('sb-pmfby').checked = false;
+    document.getElementById('sb-kcc').checked = false;
+    document.getElementById('sb-informal-debt').checked = true;
+    document.getElementById('sb-cur-price').value = '6500';
+    document.getElementById('sb-msp-price').value = '6620';
+    document.getElementById('sb-rain-dev').value = '-55';
+    document.getElementById('sb-dry-days').value = '16';
+    document.getElementById('sb-onset-delay').value = '22';
+  } else if (presetKey === 'fragility_relief') {
+    document.getElementById('sb-farmer-name').value = 'Ganesh Rao';
+    document.getElementById('sb-district').value = 'D2';
+    document.getElementById('sb-crop').value = 'soybean';
+    document.getElementById('sb-stage').value = 'vegetative';
+    document.getElementById('sb-land').value = '0.6';
+    document.getElementById('sb-irrigation').value = 'rainfed';
+    document.getElementById('sb-borewell-failed').checked = false;
+    document.getElementById('sb-pmfby').checked = false;
+    document.getElementById('sb-kcc').checked = false;
+    document.getElementById('sb-informal-debt').checked = true;
+    document.getElementById('sb-cur-price').value = '4600';
+    document.getElementById('sb-msp-price').value = '4600';
+    document.getElementById('sb-rain-dev').value = '0';
+    document.getElementById('sb-dry-days').value = '0';
+    document.getElementById('sb-onset-delay').value = '0';
+  }
+
+  runSandboxEvaluation();
+}
+
+async function speakSandboxAdvisory() {
+  if (!currentSandboxData || !currentSandboxData.advisory) return;
+
+  const adv = currentSandboxData.advisory;
+  const lang = currentSandboxData.inputs_received.language || state.selectedLanguage || 'en';
+  const text = (adv.text && adv.text[lang]) || (adv.text && adv.text['en']) || (adv.text && adv.text['hi']) || '';
+  await speakText(text, lang, 'sandbox-engine');
+}
+
+// Expose core app hooks to window
+window.state = state;
+window.selectFarmer = selectFarmer;
+window.loadFarmersList = loadFarmersList;
+window.onLanguageChanged = onLanguageChanged;
+window.switchGlobalLanguage = onLanguageChanged;
+window.applyI18n = applyI18n;
+window.showTTSToast = showTTSToast;
+window.speakText = speakText;
+window.switchMainView = switchMainView;
+window.runSandboxEvaluation = runSandboxEvaluation;
+window.loadSandboxPreset = loadSandboxPreset;
+window.speakSandboxAdvisory = speakSandboxAdvisory;

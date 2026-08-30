@@ -35,11 +35,27 @@ DATA_DIR = os.path.join(BASE_DIR, "data")
 DB_PATH = os.path.join(DATA_DIR, "distress_system.db")
 CLIENT_DIR = os.path.join(BASE_DIR, "client")
 
+
+
 app = FastAPI(
     title="PS-02 Smart Crop Advisory & Distress Early-Warning API",
     version="3.0.0",
     description="Comprehensive Feasibility Edition: Advisory Engine, Distress-Risk Scorer, MSP Financial Overrides & Scheme Interventions"
 )
+
+@app.on_event("startup")
+def migrate_db_schema():
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        cur = conn.cursor()
+        cur.execute("PRAGMA table_info(farmers)")
+        cols = [c[1] for c in cur.fetchall()]
+        if 'soil_type' not in cols:
+            cur.execute("ALTER TABLE farmers ADD COLUMN soil_type TEXT DEFAULT 'black'")
+            conn.commit()
+        conn.close()
+    except Exception as e:
+        print("DB migration error:", e)
 
 # CORS Configuration
 app.add_middleware(
@@ -196,6 +212,9 @@ def get_authenticated_farmer_id(authorization: Optional[str] = Header(None), x_f
     return "F1"
 
 
+@app.post("/api/auth/login")
+@app.post("/api/v1/auth/login")
+@app.post("/api/auth/session")
 @app.post("/api/v1/auth/session")
 def authenticate_session(payload: AuthLoginPayload):
     """Authenticates a farmer and creates a secure session token"""
@@ -1168,3 +1187,149 @@ if os.path.exists(CLIENT_DIR):
     def serve_frontend_index():
         return FileResponse(os.path.join(CLIENT_DIR, "index.html"))
 
+
+
+class SimulationPayload(BaseModel):
+    farmer_id: Optional[str] = None
+    farmer: Optional[Dict[str, Any]] = None
+    current_mandi_price: Optional[float] = None
+    govt_msp: Optional[float] = None
+    rainfall_deviation_pct: Optional[float] = None
+    dry_spell_days: Optional[int] = None
+    onset_delay_days: Optional[int] = None
+    temperature_anomaly_c: Optional[float] = None
+    pest_severity: Optional[str] = None
+    language: Optional[str] = "en"
+
+
+@app.post("/api/simulator/evaluate")
+@app.post("/api/v1/simulator/evaluate")
+def evaluate_simulation(payload: SimulationPayload):
+    data = load_full_datastore()
+
+    farmer_data = payload.farmer or {}
+    f_id = payload.farmer_id or farmer_data.get("id", "CUSTOM_1")
+    
+    district_id = farmer_data.get("district_id", "D1")
+    crop = (farmer_data.get("crop") or "onion").lower()
+    crop_stage = (farmer_data.get("crop_stage") or "harvest").lower()
+    lang = payload.language or farmer_data.get("language") or "en"
+
+    sim_farmer = {
+        "id": f_id,
+        "name": farmer_data.get("name", "Demo Farmer"),
+        "village": farmer_data.get("village", "Nashik Village"),
+        "district_id": district_id,
+        "crop": crop,
+        "crop_stage": crop_stage,
+        "landholding_hectares": float(farmer_data.get("landholding_hectares") or 1.2),
+        "soil_type": farmer_data.get("soil_type", "black"),
+        "irrigation_type": farmer_data.get("irrigation_type", "protective_well"),
+        "borewell_failed": bool(farmer_data.get("borewell_failed", False)),
+        "has_pmfby_insurance": bool(farmer_data.get("has_pmfby_insurance", True)),
+        "has_kcc": bool(farmer_data.get("has_kcc", True)),
+        "informal_debt": bool(farmer_data.get("informal_debt", False)),
+        "loan_due_date": farmer_data.get("loan_due_date", "15/11/2026"),
+        "loan_amount_inr": float(farmer_data.get("loan_amount_inr", 50000)),
+        "enrolled_schemes": farmer_data.get("enrolled_schemes", ["PM-KISAN"]),
+        "income_sources": farmer_data.get("income_sources", ["crop_cultivation"]),
+        "device_type": farmer_data.get("device_type", "android_smartphone"),
+        "network_quality": farmer_data.get("network_quality", "4G"),
+        "tech_literacy": farmer_data.get("tech_literacy", "high"),
+        "language": lang
+    }
+
+    existing_idx = next((i for i, f in enumerate(data["farmers"]) if f["id"] == f_id), None)
+    if existing_idx is not None:
+        data["farmers"][existing_idx] = sim_farmer
+    else:
+        data["farmers"].append(sim_farmer)
+
+    if payload.rainfall_deviation_pct is not None or payload.dry_spell_days is not None or payload.onset_delay_days is not None:
+        w_idx = next((i for i, w in enumerate(data["daily_rainfall"]) if w["district_id"] == district_id), None)
+        if w_idx is not None:
+            w_rec = dict(data["daily_rainfall"][w_idx])
+            if payload.rainfall_deviation_pct is not None:
+                w_rec["rainfall_deviation_pct"] = float(payload.rainfall_deviation_pct)
+            if payload.dry_spell_days is not None:
+                w_rec["consecutive_dry_days"] = int(payload.dry_spell_days)
+            if payload.onset_delay_days is not None:
+                w_rec["onset_delay_days"] = int(payload.onset_delay_days)
+            data["daily_rainfall"][w_idx] = w_rec
+
+    if payload.current_mandi_price is not None or payload.govt_msp is not None:
+        m_idx = next((i for i, m in enumerate(data["mandi_prices"]) if m["crop"].lower() == crop and m["district_id"] == district_id), None)
+        if m_idx is not None:
+            m_rec = dict(data["mandi_prices"][m_idx])
+            if payload.current_mandi_price is not None:
+                m_rec["modal_price_per_quintal"] = float(payload.current_mandi_price)
+            if payload.govt_msp is not None:
+                m_rec["msp_per_quintal"] = float(payload.govt_msp)
+            data["mandi_prices"][m_idx] = m_rec
+        elif payload.current_mandi_price is not None:
+            data["mandi_prices"].append({
+                "district_id": district_id,
+                "crop": crop,
+                "modal_price_per_quintal": float(payload.current_mandi_price),
+                "msp_per_quintal": float(payload.govt_msp or 0),
+                "trend": "falling"
+            })
+
+    advisory_res = get_advisory(f_id, data)
+    distress_res = calculate_distress_score(f_id, DEFAULT_WEIGHTS, data)
+
+    # Decision trace
+    mandi = next((m for m in data["mandi_prices"] if m["crop"].lower() == crop and m["district_id"] == district_id), {})
+    rain = next((r for r in data["daily_rainfall"] if r["district_id"] == district_id), {})
+    cur_price = mandi.get("modal_price_per_quintal", 0)
+    msp_val = mandi.get("msp_per_quintal", 0)
+
+    decision_trace = [
+        {
+            "priority": 1,
+            "rule": "R-30 (Market Intervention / MSP Override)",
+            "condition": "crop_stage == 'harvest' and mandi_price < govt_msp",
+            "evaluated": f"Stage: '{crop_stage}', Price: ₹{cur_price}, MSP: ₹{msp_val}",
+            "triggered": (crop_stage == "harvest" and cur_price > 0 and msp_val > 0 and cur_price < msp_val)
+        },
+        {
+            "priority": 2,
+            "rule": "R-10 (Contingency Crop Switch)",
+            "condition": "onset_delay > 14 or (dry_spell >= 12 and crop_stage == 'sowing')",
+            "evaluated": f"Onset Delay: {rain.get('onset_delay_days', 0)}d, Dry Spell: {rain.get('consecutive_dry_days', 0)}d, Stage: '{crop_stage}'",
+            "triggered": (rain.get("onset_delay_days", 0) > 14 or (rain.get("consecutive_dry_days", 0) >= 12 and crop_stage == "sowing"))
+        },
+        {
+            "priority": 3,
+            "rule": "R-15 (Protective Life-Saving Irrigation)",
+            "condition": "irrigation_type == 'protective_well' and (borewell_failed or dry_spell >= 10)",
+            "evaluated": f"Irrigation: '{sim_farmer['irrigation_type']}', Borewell Failed: {sim_farmer['borewell_failed']}, Dry Spell: {rain.get('consecutive_dry_days', 0)}d",
+            "triggered": (sim_farmer["irrigation_type"] == "protective_well" and (sim_farmer["borewell_failed"] or rain.get("consecutive_dry_days", 0) >= 10))
+        },
+        {
+            "priority": 4,
+            "rule": "R-20 (Standard ICAR-CRIDA Agronomy Guidance)",
+            "condition": "Fired when no high-priority distress overrides trigger",
+            "evaluated": "Default agronomy guideline based on crop growth stage",
+            "triggered": (advisory_res.get("rule_id") == "R-20")
+        }
+    ]
+
+    return {
+        "status": "success",
+        "inputs_received": {
+            "farmer_name": sim_farmer["name"],
+            "district_id": district_id,
+            "crop": crop,
+            "crop_stage": crop_stage,
+            "language": lang,
+            "current_mandi_price": cur_price,
+            "govt_msp": msp_val,
+            "rainfall_deviation_pct": rain.get("rainfall_deviation_pct", 0),
+            "dry_spell_days": rain.get("consecutive_dry_days", 0),
+            "onset_delay_days": rain.get("onset_delay_days", 0)
+        },
+        "advisory": advisory_res,
+        "distress": distress_res,
+        "decision_trace": decision_trace
+    }
