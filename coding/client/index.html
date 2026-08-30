@@ -925,8 +925,8 @@
                   <div class="text-xs text-slate-500" data-i18n="smsEmulatorSub">Plain-text 160-character GSM SMS Delivery</div>
                 </div>
               </div>
-              <button onclick="triggerSmsDelivery()" class="px-3 py-1.5 bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold rounded-lg shadow transition" data-i18n="sendTestSms">
-                Send Test SMS 📨
+              <button id="btn-dispatch-sms" onclick="triggerSmsDelivery(null, null, true)" class="px-3 py-1.5 bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold rounded-lg shadow transition" data-i18n="sendTestSms">
+                Dispatch SMS via Telephony Gateway 📨
               </button>
             </div>
 
@@ -943,7 +943,7 @@
 
               <div class="flex items-center justify-between text-[10px] text-emerald-500 pt-2 border-t border-emerald-900">
                 <span id="sms-char-count">Length: 142 chars (1 SMS)</span>
-                <span class="text-emerald-400 font-bold">STATUS: DELIVERED ✔</span>
+                <span id="sms-status-pill" class="text-rose-400 font-bold">STATUS: UNDELIVERED ⏳</span>
               </div>
             </div>
           </div>

@@ -3569,10 +3569,18 @@ function playIvrAudioPrompt() {
   }
 }
 
-async function triggerSmsDelivery(customFarmerId, customLang) {
+let smsDelivered = false;
+
+async function triggerSmsDelivery(customFarmerId, customLang, isDispatch = false) {
   const farmerId = customFarmerId || state.selectedFarmerId || 'F1';
   const lang = customLang || state.ivrLanguage || state.selectedLanguage || 'en';
   try {
+    const dispatchBtn = document.getElementById('btn-dispatch-sms');
+    if (dispatchBtn && isDispatch) {
+      dispatchBtn.disabled = true;
+      dispatchBtn.textContent = "Dispatching GSM SMS... 📡";
+    }
+
     const res = await fetch(`${API_BASE}/simulate/sms`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -3584,8 +3592,30 @@ async function triggerSmsDelivery(customFarmerId, customLang) {
     if (smsBody) smsBody.textContent = data.sms_body;
     const smsCount = document.getElementById('sms-char-count');
     if (smsCount) smsCount.textContent = `Length: ${data.character_count} chars (${data.sms_segments} SMS)`;
+    
+    const now = new Date();
+    const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')} IST`;
     const smsTime = document.getElementById('sms-time');
-    if (smsTime) smsTime.textContent = '16:45 IST';
+    if (smsTime) smsTime.textContent = isDispatch ? timeStr : '16:45 IST';
+
+    const statusPill = document.getElementById('sms-status-pill');
+    if (statusPill) {
+      if (isDispatch) {
+        smsDelivered = true;
+        statusPill.className = "text-emerald-400 font-bold";
+        statusPill.textContent = "STATUS: DELIVERED ✔";
+      } else if (!smsDelivered) {
+        statusPill.className = "text-rose-400 font-bold";
+        statusPill.textContent = "STATUS: UNDELIVERED ⏳";
+      }
+    }
+
+    if (dispatchBtn && isDispatch) {
+      setTimeout(() => {
+        dispatchBtn.disabled = false;
+        dispatchBtn.textContent = "Dispatch SMS via Telephony Gateway 📨";
+      }, 500);
+    }
 
   } catch (err) {
     console.error('Error triggering SMS delivery:', err);

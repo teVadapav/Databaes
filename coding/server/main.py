@@ -1041,7 +1041,7 @@ def simulate_ivr(payload: IvrRequest):
 @app.post("/api/simulate/sms")
 def simulate_sms(payload: IvrRequest):
     """
-    Simulates sending plain-text localized SMS alert to basic feature phone.
+    Simulates sending simple, plain-text localized SMS alert to basic feature phone.
     """
     data = load_full_datastore()
     farmer = next((f for f in data["farmers"] if f["id"] == payload.farmer_id), None)
@@ -1050,41 +1050,60 @@ def simulate_sms(payload: IvrRequest):
 
     advisory = get_advisory(farmer["id"], data)
     distress = calculate_distress_score(farmer["id"], DEFAULT_WEIGHTS, data)
-    lang = (payload.language or farmer.get("language", "hi")).lower()
+    lang = (payload.language or farmer.get("language", "en")).lower()
+    if lang not in ["en", "hi", "mr", "or", "as", "kn"]:
+        lang = "en"
 
     # SMS body formatting for low-cost 160-char SMS units
-    top_scheme = distress["recommended_interventions"][0] if distress["recommended_interventions"] else None
-    scheme_name = top_scheme['scheme_id'] if top_scheme else "PMFBY"
+    top_scheme = distress["recommended_interventions"][0] if distress.get("recommended_interventions") else None
+    raw_sname = (top_scheme.get('scheme_name') or 'PMFBY') if top_scheme else "PMFBY"
+    scheme_name = raw_sname.split('(')[0].strip() or "PMFBY"
 
-    if advisory["rule_id"] == "R-30":
+    crop_name = farmer.get("crop", "Crop")
+    farmer_name = farmer.get("name", "Farmer")
+
+    if advisory.get("rule_id") == "R-30":
+        cur_p = advisory.get("price_data", {}).get("current_price", 2100)
+        msp_p = advisory.get("price_data", {}).get("govt_msp", 2400)
         if lang == "or":
-            sms_text = f"[କୃଷି-ସତର୍କତା] {farmer['name']}: {farmer['crop'].upper()} ମଣ୍ଡି ଦର ₹{advisory['price_data']['current_price']} ଏମଏସପି ₹{advisory['price_data']['govt_msp']} ଠାରୁ କମ୍। ଆତଙ୍କରେ ବିକ୍ରି କରନ୍ତୁ ନାହିଁ। ଇ-ନାମ ବ୍ୟବହାର କରନ୍ତୁ। ଯୋଜନା: {scheme_name}। ହେଲ୍ପଲାଇନ୍: 1800-180-1551"
+            sms_text = f"[କୃଷି ସତର୍କତା] {farmer_name}: {crop_name} ମଣ୍ଡି ଦର ₹{cur_p} ଏମଏସପି ₹{msp_p} ଠାରୁ କମ୍। ଆତଙ୍କରେ ବିକ୍ରି କରନ୍ତୁ ନାହିଁ। ଇ-ନାମ ବ୍ୟବହାର କରନ୍ତୁ। ହେଲ୍ପଲାଇନ୍: 1800-180-1551"
         elif lang == "as":
-            sms_text = f"[কৃষি-সতৰ্কবাৰ্তা] {farmer['name']}: {farmer['crop'].upper()} বজাৰ দৰ ₹{advisory['price_data']['current_price']} সমৰ্থন মূল্য ₹{advisory['price_data']['govt_msp']} তকৈ কম। লোকচানত বিক্ৰী নকৰিব। ই-নাম ব্যৱহাৰ কৰক। আঁচনি: {scheme_name}। হেল্পলাইন: 1800-180-1551"
+            sms_text = f"[কৃষি সতৰ্কবাৰ্তা] {farmer_name}: {crop_name} বজাৰ দৰ ₹{cur_p} সমৰ্থন মূল্য ₹{msp_p} তকৈ কম। লোকচানত বিক্ৰী নকৰিব। ই-নাম ব্যৱহাৰ কৰক। হেল্পলাইন: 1800-180-1551"
         elif lang == "kn":
-            sms_text = f"[ಕೃಷಿ-ಎಚ್ಚರಿಕೆ] {farmer['name']}: {farmer['crop'].upper()} ಮಂಡಿ ಬೆಲೆ ₹{advisory['price_data']['current_price']} ಎಂಎಸ್‌ಪಿ ₹{advisory['price_data']['govt_msp']} ಗಿಂತ ಕಡಿಮೆ. ಆತುರದಲ್ಲಿ ಮಾರಾಟ ಮಾಡಬೇಡಿ. ಯೋಜನೆ: {scheme_name}. ಸಹಾಯವಾಣಿ: 1800-180-1551"
+            sms_text = f"[ಕೃಷಿ ಎಚ್ಚರಿಕೆ] {farmer_name}: {crop_name} ಮಾರುಕಟ್ಟೆ ದರ ₹{cur_p} ಬೆಂಬಲ ಬೆಲೆ ₹{msp_p} ಗಿಂತ ಕಡಿಮೆ ಇದೆ. ಆತುರದಲ್ಲಿ ಮಾರಾಟ ಮಾಡಬೇಡಿ. ಸಹಾಯವಾಣಿ: 1800-180-1551"
         elif lang == "mr":
-            sms_text = f"[कृषी-अलर्ट] {farmer['name']}: {farmer['crop'].upper()} बाजार भाव ₹{advisory['price_data']['current_price']} हमीभाव ₹{advisory['price_data']['govt_msp']} पेक्षा कमी. घाईत विक्री करू नका. ई-नाम वापरा. योजना: {scheme_name}. हेल्पलाइन: 1800-180-1551"
+            sms_text = f"[कृषी अलर्ट] {farmer_name}: {crop_name} बाजार भाव ₹{cur_p} हमीभाव ₹{msp_p} पेक्षा कमी आहे. घाईत विक्री करू नका. ई-नाम वापरा. हेल्पलाइन: 1800-180-1551"
         elif lang == "hi":
-            sms_text = f"[कृषि-अलर्ट] {farmer['name']}: {farmer['crop'].upper()} मंडी भाव ₹{advisory['price_data']['current_price']} सरकारी MSP ₹{advisory['price_data']['govt_msp']} से कम है। कम दाम पर न बेचें। ई-नाम का लाभ लें। योजना: {scheme_name}। हेल्पलाइन: 1800-180-1551"
+            sms_text = f"[कृषि अलर्ट] {farmer_name}: आपकी {crop_name} फसल का मंडी भाव ₹{cur_p} सरकारी समर्थन मूल्य ₹{msp_p} से कम है। संकट में कम दाम पर न बेचें। ई-नाम का लाभ लें। हेल्पलाइन: 1800-180-1551"
         else:
-            sms_text = f"[KRISHI-ALERT] {farmer['name']}: {farmer['crop'].upper()} Mandi price ₹{advisory['price_data']['current_price']} is BELOW Govt MSP ₹{advisory['price_data']['govt_msp']}. Do not panic sell. Use e-NAM or WDRA loan. Scheme: {scheme_name}. Helpline: 1800-180-1551"
-    elif advisory["rule_id"] == "R-10":
+            sms_text = f"[Kisan Market Alert] {farmer_name}: Your {crop_name} mandi price is ₹{cur_p}, below Govt MSP ₹{msp_p}. Avoid distress sale; use e-NAM or warehouse loan. Helpline: 1800-180-1551"
+    elif advisory.get("rule_id") == "R-10":
+        delay = advisory.get("weather_data", {}).get("onset_delay_days", 10)
         if lang == "or":
-            sms_text = f"[କୃଷି-ସତର୍କତା] {farmer['name']}: ମୌସୁମୀ {advisory['weather_data']['onset_delay_days']} ଦିନ ବିଳମ୍ବ। କମ୍ ଦିନିଆ ବାଜରା/ହରଡ଼ ଚାଷ କରନ୍ତୁ। ଯୋଜନା: {scheme_name}। ହେଲ୍ପଲାଇନ୍: 1800-180-1551"
+            sms_text = f"[ପାଣିପାଗ ସତର୍କତା] {farmer_name}: ମୌସୁମୀ {delay} ଦିନ ବିଳମ୍ବ। କମ୍ ଦିନିଆ ବାଜରା କିମ୍ବା ଡାଲି ଫସଲ ବୁଣନ୍ତୁ। ମାଗଣା ବିହନ ସହାୟତା ଉପଲବ୍ଧ। ହେଲ୍ପଲାଇନ୍: 1800-180-1551"
         elif lang == "as":
-            sms_text = f"[কৃষি-সতৰ্কবাৰ্তা] {farmer['name']}: মৌচুমী {advisory['weather_data']['onset_delay_days']} দিন পলম। কম দিনত হোৱা বজৰা/মাহজাতীয় শস্য সিঁচক। আঁচনি: {scheme_name}। হেল্পলাইন: 1800-180-1551"
+            sms_text = f"[বতৰ সতৰ্কবাৰ্তা] {farmer_name}: মৌচুমী {delay} দিন পলম। কম দিনত পকা বজৰা বা মাহজাতীয় শস্য সিঁচক। চৰকাৰী বীজ সাহায্য উপলব্ধ। হেল্পলাইন: 1800-180-1551"
         elif lang == "kn":
-            sms_text = f"[ಕೃಷಿ-ಎಚ್ಚರಿಕೆ] {farmer['name']}: ಮುಂಗಾರು {advisory['weather_data']['onset_delay_days']} ದಿನ ವಿಳಂಬ. ಅಲ್ಪಾವಧಿ ಸಜ್ಜೆ/ತೊಗರಿ ಬಿತ್ತನೆ ಮಾಡಿ. ಯೋಜನೆ: {scheme_name}. ಸಹಾಯವಾಣಿ: 1800-180-1551"
+            sms_text = f"[ಹವಾಮಾನ ಎಚ್ಚರಿಕೆ] {farmer_name}: ಮುಂಗಾರು {delay} ದಿನ ತಡವಾಗಿದೆ. ಅಲ್ಪಾವಧಿಯ ಸಜ್ಜೆ ಅಥವಾ ಬೇಳೆಕಾಳು ಬೆಳೆ ಬಿತ್ತನೆ ಮಾಡಿ. ಸಹಾಯವಾಣಿ: 1800-180-1551"
         elif lang == "mr":
-            sms_text = f"[कृषी-अलर्ट] {farmer['name']}: मान्सून {advisory['weather_data']['onset_delay_days']} दिवस उशीर. बाजरी/तूर पिकाची पेरणी करा. योजना: {scheme_name}. हेल्पलाइन: 1800-180-1551"
+            sms_text = f"[हवामान अलर्ट] {farmer_name}: मान्सून {delay} दिवस उशिरा आला आहे. कमी कालावधीची बाजरी किंवा तूर पेरणी करा. मोफत बियाणे उपलब्ध. हेल्पलाइन: 1800-180-1551"
         elif lang == "hi":
-            sms_text = f"[कृषि-अलर्ट] {farmer['name']}: मानसून {advisory['weather_data']['onset_delay_days']} दिन विलंबित। कम अवधि वाले बाजरा/अरहर की बुवाई करें। योजना: {scheme_name}। हेल्पलाइन: 1800-180-1551"
+            sms_text = f"[मौसम अलर्ट] {farmer_name}: मानसून {delay} दिन विलंबित है। कम समय में पकने वाले बाजरा या दलहन की बुवाई करें। बीज सहायता उपलब्ध। हेल्पलाइन: 1800-180-1551"
         else:
-            sms_text = f"[KRISHI-ALERT] {farmer['name']}: Monsoon delayed {advisory['weather_data']['onset_delay_days']} days. Switch to short-duration Bajra/Arhar. Apply for {scheme_name}. Helpline: 1800-180-1551"
+            sms_text = f"[Weather Alert] {farmer_name}: Monsoon is delayed by {delay} days. Please sow short-duration crops like Bajra or Pulses. Free seed support available. Helpline: 1800-180-1551"
     else:
-        title_text = advisory['title'].get(lang, advisory['title']['en'])
-        sms_text = f"[KRISHI-ADVISORY] {farmer['name']}: {title_text}. Stage: {farmer['crop_stage']}. {scheme_name}. Helpline: 1800-180-1551."
+        if lang == "or":
+            sms_text = f"[କୃଷି ପରାମର୍ଶ] {farmer_name}: ଆପଣଙ୍କ {crop_name} ଫସଲ ସୁରକ୍ଷା ପାଇଁ ହାଲୁକା ଜଳସେଚନ କିମ୍ବା ସ୍ପ୍ରେ କରନ୍ତୁ। ସହାୟକ ଯୋଜନା: {scheme_name}। ହେଲ୍ପଲାଇନ୍: 1800-180-1551"
+        elif lang == "as":
+            sms_text = f"[কৃষি পৰামৰ্শ] {farmer_name}: আপোনাৰ {crop_name} শস্যৰ সুৰক্ষাৰ বাবে পাতলীয়া পানী বা স্প্ৰে দিয়ক। সাহায্য আঁচনি: {scheme_name}। হেল্পলাইন: 1800-180-1551"
+        elif lang == "kn":
+            sms_text = f"[ಕೃಷಿ ಸಲಹೆ] {farmer_name}: ನಿಮ್ಮ {crop_name} ಬೆಳೆ ರಕ್ಷಣೆಗೆ ಲಘು ನೀರಾವರಿ ಅಥವಾ ಸಿಂಪರಣೆ ಮಾಡಿ. ಸರ್ಕಾರಿ ಯೋಜನೆ: {scheme_name}. ಸಹಾಯವಾಣಿ: 1800-180-1551"
+        elif lang == "mr":
+            sms_text = f"[कृषी सल्ला] {farmer_name}: आपल्या {crop_name} पिकाच्या संरक्षणासाठी हलके पाणी किंवा फवारणी करा. शासकीय योजना: {scheme_name}. हेल्पलाइन: 1800-180-1551"
+        elif lang == "hi":
+            sms_text = f"[कृषि सलाह] {farmer_name}: अपनी {crop_name} फसल सुरक्षा हेतु हल्की सिंचाई या स्प्रे करें। सरकारी योजना: {scheme_name}। किसान हेल्पलाइन: 1800-180-1551"
+        else:
+            sms_text = f"[Crop Advisory] {farmer_name}: For your {crop_name} crop, apply light irrigation or foliar spray to protect crop health. Support scheme: {scheme_name}. Helpline: 1800-180-1551"
 
     return {
         "farmer_id": farmer["id"],
