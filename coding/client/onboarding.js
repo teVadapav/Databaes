@@ -19,6 +19,7 @@ const AudioTTSController = {
   isPlaying: false,
   isLoading: false,
   currentLanguage: null,
+  activeStep: null,
   debounceTimer: null,
   concurrencyLock: false,
 
@@ -47,6 +48,7 @@ const AudioTTSController = {
     this.isPlaying = false;
     this.isLoading = false;
     this.currentLanguage = null;
+    this.activeStep = null;
     this.concurrencyLock = false;
     this.updateUI();
   },
@@ -107,12 +109,13 @@ const AudioTTSController = {
   },
 
   updateUI() {
+    // 1. Update Screen 1 language card preview pills
     document.querySelectorAll('.lang-select-card').forEach(card => {
       const lang = card.id.replace('lang-card-', '');
       const pill = card.querySelector('.lang-voice-pill');
       if (!pill) return;
 
-      if (this.currentLanguage === lang) {
+      if (this.currentLanguage === lang && !this.activeStep) {
         if (this.isLoading) {
           pill.innerHTML = `<span>⏳</span><span>Loading...</span>`;
           pill.className = 'lang-voice-pill loading';
@@ -129,6 +132,23 @@ const AudioTTSController = {
         card.classList.add('locked');
       } else {
         card.classList.remove('locked');
+      }
+    });
+
+    // 2. Update Screen 2, 3, 4 Info Listen Buttons
+    [2, 3, 4].forEach(step => {
+      const btn = document.getElementById(`ob-step-tts-btn-${step}`);
+      if (!btn) return;
+      const lang = OnboardingState.selectedLanguage || 'en';
+      if (this.isPlaying && this.activeStep === step) {
+        btn.classList.add('playing');
+        btn.innerHTML = `<span class="tts-icon">⏹️</span><span class="tts-label">${Onboarding.t('stopScreenAudio', lang)}</span>`;
+      } else if (this.isLoading && this.activeStep === step) {
+        btn.classList.remove('playing');
+        btn.innerHTML = `<span class="tts-icon">⏳</span><span class="tts-label">${Onboarding.t('loadingAudio', lang)}</span>`;
+      } else {
+        btn.classList.remove('playing');
+        btn.innerHTML = `<span class="tts-icon">🔊</span><span class="tts-label">${Onboarding.t('listenScreenInfo', lang)}</span>`;
       }
     });
   }
@@ -352,37 +372,13 @@ const Onboarding = {
         step4Title: 'Crop Growth Stage & Confirmation',
         step4Sub: 'Select the current development stage of your crop for accurate ICAR-CRIDA advisories',
         loginTitle: 'Farmer Sign-In',
-        loginSub: 'Enter registered mobile number or Farmer ID (e.g. F1, F2)',
-        fullName: 'Farmer Full Name',
-        mobileNumber: 'Mobile Phone Number',
-        mobilePlaceholder: '10-digit mobile number',
-        stateLabel: 'State',
-        districtLabel: 'District / Taluka',
-        landAreaLabel: 'Total Land Area',
-        soilTypeLabel: 'Soil Type',
-        irrigationLabel: 'Primary Irrigation Type',
-        irrRainfed: 'Rainfed (100% Monsoon Dependent)',
-        irrWell: 'Protective Well / Borewell',
-        irrCanal: 'Canal Assured Irrigation',
-        borewellFailedLabel: 'Borewell / Well Yield Failed this Season',
-        safetyNetsLabel: 'Financial Safety Nets & Loans',
-        pmfbyLabel: 'PMFBY Crop Insurance Enrolled',
-        kccLabel: 'Kisan Credit Card (KCC) Active',
-        informalDebtLabel: 'High-Interest Informal Private Debt (>24% p.a.)',
-        loanDueDateLabel: 'Next Bank / KCC Loan Due Date',
-        loanAmountLabel: 'Outstanding Loan Amount (₹)',
-        deviceTypeLabel: 'Primary Phone / Device Type',
-        smartphone: '📱 Android Smartphone (4G/5G)',
-        featurephone: '📟 Basic Feature Phone (2G / Voice & SMS Only)',
-        btnSaveContinue: 'Save & Continue →',
-        btnUpdateProfile: 'Update Profile ✓',
-        btnBack: '← Back',
-        btnNext: 'Next Step →',
-        btnNextStage: 'Next Step: Crop Stage →',
-        btnFinish: 'Go to Farmer Dashboard 🌾',
+        loginSub: 'Enter registered mobile number or Farmer ID (e        btnFinish: 'Go to Farmer Dashboard 🌾',
         btnLogin: 'Log In & Load Profile →',
         switchToLogin: 'Already registered? Login with Phone / ID',
-        switchToRegister: 'New Farmer? Register New Profile'
+        switchToRegister: 'New Farmer? Register New Profile',
+        listenScreenInfo: 'Listen to this Screen 🔊',
+        stopScreenAudio: 'Stop Audio ⏹️',
+        loadingAudio: 'Loading Audio...'
       },
       hi: {
         step1Title: 'अपनी पसंदीदा भाषा चुनें',
@@ -424,7 +420,10 @@ const Onboarding = {
         btnFinish: 'किसान डैशबोर्ड खोलें 🌾',
         btnLogin: 'लॉगिन करें →',
         switchToLogin: 'पहले से पंजीकृत हैं? फोन / आईडी से लॉगिन करें',
-        switchToRegister: 'नए किसान? नया प्रोफ़ाइल बनाएं'
+        switchToRegister: 'नए किसान? नया प्रोफ़ाइल बनाएं',
+        listenScreenInfo: 'यह पृष्ठ सुनें 🔊',
+        stopScreenAudio: 'ऑडियो रोकें ⏹️',
+        loadingAudio: 'लोड हो रहा है...'
       },
       mr: {
         step1Title: 'आपली पसंतीची भाषा निवडा',
@@ -466,7 +465,10 @@ const Onboarding = {
         btnFinish: 'शेतकरी डॅशबोर्ड सुरू करा 🌾',
         btnLogin: 'लॉगिन करा →',
         switchToLogin: 'आधीच नोंदणीकृत आहात? फोन / आयडीने लॉगिन करा',
-        switchToRegister: 'नवीन शेतकरी? नवीन नोंदणी करा'
+        switchToRegister: 'नवीन शेतकरी? नवीन नोंदणी करा',
+        listenScreenInfo: 'ही माहिती ऐका 🔊',
+        stopScreenAudio: 'ऑडिओ थांबवा ⏹️',
+        loadingAudio: 'लोड होत आहे...'
       },
       or: {
         step1Title: 'ଆପଣଙ୍କ ପସନ୍ଦର ଭାଷା ବାଛନ୍ତୁ',
@@ -488,6 +490,121 @@ const Onboarding = {
         soilTypeLabel: 'ମାଟିର ପ୍ରକାର',
         irrigationLabel: 'ମୁଖ୍ୟ ଜଳସେଚନ ଉତ୍ସ',
         irrRainfed: 'ବର୍ଷାଧାରିତ (୧୦୦% ବର୍ଷା ଉପରେ ନିର୍ଭର)',
+        irrWell: 'କୁଅ / ନଳକୂପ / ବୋରୱେଲ୍',
+        irrCanal: 'କେନାଲ୍ ଜଳସେଚନ',
+        borewellFailedLabel: 'ଏହି ଋତୁରେ ବୋରୱେଲ୍ ପାଣି ଶୁଖିଗଲା',
+        safetyNetsLabel: 'ଆର୍ଥିକ ସୁରକ୍ଷା ଓ ଋଣ',
+        pmfbyLabel: 'PMFBY ଫସଲ ବୀମା ଭୁକ୍ତ',
+        kccLabel: 'କିଷାନ କ୍ରେଡିଟ୍ କାର୍ଡ (KCC) ସକ୍ରିୟ',
+        informalDebtLabel: 'ମହାଜନୀ ଋଣ (>୨୪% ସୁଧ)',
+        loanDueDateLabel: 'ପରବର୍ତ୍ତୀ ବ୍ୟାଙ୍କ ଋଣ ଶେଷ ତାରିଖ',
+        loanAmountLabel: 'ମୋଟ ବାକି ଋଣ ରାଶି (₹)',
+        deviceTypeLabel: 'ବ୍ୟବହୃତ ଫୋନ୍ ପ୍ରକାର',
+        smartphone: '📱 ଆଣ୍ଡ୍ରଏଡ୍ ସ୍ମାର୍ଟଫୋନ୍ (4G/5G)',
+        featurephone: '📟 ସାଧାରଣ ବଟନ୍ ଫୋନ୍ (2G / କେବଳ କଲ୍ ଓ SMS)',
+        btnSaveContinue: 'ସଂରକ୍ଷଣ କରନ୍ତୁ ଏବଂ ଆଗକୁ ଯାଆନ୍ତୁ →',
+        btnUpdateProfile: 'ପ୍ରୋଫାଇଲ୍ ଅପଡେଟ୍ କରନ୍ତୁ ✓',
+        btnBack: '← ପଛକୁ',
+        btnNext: 'ପରବର୍ତ୍ତୀ ପଦକ୍ଷେପ →',
+        btnNextStage: 'ଫସଲ ପର୍ଯ୍ୟାୟ ବାଛନ୍ତୁ →',
+        btnFinish: 'କୃଷକ ଡ୍ୟାସବୋର୍ଡ୍ ଖୋଲନ୍ତୁ 🌾',
+        btnLogin: 'ଲଗଇନ୍ କରନ୍ତୁ →',
+        switchToLogin: 'ପୂର୍ବରୁ ପଞ୍ଜୀକୃତ କି? ଲଗଇନ୍ କରନ୍ତୁ',
+        switchToRegister: 'ନୂତନ କୃଷକ? ନୂଆ ପ୍ରୋଫାଇଲ୍ ତିଆରି କରନ୍ତୁ',
+        listenScreenInfo: 'ଏହି ସୂଚନା ଶୁଣନ୍ତୁ 🔊',
+        stopScreenAudio: 'ଅଡିଓ ବନ୍ଦ କରନ୍ତୁ ⏹️',
+        loadingAudio: 'ଅଡିଓ ଲୋଡ୍ ହେଉଛି...'
+      },
+      as: {
+        step1Title: 'আপোনাৰ পছন্দৰ ভাষা বাছক',
+        step1Sub: 'ভইচ দিহা আৰু বাৰ্তাৰ বাবে নিজৰ ভাষা নিৰ্বাচন কৰক',
+        step2Title: 'কৃষক প্ৰোফাইল আৰু কৃষিভূমিৰ বিৱৰণ',
+        step2Sub: 'বতৰ আৰু শস্যৰ নিৰ্দেশনা নিজৰ মতে নিৰ্ধাৰণ কৰক',
+        step3Title: 'প্ৰধান শস্য নিৰ্বাচন কৰক',
+        step3Sub: 'আপোনাৰ পথাৰত খেতি কৰা শস্য নিৰ্বাচন কৰক',
+        step4Title: 'শস্যৰ বৃদ্ধি পৰ্যায় আৰু নিশ্চিতকৰণ',
+        step4Sub: 'সঠিক পৰামৰ্শৰ বাবে শস্যৰ वर्तमान বৃদ্ধি পৰ্যায় বাছক',
+        loginTitle: 'কৃষক লগইন',
+        loginSub: 'পঞ্জীভুক্ত মবাইল নম্বৰ বা কৃষক আইডি (যেনে F1, F2) দিয়ক',
+        fullName: 'কৃষকৰ সম্পূৰ্ণ নাম',
+        mobileNumber: 'মবাইল নম্বৰ',
+        mobilePlaceholder: '১০ টা সংখ্যাৰ মবাইল নম্বৰ',
+        stateLabel: 'ৰাজ্য',
+        districtLabel: 'জিলা / মহকুমা',
+        landAreaLabel: 'মুঠ কৃষিভূমিৰ পৰিমাণ',
+        soilTypeLabel: 'মাটিৰ প্ৰকাৰ',
+        irrigationLabel: 'প্ৰধান জলসিঞ্চন',
+        irrRainfed: 'বৰষুণ-নিৰ্ভৰশীল (১০০% বৰষুণৰ ওপৰত)',
+        irrWell: 'কুঁৱা / নলকূপ',
+        irrCanal: 'খালৰ পানী যোগান',
+        borewellFailedLabel: 'এই বতৰত কুঁৱাৰ পানী শুকাই গৈছে',
+        safetyNetsLabel: 'আৰ্থিক সুৰক্ষা আৰু ঋণ',
+        pmfbyLabel: 'PMFBY শস্য বীমা অন্তৰ্ভুক্ত',
+        kccLabel: 'কিষাণ ক্ৰেডিট কাৰ্ড (KCC) সক্ৰিয়',
+        informalDebtLabel: 'মহাজনৰ উচ্চ সুতৰ ঋণ (>২৪%)',
+        loanDueDateLabel: 'বেংক ঋণ পৰিশোধৰ তাৰিখ',
+        loanAmountLabel: 'মুঠ ঋণৰ পৰিমাণ (₹)',
+        deviceTypeLabel: 'ব্যৱহৃত ফোনৰ প্ৰকাৰ',
+        smartphone: '📱 এণ্ড্ৰইড স্মাৰ্টফোন (4G/5G)',
+        featurephone: '📟 সাধাৰণ বুটামৰ ফোন (2G / কেৱল ভইচ আৰু SMS)',
+        btnSaveContinue: 'সংৰক্ষণ কৰক আৰু আগবাঢ়ক →',
+        btnUpdateProfile: 'প্ৰোফাইল আপডেট কৰক ✓',
+        btnBack: '← উভতি যাওক',
+        btnNext: 'পৰৱৰ্তী স্তৰ →',
+        btnNextStage: 'বৃদ্ধি পৰ্যায় বাছক →',
+        btnFinish: 'কৃষক ডেশ্বব’ৰ্ড খোলক 🌾',
+        btnLogin: 'লগইন কৰক →',
+        switchToLogin: 'পূৰ্বতে পঞ্জীয়ন কৰিছে নেকি? লগইন কৰক',
+        switchToRegister: 'নতুন কৃষক? নতুন পঞ্জীয়ন কৰক',
+        listenScreenInfo: 'এই পৃষ্ঠাৰ তথ্য শুনক 🔊',
+        stopScreenAudio: 'অডিঅ\' বন্ধ কৰক ⏹️',
+        loadingAudio: 'অডিঅ\' লোড হৈ আছে...'
+      },
+      kn: {
+        step1Title: 'ನಿಮ್ಮ ಆದ್ಯತೆಯ ಭಾಷೆಯನ್ನು ಆಯ್ಕೆಮಾಡಿ',
+        step1Sub: 'ಧ್ವನಿ ಸಲಹೆ ಮತ್ತು ಪಠ್ಯಕ್ಕಾಗಿ ನಿಮ್ಮ ಭಾಷೆಯನ್ನು ಆಯ್ಕೆಮಾಡಿ',
+        step2Title: 'ರೈತರ ವಿವರ ಮತ್ತು ಜಮೀನಿನ ಮಾಹಿತಿ',
+        step2Sub: 'ಹವಾಮಾನ ಮತ್ತು ಬೆಳೆ ರಕ್ಷಣೆಯನ್ನು ಕಸ್ಟಮೈಸ್ ಮಾಡಿ',
+        step3Title: 'ಮುಖ್ಯ ಬೆಳೆಗಳನ್ನು ಆಯ್ಕೆಮಾಡಿ',
+        step3Sub: 'ನಿಮ್ಮ ಜಮೀನಿನಲ್ಲಿ ಬೆಳೆಯಲಾಗುವ ಬೆಳೆಗಳನ್ನು ಆಯ್ಕೆಮಾಡಿ',
+        step4Title: 'ಬೆಳೆ ಬೆಳವಣಿಗೆಯ ಹಂತ ಮತ್ತು ದೃಢೀಕರಣ',
+        step4Sub: 'ನಿಖರವಾದ ICAR-CRIDA ಸಲಹೆಗಾಗಿ ಪ್ರಸ್ತುತ ಬೆಳವಣಿಗೆ ಹಂತವನ್ನು ಆರಿಸಿ',
+        loginTitle: 'ರೈತರ ಲಾಗಿನ್',
+        loginSub: 'ನೋಂದಾಯಿತ ಮೊಬೈಲ್ ಸಂಖ್ಯೆ ಅಥವಾ ರೈತರ ಐಡಿ (ಉದಾ: F1, F2) ನಮೂದಿಸಿ',
+        fullName: 'ರೈತರ ಪೂರ್ಣ ಹೆಸರು',
+        mobileNumber: 'ಮೊಬೈಲ್ ಸಂಖ್ಯೆ',
+        mobilePlaceholder: '೧೦ ಅಂಕಿಗಳ ಮೊಬೈಲ್ ಸಂಖ್ಯೆ',
+        stateLabel: 'ರಾಜ್ಯ',
+        districtLabel: 'ಜಿಲ್ಲೆ / ತಾಲೂಕು',
+        landAreaLabel: 'ಒಟ್ಟು ಜಮೀನಿನ ವಿಸ್ತೀರ್ಣ',
+        soilTypeLabel: 'ಮಣ್ಣಿನ ವಿಧ',
+        irrigationLabel: 'ಪ್ರಮುಖ ನೀರಾವರಿ ವಿಧಾನ',
+        irrRainfed: 'ಮಳೆಯಾಶ್ರಿತ (100% ಮಳೆ ಆಧಾರಿತ)',
+        irrWell: 'ಭಾವಿ / ಬೋರ್‌ವೆಲ್ ನೀರಾವರಿ',
+        irrCanal: 'ಕಾಲುವೆ ನೀರಾವರಿ',
+        borewellFailedLabel: 'ಈ ಋತುವಿನಲ್ಲಿ ಬೋರ್‌ವೆಲ್ ಬತ್ತಿಹೋಗಿದೆ',
+        safetyNetsLabel: 'ಆರ್ಥಿಕ ಭದ್ರತೆ ಮತ್ತು ಸಾಲ',
+        pmfbyLabel: 'PMFBY ಬೆಳೆ ವಿಮೆ ಸಕ್ರಿಯವಾಗಿದೆ',
+        kccLabel: 'ಕಿಸಾನ್ ಕ್ರೆಡಿಟ್ ಕಾರ್ಡ್ (KCC) ಚಾಲ್ತಿಯಲ್ಲಿದೆ',
+        informalDebtLabel: 'ಹೆಚ್ಚಿನ ಬಡ್ಡಿಯ ಖಾಸಗಿ ಸಾಲ (>24%)',
+        loanDueDateLabel: 'ಮುಂದಿನ ಬ್ಯಾಂಕ್ ಸಾಲ ಮರುಪಾವತಿ ದಿನಾಂಕ',
+        loanAmountLabel: 'ಒಟ್ಟು ಬಾಕಿ ಸಾಲದ ಮೊತ್ತ (₹)',
+        deviceTypeLabel: 'ಬಳಸುವ ಫೋನ್ ಪ್ರಕಾರ',
+        smartphone: '📱 ಆಂಡ್ರಾಯ್ಡ್ ಸ್ಮಾರ್ಟ್‌ಫೋನ್ (4G/5G)',
+        featurephone: '📟 ಸಾಮಾನ್ಯ ಕೀಪ್ಯಾಡ್ ಫೋನ್ (2G / ಕರೆ ಮತ್ತು SMS ಮಾತ್ರ)',
+        btnSaveContinue: 'ಉಳಿಸಿ ಮತ್ತು ಮುಂದುವರಿಯಿರಿ →',
+        btnUpdateProfile: 'ವಿವರ ನವೀಕರಿಸಿ ✓',
+        btnBack: '← ಹಿಂದಕ್ಕೆ',
+        btnNext: 'ಮುಂದಿನ ಹಂತ →',
+        btnNextStage: 'ಬೆಳವಣಿಗೆ ಹಂತ ಆರಿಸಿ →',
+        btnFinish: 'ರೈತರ ಡ್ಯಾಶ್‌ಬೋರ್ಡ್ ತೆರೆಯಿರಿ 🌾',
+        btnLogin: 'ಲಾಗಿನ್ ಮಾಡಿ →',
+        switchToLogin: 'ಈಗಾಗಲೇ ನೋಂದಾಯಿಸಿದ್ದೀರಾ? ಲಾಗಿನ್ ಮಾಡಿ',
+        switchToRegister: 'ಹೊಸ ರೈತರೇ? ಹೊಸ ನೋಂದಣಿ ಮಾಡಿ',
+        listenScreenInfo: 'ಈ ಪುಟವನ್ನು ಕೇಳಿ 🔊',
+        stopScreenAudio: 'ಆಡಿಯೋ ನಿಲ್ಲಿಸಿ ⏹️',
+        loadingAudio: 'ಲೋಡ್ ಆಗುತ್ತಿದೆ...'
+      }�ର୍ଭର)',
         irrWell: 'କୁଅ / ନଳକୂପ / ବୋରୱେଲ୍',
         irrCanal: 'କେନାଲ୍ ଜଳସେଚନ',
         borewellFailedLabel: 'ଏହି ଋତୁରେ ବୋରୱେଲ୍ ପାଣି ଶୁଖିଗଲା',

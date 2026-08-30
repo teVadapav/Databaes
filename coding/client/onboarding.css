@@ -188,6 +188,44 @@
   50% { opacity: 0.6; }
 }
 
+/* Screen Info Audio Listen Button */
+.ob-screen-tts-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  background: #ecfdf5;
+  color: #065f46;
+  border: 1.5px solid #a7f3d0;
+  border-radius: 9999px;
+  padding: 0.38rem 0.95rem;
+  font-size: 0.78rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  user-select: none;
+}
+
+.ob-screen-tts-btn:hover {
+  background: #d1fae5;
+  border-color: #34d399;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px -1px rgba(16, 185, 129, 0.2);
+}
+
+.ob-screen-tts-btn.playing {
+  background: #047857;
+  color: #ffffff;
+  border-color: #065f46;
+  animation: ob-pulse 1.4s infinite ease-in-out;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.3);
+}
+
+@keyframes ob-pulse {
+  0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+  50% { transform: scale(1.03); box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+}
+
 /* Screen 2: Farm & Farmer Form */
 .onboarding-form-body {
   padding: 1rem 1.25rem;
