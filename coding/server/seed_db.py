@@ -69,6 +69,27 @@ def init_and_seed_db():
         FOREIGN KEY (district_id) REFERENCES districts(id)
     );
 
+    CREATE TABLE sundargarh_mandis (
+        market_id TEXT PRIMARY KEY,
+        market_name TEXT NOT NULL,
+        district_id TEXT NOT NULL DEFAULT 'D_OD_SUN',
+        district_name TEXT NOT NULL DEFAULT 'Sundargarh',
+        served_blocks TEXT NOT NULL,
+        commodity TEXT NOT NULL,
+        variety TEXT,
+        min_price REAL NOT NULL,
+        max_price REAL NOT NULL,
+        modal_price REAL NOT NULL,
+        govt_msp REAL NOT NULL,
+        price_difference REAL NOT NULL,
+        is_below_msp INTEGER NOT NULL,
+        arrival_tonnes REAL NOT NULL,
+        unit TEXT NOT NULL DEFAULT '₹/Quintal',
+        reporting_date TEXT NOT NULL,
+        source TEXT NOT NULL,
+        FOREIGN KEY (district_id) REFERENCES districts(id)
+    );
+
     CREATE TABLE mandi_prices (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         district_id TEXT NOT NULL,
@@ -296,6 +317,30 @@ def init_and_seed_db():
                     sb["normal_rainfall_mm"], sb["rainfall_deviation_pct"],
                     sb["flood_hazard_risk"], sb["soil_type"], sb["mean_summer_lst_c"],
                     sb["consecutive_dry_days"], sb["ndms_alert_category"], sb.get("alert_level", "normal")
+                ))
+
+    # Seed Sundargarh Mandis
+    sundargarh_mandis_path = os.path.join(DATA_DIR, "sundargarh_mandis.json")
+    if os.path.exists(sundargarh_mandis_path):
+        with open(sundargarh_mandis_path, "r", encoding="utf-8") as f:
+            mandis_data = json.load(f)
+            for sm in mandis_data:
+                cursor.execute("""
+                INSERT INTO sundargarh_mandis (
+                    market_id, market_name, district_id, district_name, served_blocks,
+                    commodity, variety, min_price, max_price, modal_price,
+                    govt_msp, price_difference, is_below_msp, arrival_tonnes,
+                    unit, reporting_date, source
+                )
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """, (
+                    sm["market_id"], sm["market_name"], sm.get("district_id", "D_OD_SUN"),
+                    sm.get("district_name", "Sundargarh"), json.dumps(sm.get("served_blocks", [])),
+                    sm["commodity"], sm.get("variety", ""), sm["min_price"], sm["max_price"],
+                    sm["modal_price"], sm["govt_msp"], sm["price_difference"],
+                    1 if sm.get("is_below_msp") else 0, sm.get("arrival_tonnes", 0.0),
+                    sm.get("unit", "₹/Quintal"), sm.get("reporting_date", "2026-08-30"),
+                    sm.get("source", "Agmarknet / OSAMB")
                 ))
 
     conn.commit()

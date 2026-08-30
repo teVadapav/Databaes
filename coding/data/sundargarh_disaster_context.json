@@ -1,0 +1,39 @@
+{
+  "district": "Sundargarh",
+  "state": "Odisha",
+  "coordinates": {
+    "latitude": 22.12,
+    "longitude": 84.03,
+    "elevation_meters": 232
+  },
+  "river_basins": {
+    "brahmani_basin": {
+      "river_name": "Brahmani River (formed by confluence of Sankh & South Koel rivers at Vedvyas, Rourkela)",
+      "vulnerable_blocks": ["Bonaigarh", "Lahunipada", "Gurundia", "Koida", "Bisra", "Kuarmunda"],
+      "dam_link": "Rengali Reservoir upstream/downstream regulator",
+      "hazard_type": "Flash Inundation & Siltation of Paddy Delta",
+      "monitoring_agency": "Water Resources Dept & OSDMA"
+    },
+    "ib_basin": {
+      "river_name": "Ib River (Mahanadi tributary system)",
+      "vulnerable_blocks": ["Hemgir", "Lephripara", "Tangarpalli", "Sundargarh Sadar"],
+      "hazard_type": "Prolonged Dry Spells & Rapid Soil Moisture Runoff in Red & Yellow Loam",
+      "monitoring_agency": "ICAR-CRIDA & Directorate of Agriculture, Odisha"
+    }
+  },
+  "current_synoptic_situation": {
+    "monsoon_system": "Well-Marked Low Pressure Area over Northwest Bay of Bengal",
+    "imd_warning_level": "Yellow Warning (Moderate to Heavy Rain with isolated intense spells)",
+    "flood_surveillance": "Active round-the-clock district control room under DAO & Collector Sundargarh",
+    "advisory_action": "Keep field drainage paths clear in Bonaigarh sub-division; conserve runoff in Farm Ponds (Chahata) in Hemgir/Lephripara"
+  },
+  "block_hazard_matrix": {
+    "Hemgir": { "hazard": "Drought / Thermal Stress", "cdd": 24, "summer_lst": 42.0, "ndms": "Yellow (Drought Watch)", "recommendation": "Farm pond (Chahata) protective irrigation, 1% KNO3 spray" },
+    "Lephripara": { "hazard": "Drought Watch", "cdd": 21, "summer_lst": 41.5, "ndms": "Yellow (Drought Watch)", "recommendation": "Moisture conservation, mulching, short duration pulses" },
+    "Bonaigarh": { "hazard": "Riverine Flood", "rainfall_dev": "+12.3%", "ndms": "Orange (Alert)", "recommendation": "Drainage clearing, Swarna-Sub1 seed minikit" },
+    "Lahunipada": { "hazard": "Riverine Flood", "rainfall_dev": "+10.2%", "ndms": "Orange (Alert)", "recommendation": "Drainage clearing, silt barrier, pulse relay" },
+    "Koida": { "hazard": "Hilly Runoff Flood", "rainfall_dev": "+14.8%", "ndms": "Orange (Alert)", "recommendation": "Terrace check dams, excess water runoff channelization" },
+    "Rajgangpur": { "hazard": "Industrial Heat / Low Flood", "summer_lst": 41.8, "ndms": "Green (Normal)", "recommendation": "Evening micro-irrigation, oilseed intercropping" },
+    "Sundargarh Sadar": { "hazard": "Moderate", "rainfall_dev": "-3.2%", "ndms": "Green (Normal)", "recommendation": "Mandi MSP surveillance, e-NAM WDRA warehouse receipt" }
+  }
+}

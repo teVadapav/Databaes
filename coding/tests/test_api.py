@@ -164,5 +164,56 @@ class TestAPIEndpoints(unittest.TestCase):
         scheme_ids = [i["scheme_id"] for i in score_data["recommended_interventions"]]
         self.assertTrue("S_OD3" in scheme_ids or "S_OD1" in scheme_ids)
 
+    def test_12_sundargarh_live_weather_endpoint(self):
+        resp = self.client.get("/api/sundargarh/live-weather")
+        self.assertEqual(resp.status_code, 200)
+        w = resp.json()
+        self.assertIn("source", w)
+        self.assertIn("current", w)
+        self.assertIn("daily_forecast", w)
+        self.assertIn("synoptic_alert", w)
+        self.assertEqual(w["coordinates"]["district"], "Sundargarh")
+
+    def test_13_sundargarh_mandis_endpoint(self):
+        resp = self.client.get("/api/sundargarh/mandis")
+        self.assertEqual(resp.status_code, 200)
+        mandis = resp.json()
+        self.assertGreaterEqual(len(mandis), 5)
+        commodities = [m["commodity"] for m in mandis]
+        self.assertTrue(any("Paddy" in c for c in commodities))
+        self.assertTrue(any("Maize" in c for c in commodities))
+
+    def test_14_sundargarh_disaster_context_endpoint(self):
+        resp = self.client.get("/api/sundargarh/disaster-context")
+        self.assertEqual(resp.status_code, 200)
+        dc = resp.json()
+        self.assertEqual(dc["district"], "Sundargarh")
+        self.assertIn("river_basins", dc)
+        self.assertIn("brahmani_basin", dc["river_basins"])
+        self.assertIn("ib_basin", dc["river_basins"])
+
+    def test_15_sundargarh_case_scenarios_endpoint(self):
+        resp = self.client.get("/api/sundargarh/case-scenarios")
+        self.assertEqual(resp.status_code, 200)
+        sc = resp.json()
+        self.assertEqual(sc["district"], "Sundargarh")
+        cases = sc["presentation_cases"]
+        self.assertEqual(len(cases), 4)
+        case_ids = [c["case_id"] for c in cases]
+        self.assertIn("CASE_HEMGIR_DROUGHT", case_ids)
+        self.assertIn("CASE_BONAIGARH_FLOOD", case_ids)
+        self.assertIn("CASE_SADAR_MANDI_SHORTFALL", case_ids)
+        self.assertIn("CASE_LEPHRIPARA_RAINFED", case_ids)
+
+    def test_16_sundargarh_sadar_harvest_mandi_rule_r30(self):
+        # F_SUN4 in Sundargarh Sadar: Harvest stage paddy, price ₹2,150 < MSP ₹2,300 -> R-30
+        resp = self.client.get("/api/farmers/F_SUN4/advisory")
+        self.assertEqual(resp.status_code, 200)
+        adv = resp.json()
+        self.assertEqual(adv["rule_id"], "R-30")
+        self.assertEqual(adv["action_type"], "market_intervention")
+        self.assertTrue(adv["price_data"]["is_below_msp"])
+        self.assertEqual(adv["price_data"]["govt_msp"], 2300)
+
 if __name__ == "__main__":
     unittest.main()

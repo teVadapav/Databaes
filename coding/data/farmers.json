@@ -88,6 +88,35 @@
     "officer_id": "OFF_OD1"
   },
   {
+    "id": "F_SUN4",
+    "name": "Sunil Kerketta",
+    "phone": "+91-94374-99120",
+    "district_id": "D_OD_SUN",
+    "village": "Sundargarh Sadar Block",
+    "crop": "paddy",
+    "crop_stage": "harvest",
+    "language": "or",
+    "loan_due_date": "2026-11-15",
+    "loan_amount_inr": 50000,
+    "tech_literacy": "medium",
+    "device_type": "android_smartphone",
+    "network_quality": "good",
+    "landholding_hectares": 2.2,
+    "irrigation_type": "canal",
+    "borewell_failed": false,
+    "income_sources": [
+      "crop_cultivation"
+    ],
+    "has_pmfby_insurance": true,
+    "has_kcc": true,
+    "informal_debt": false,
+    "enrolled_schemes": [
+      "PM-KISAN",
+      "KALIA"
+    ],
+    "officer_id": "OFF_OD1"
+  },
+  {
     "id": "F1",
     "name": "Ramesh Patil",
     "phone": "+91-98231-10293",
