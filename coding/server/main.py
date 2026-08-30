@@ -5,7 +5,11 @@ FastAPI Backend Application
 
 import json
 import os
+import re
 import sqlite3
+import urllib.request
+import urllib.parse
+import edge_tts
 from typing import Optional, Dict, Any, List
 from fastapi import FastAPI, HTTPException, Body, Response, Header
 from fastapi.middleware.cors import CORSMiddleware
@@ -1129,36 +1133,338 @@ VOICE_MAP = {
     'or': 'hi-IN-SwaraNeural',
 }
 
+# ─── COMPREHENSIVE REGIONAL NUMBER & PHONETIC NORMALIZATION ───
+ODIA_DIGIT_MAP = {'୦': '0', '୧': '1', '୨': '2', '୩': '3', '୪': '4', '୫': '5', '୬': '6', '୭': '7', '୮': '8', '୯': '9'}
+AS_DIGIT_MAP = {'০': '0', '১': '1', '২': '2', '৩': '3', '৪': '4', '৫': '5', '৬': '6', '৭': '7', '৮': '8', '৯': '9'}
+DEVA_DIGIT_MAP = {'०': '0', '१': '1', '२': '2', '३': '3', '४': '4', '५': '5', '६': '6', '७': '7', '८': '8', '९': '9'}
+KN_DIGIT_MAP = {'೦': '0', '೧': '1', '೨': '2', '೩': '3', '೪': '4', '೫': '5', '೬': '6', '೭': '7', '೮': '8', '೯': '9'}
+
+ODIA_UNITS = ['', 'ଏକ', 'ଦୁଇ', 'ତିନି', 'ଚାରି', 'ପାଞ୍ଚ', 'ଛଅ', 'ସାତ', 'ଆଠ', 'ନଅ']
+ODIA_TEENS_TENS = {
+    10: 'ଦଶ', 11: 'ଏଗାର', 12: 'ବାର', 13: 'ତେର', 14: 'ଚଉଦ', 15: 'ପନ୍ଦର', 16: 'ଷୋହଳ', 17: 'ସତର', 18: 'ଅଠର', 19: 'ଉଣାଇଶ',
+    20: 'କୋଡ଼ିଏ', 21: 'ଏକାଇଶ', 22: 'ବାଇଶ', 23: 'ତେଇଶ', 24: 'ଚବିଶ', 25: 'ପଚିଶ', 26: 'ଛବିଶ', 27: 'ସତାଇଶ', 28: 'ଅଠାଇଶ', 29: 'ଅଣତିରିଶ',
+    30: 'ତିରିଶ', 31: 'ଏକତିରିଶ', 32: 'ବତିଶ', 33: 'ତେତିରିଶ', 34: 'ଚଉତିରିଶ', 35: 'ପଇଁତିରିଶ', 36: 'ଛତିଶ', 37: 'ସଦତିରିଶ', 38: 'ଅଠତିରିଶ', 39: 'ଅଣଚାଳିଶ',
+    40: 'ଚାଳିଶ', 41: 'ଏକଚାଳିଶ', 42: 'ବୟାଳିଶ', 43: 'ତେୟାଳିଶ', 44: 'ଚଉରାଳିଶ', 45: 'ପଞ୍ଚଚାଳିଶ', 46: 'ଛୟାଳିଶ', 47: 'ସତଚାଳିଶ', 48: 'ଅଠଚାଳିଶ', 49: 'ଅଣଚାଶ',
+    50: 'ପଚାଶ', 51: 'ଏକାବନ', 52: 'ବାଉନ', 53: 'ତେପନ', 54: 'ଚଉବନ', 55: 'ପଞ୍ଚାବନ', 56: 'ଛପନ', 57: 'ସତାବନ', 58: 'ଅଠାବନ', 59: 'ଅଣଷଠି',
+    60: 'ଷାଠିଏ', 61: 'ଏକଷଠି', 62: 'ବାଷଠି', 63: 'ତେଷଠି', 64: 'ଚଉଷଠି', 65: 'ପଞ୍ଚଷଠି', 66: 'ଛଅଷଠି', 67: 'ସତଷଠି', 68: 'ଅଠଷଠି', 69: 'ଅଣସତୁରି',
+    70: 'ସତୁରି', 71: 'ଏକସ୍ତରୀ', 72: 'ବାସ୍ତରୀ', 73: 'ତେସ୍ତରୀ', 74: 'ଚଉସ୍ତରୀ', 75: 'ପଞ୍ଚସ୍ତରୀ', 76: 'ଛଅସ୍ତରୀ', 77: 'ସତସ୍ତରୀ', 78: 'ଅଠସ୍ତରୀ', 79: 'ଅଣଅଶୀ',
+    80: 'ଅଶୀ', 81: 'ଏକାଶୀ', 82: 'ବୟାଶୀ', 83: 'ତେୟାଶୀ', 84: 'ଚଉରାଶୀ', 85: 'ପଞ୍ଚାଶୀ', 86: 'ଛୟାଶୀ', 87: 'ସତାଶୀ', 88: 'ଅଠାଶୀ', 89: 'ଅଣନବେ',
+    90: 'ନବେ', 91: 'ଏକାନବେ', 92: 'ବୟାନବେ', 93: 'ତେରାନବେ', 94: 'ଚଉରାନବେ', 95: 'ପଞ୍ଚାନବେ', 96: 'ଛୟାନବେ', 97: 'ସତାନବେ', 98: 'ଅଠାନବେ', 99: 'ଅନେଶତ'
+}
+
+AS_UNITS = ['', 'এক', 'দুই', 'তিনি', 'চাৰি', 'পাঁচ', 'ছয়', 'সাত', 'আঠ', 'ন']
+AS_TEENS_TENS = {
+    10: 'দহ', 11: 'এঘাৰ', 12: 'বাৰ', 13: 'তেৰ', 14: 'চৈধ্য', 15: 'পোন্ধৰ', 16: 'ষোল্ল', 17: 'সোতৰ', 18: 'ওঠৰ', 19: 'উনৈশ',
+    20: 'বিশ', 21: 'একৈশ', 22: 'বাইশ', 23: 'তেইশ', 24: 'চৌব্বিশ', 25: 'পঁচিশ', 26: 'ছাব্বিশ', 27: 'সাতাইশ', 28: 'আঠাইশ', 29: 'উনত্ৰিশ',
+    30: 'ত্ৰিশ', 31: 'একত্ৰিশ', 32: 'বট্ৰিশ', 33: 'তেত্ৰিশ', 34: 'চৌত্রিশ', 35: 'পঁয়ত্ৰিশ', 36: 'ছয়ত্ৰিশ', 37: 'সাঁইত্ৰিশ', 38: 'আঠত্ৰিশ', 39: 'ঊনচল্লিশ',
+    40: 'চল্লিশ', 41: 'একচল্লিশ', 42: 'বিয়াল্লিশ', 43: 'তেয়াল্লিশ', 44: 'চৌচল্লিশ', 45: 'পঁয়চল্লিশ', 46: 'ছয়চল্লিশ', 47: 'সাতচল্লিশ', 48: 'আঠচল্লিশ', 49: 'ঊনপঞ্চাশ',
+    50: 'পঞ্চাশ', 51: 'একান্ন', 52: 'বায়ান্ন', 53: 'তেপ্পান্ন', 54: 'চৌৱান্ন', 55: 'পঁচপন্ন', 56: 'ছাপ্পান্ন', 57: 'সাতান্ন', 58: 'আঠান্ন', 59: 'ঊনষাঠি',
+    60: 'ষাঠি', 61: 'একষষ্ঠি', 62: 'বাষষ্ঠি', 63: 'তেষষ্ঠি', 64: 'চৌষষ্ঠি', 65: 'পঁয়ষষ্ঠি', 66: 'ছয়ষষ্ঠি', 67: 'সাতষষ্ঠি', 68: 'আঠষষ্ঠি', 69: 'ঊনসত্তৰ',
+    70: 'সত্তৰ', 71: 'একসত্তৰ', 72: 'বাহাত্তৰ', 73: 'তেסত্তৰ', 74: 'চৌহত্তৰ', 75: 'পঁচাত্তৰ', 76: 'ছয়াত্তৰ', 77: 'সাতসত্তৰ', 78: 'আঠসত্তৰ', 79: 'ঊনআশী',
+    80: 'আশী', 81: 'একাকী', 82: 'বিৰাশী', 83: 'তেৰাশী', 84: 'চৌৰাশী', 85: 'পঁচাশী', 86: 'ছয়াশী', 87: 'সাতাশী', 88: 'আঠাশী', 89: 'ঊননব্বৈ',
+    90: 'নব্বৈ', 91: 'একানব্বৈ', 92: 'বিয়ানব্বৈ', 93: 'তেৰানব্বৈ', 94: 'চৌৰানব্বৈ', 95: 'পঁচানব্বৈ', 96: 'ছয়ানব্বৈ', 97: 'সাতানব্বৈ', 98: 'আঠানব্বৈ', 99: 'নিৰানব্বৈ'
+}
+
+MR_UNITS = ['', 'एक', 'दोन', 'तीन', 'चार', 'पाच', 'सहा', 'सात', 'आठ', 'नऊ']
+MR_TEENS_TENS = {
+    10: 'दहा', 11: 'अकरा', 12: 'बारा', 13: 'तेरा', 14: 'चौदा', 15: 'पंधरा', 16: 'सोळा', 17: 'सतरा', 18: 'अठरा', 19: 'एकोणीस',
+    20: 'वीस', 21: 'एकवीस', 22: 'बावीस', 23: 'तेवीस', 24: 'चोवीस', 25: 'पंचवीस', 26: 'सव्वीस', 27: 'सत्तावीस', 28: 'अठ्ठावीस', 29: 'एकोणतीस',
+    30: 'तीस', 31: 'एकतीस', 32: 'बत्तीस', 33: 'तेहतीस', 34: 'चौतीस', 35: 'पस्तीस', 36: 'छत्तीस', 37: 'सदतीस', 38: 'अडतीस', 39: 'एकेचाळीस',
+    40: 'चाळीस', 41: 'एक्केचाळीस', 42: 'बेचाळीस', 43: 'त्रेचाळीस', 44: 'चव्वेचाळीस', 45: 'पंचेचाळीस', 46: 'शेहेचाळीस', 47: 'सत्तेचाळीस', 48: 'अठ्ठेचाळीस', 49: 'एकोणपन्नास',
+    50: 'पन्नास', 51: 'एक्कावन्न', 52: 'बावन्न', 53: 'त्रेपन्न', 54: 'चावन्न', 55: 'पंचावन्न', 56: 'छप्पन्न', 57: 'सत्तावन्न', 58: 'अठ्ठावन्न', 59: 'एकोणसाठ',
+    60: 'साठ', 61: 'एकसष्ठ', 62: 'पासष्ठ', 63: 'त्रेसष्ठ', 64: 'चौसष्ठ', 65: 'पासष्ठ', 66: 'सहासष्ठ', 67: 'सदुसष्ठ', 68: 'अडुसष्ठ', 69: 'एकोणसत्तर',
+    70: 'सत्तर', 71: 'एकाहत्तर', 72: 'बाहत्तर', 73: 'त्र्याहत्तर', 74: 'चौऱ्याहत्तर', 75: 'पंच्याहत्तर', 76: 'शहात्तर', 77: 'सत्त्याहत्तर', 78: 'अठ्ठ्याहत्तर', 79: 'एकोणऐंशी',
+    80: 'ऐंशी', 81: 'एक्यांशी', 82: 'ब्यांशी', 83: 'त्र्यांशी', 84: 'चौऱ्यांशी', 85: 'पंच्यांशी', 86: 'श्यांशी', 87: 'सत्त्यांशी', 88: 'अठ्ठ्यांशी', 89: 'एकोणनव्वद',
+    90: 'नव्वद', 91: 'एक्याण्णव', 92: 'ब्याण्णव', 93: 'त्र्याण्णव', 94: 'चौऱ्याण्णव', 95: 'पंच्याण्णव', 96: 'शहाण्णव', 97: 'सत्त्याण्णव', 98: 'अठ्ठ्याण्णव', 99: 'नव्याण्णव'
+}
+
+HI_UNITS = ['', 'एक', 'दो', 'तीन', 'चार', 'पाँच', 'छह', 'सात', 'आठ', 'नौ']
+HI_TEENS_TENS = {
+    10: 'दस', 11: 'ग्यारह', 12: 'बारह', 13: 'तेरह', 14: 'चौदह', 15: 'पंद्रह', 16: 'सोलह', 17: 'सत्रह', 18: 'अट्ठारह', 19: 'उन्नीस',
+    20: 'बीस', 21: 'इक्कीस', 22: 'बाईस', 23: 'तेईस', 24: 'चौबीस', 25: 'पच्चीस', 26: 'छब्बीस', 27: 'सत्ताईस', 28: 'अट्ठाईस', 29: 'उनतीस',
+    30: 'तीस', 31: 'इकत्तीस', 32: 'बत्तीस', 33: 'तैंतीस', 34: 'चौंतीस', 35: 'पैंतीस', 36: 'छत्तीस', 37: 'सैंतीस', 38: 'अड़तीस', 39: 'उनतालीस',
+    40: 'चालीस', 41: 'इकतालीस', 42: 'बयालीस', 43: 'तैंतालीस', 44: 'चौवालीस', 45: 'पैंतालीस', 46: 'छियालीस', 47: 'सैंतालीस', 48: 'अड़तालीस', 49: 'उनचास',
+    50: 'पचास', 51: 'इक्यावन', 52: 'बावन', 53: 'तिरपन', 54: 'चौवन', 55: 'पचपन', 56: 'छप्पन', 57: 'सत्तावन', 58: 'अट्ठावन', 59: 'उनसठ',
+    60: 'साठ', 61: 'इकसठ', 62: 'बासठ', 63: 'तिरसठ', 64: 'चौंसठ', 65: 'पैंसठ', 66: 'छियासठ', 67: 'सरसठ', 68: 'अड़सठ', 69: 'उनहत्तर',
+    70: 'सत्तर', 71: 'इकहत्तर', 72: 'बहत्तर', 73: 'तिहत्तर', 74: 'चौहत्तर', 75: 'पचहत्तर', 76: 'छिहत्तर', 77: 'सतहत्तर', 78: 'अठहत्तर', 79: 'उन्नासी',
+    80: 'अस्सी', 81: 'इक्यासी', 82: 'बयासी', 83: 'तिरासी', 84: 'चौरासी', 85: 'पचासी', 86: 'छियासी', 87: 'सत्तासी', 88: 'अट्ठासी', 89: 'नवासी',
+    90: 'नब्बे', 91: 'इक्यानवे', 92: 'बानवे', 93: 'तिरानवे', 94: 'चौरानवे', 95: 'पंचानवे', 96: 'छियानवे', 97: 'सत्तानवे', 98: 'अट्ठानवे', 99: 'निन्यानवे'
+}
+
+KN_UNITS = ['', 'ಒಂದು', 'ಎರಡು', 'ಮೂರು', 'ನಾಲ್ಕು', 'ಐದು', 'ಆರು', 'ಏಳು', 'ಎಂಟು', 'ಒಂಬತ್ತು']
+KN_TEENS_TENS = {
+    10: 'ಹತ್ತು', 11: 'ಹನ್ನೊಂದು', 12: 'ಹನ್ನೆರಡು', 13: 'ಹದಿಮೂರು', 14: 'ಹದಿನಾಲ್ಕು', 15: 'ಹದಿನೈದು', 16: 'ಹದಿನಾರು', 17: 'ಹದಿನೇಳು', 18: 'ಹದಿನೆಂಟು', 19: 'ಹತ್ತೊಂಬತ್ತು',
+    20: 'ಇಪ್ಪತ್ತು', 30: 'ಮೂವತ್ತು', 40: 'ನಲವತ್ತು', 50: 'ಐವತ್ತು', 60: 'ಅರವತ್ತು', 70: 'ಎಪ್ಪತ್ತು', 80: 'ಎಂಬತ್ತು', 90: 'ತೊಂಬತ್ತು'
+}
+
+def num_to_odia(n: int) -> str:
+    if n == 0: return 'ଶୂନ'
+    if n < 10: return ODIA_UNITS[n]
+    if n < 100: return ODIA_TEENS_TENS.get(n, str(n))
+    if n < 1000:
+        h = n // 100; rem = n % 100
+        h_str = (ODIA_UNITS[h] + ' ଶହ') if h > 1 else 'ଏକ ଶହ'
+        return h_str + (' ' + num_to_odia(rem) if rem else '')
+    if n < 100000:
+        th = n // 1000; rem = n % 1000
+        return num_to_odia(th) + ' ହଜାର' + (' ' + num_to_odia(rem) if rem else '')
+    if n < 10000000:
+        l = n // 100000; rem = n % 100000
+        return num_to_odia(l) + ' ଲକ୍ଷ' + (' ' + num_to_odia(rem) if rem else '')
+    cr = n // 10000000; rem = n % 10000000
+    return num_to_odia(cr) + ' କୋଟି' + (' ' + num_to_odia(rem) if rem else '')
+
+def num_to_assamese(n: int) -> str:
+    if n == 0: return 'শূন্য'
+    if n < 10: return AS_UNITS[n]
+    if n < 100: return AS_TEENS_TENS.get(n, str(n))
+    if n < 1000:
+        h = n // 100; rem = n % 100
+        h_str = (AS_UNITS[h] + 'শ') if h > 1 else 'এশ'
+        return h_str + (' ' + num_to_assamese(rem) if rem else '')
+    if n < 100000:
+        th = n // 1000; rem = n % 1000
+        return num_to_assamese(th) + ' হাজাৰ' + (' ' + num_to_assamese(rem) if rem else '')
+    if n < 10000000:
+        l = n // 100000; rem = n % 100000
+        return num_to_assamese(l) + ' লাখ' + (' ' + num_to_assamese(rem) if rem else '')
+    cr = n // 10000000; rem = n % 10000000
+    return num_to_assamese(cr) + ' কোটি' + (' ' + num_to_assamese(rem) if rem else '')
+
+def num_to_marathi(n: int) -> str:
+    if n == 0: return 'शून्य'
+    if n < 10: return MR_UNITS[n]
+    if n < 100: return MR_TEENS_TENS.get(n, str(n))
+    if n < 1000:
+        h = n // 100; rem = n % 100
+        h_str = (MR_UNITS[h] + 'शे') if h > 1 else 'एकशे'
+        return h_str + (' ' + num_to_marathi(rem) if rem else '')
+    if n < 100000:
+        th = n // 1000; rem = n % 1000
+        return num_to_marathi(th) + ' हजार' + (' ' + num_to_marathi(rem) if rem else '')
+    if n < 10000000:
+        l = n // 100000; rem = n % 100000
+        return num_to_marathi(l) + ' लाख' + (' ' + num_to_marathi(rem) if rem else '')
+    cr = n // 10000000; rem = n % 10000000
+    return num_to_marathi(cr) + ' कोटी' + (' ' + num_to_marathi(rem) if rem else '')
+
+def num_to_hindi(n: int) -> str:
+    if n == 0: return 'शून्य'
+    if n < 10: return HI_UNITS[n]
+    if n < 100: return HI_TEENS_TENS.get(n, str(n))
+    if n < 1000:
+        h = n // 100; rem = n % 100
+        h_str = (HI_UNITS[h] + ' सौ') if h > 1 else 'एक सौ'
+        return h_str + (' ' + num_to_hindi(rem) if rem else '')
+    if n < 100000:
+        th = n // 1000; rem = n % 1000
+        return num_to_hindi(th) + ' हज़ार' + (' ' + num_to_hindi(rem) if rem else '')
+    if n < 10000000:
+        l = n // 100000; rem = n % 100000
+        return num_to_hindi(l) + ' लाख' + (' ' + num_to_hindi(rem) if rem else '')
+    cr = n // 10000000; rem = n % 10000000
+    return num_to_hindi(cr) + ' करोड़' + (' ' + num_to_hindi(rem) if rem else '')
+
+def num_to_kannada(n: int) -> str:
+    if n == 0: return 'ಶೂನ್ಯ'
+    if n < 10: return KN_UNITS[n]
+    if n in KN_TEENS_TENS: return KN_TEENS_TENS[n]
+    if n < 100:
+        t = (n // 10) * 10; rem = n % 10
+        return KN_TEENS_TENS.get(t, '') + ' ' + KN_UNITS[rem]
+    if n < 1000:
+        h = n // 100; rem = n % 100
+        h_str = (KN_UNITS[h] + ' ನೂರು') if h > 1 else 'ಒಂದು ನೂರು'
+        return h_str + (' ' + num_to_kannada(rem) if rem else '')
+    if n < 100000:
+        th = n // 1000; rem = n % 1000
+        return num_to_kannada(th) + ' ಸಾವಿರ' + (' ' + num_to_kannada(rem) if rem else '')
+    if n < 10000000:
+        l = n // 100000; rem = n % 100000
+        return num_to_kannada(l) + ' ಲಕ್ಷ' + (' ' + num_to_kannada(rem) if rem else '')
+    cr = n // 10000000; rem = n % 10000000
+    return num_to_kannada(cr) + ' ಕೋಟಿ' + (' ' + num_to_kannada(rem) if rem else '')
+
+def normalize_spoken_indic_text(text: str, lang: str) -> str:
+    """
+    Converts numbers, currencies, percentages, ratios, helpline numbers, and abbreviations
+    into natural, native spoken words for the specified Indian language.
+    """
+    if not text:
+        return text
+
+    effective_lang = (lang or 'hi').lower().split('-')[0]
+
+    if effective_lang == 'or':
+        for o_dig, a_dig in ODIA_DIGIT_MAP.items():
+            text = text.replace(o_dig, a_dig)
+        
+        text = re.sub(r'\bPMFBY\b', 'ପ୍ରଧାନମନ୍ତ୍ରୀ ଫସଲ ବୀମା ଯୋଜନା', text, flags=re.IGNORECASE)
+        text = re.sub(r'\bKCC\b', 'କିଷାନ କ୍ରେଡିଟ୍ କାର୍ଡ', text, flags=re.IGNORECASE)
+        text = re.sub(r'\be-NAM\b', 'ଇ-ନାମ', text, flags=re.IGNORECASE)
+        text = re.sub(r'\bWDRA\b', 'ପଞ୍ଜୀକୃତ ଗୋଦାମ', text, flags=re.IGNORECASE)
+        text = re.sub(r'\bMSP\b', 'ସର୍ବନିମ୍ନ ସହାୟକ ମୂଲ୍ୟ', text, flags=re.IGNORECASE)
+        text = re.sub(r'\bCRIDA\b', 'କ୍ରିଡା', text, flags=re.IGNORECASE)
+        text = re.sub(r'\bStep\s*(\d+)\s*of\s*(\d+)\b', r'\2 ମଧ୍ୟରୁ ପଦକ୍ଷେପ \1', text, flags=re.IGNORECASE)
+
+        def replace_phone(m):
+            raw = m.group(0).replace('-', ' ')
+            return ' '.join(num_to_odia(int(d)) for d in re.findall(r'\d', raw))
+        text = re.sub(r'\b1800[-\s]\d{3}[-\s]\d{4}\b', replace_phone, text)
+
+        def replace_ratio(m):
+            parts = m.group(0).split(':')
+            return ' '.join(num_to_odia(int(p)) for p in parts)
+        text = re.sub(r'\b\d+:\d+:\d+\b', replace_ratio, text)
+
+        def replace_curr(m):
+            val_str = m.group(1).replace(',', '')
+            return num_to_odia(int(val_str)) + ' ଟଙ୍କା'
+        text = re.sub(r'₹\s*([\d,]+)', replace_curr, text)
+        text = re.sub(r'([\d,]+)\s*(?:ଟଙ୍କା|/-|Rs\.?)', replace_curr, text)
+
+        def replace_pct(m):
+            val_str = m.group(1)
+            if '.' in val_str:
+                whole, dec = val_str.split('.')
+                return f'{num_to_odia(int(whole))} ଦଶମିକ {num_to_odia(int(dec))} ପ୍ରତିଶତ'
+            return f'{num_to_odia(int(val_str))} ପ୍ରତିଶତ'
+        text = re.sub(r'([\d.]+)\s*%', replace_pct, text)
+
+        def replace_dec(m):
+            whole, dec = m.group(1), m.group(2)
+            return f'{num_to_odia(int(whole))} ଦଶମିକ {num_to_odia(int(dec))}'
+        text = re.sub(r'\b(\d+)\.(\d+)\b', replace_dec, text)
+
+        def replace_num(m):
+            n_str = m.group(0).replace(',', '')
+            return num_to_odia(int(n_str))
+        text = re.sub(r'\b\d+\b', replace_num, text)
+
+    elif effective_lang == 'as':
+        for as_dig, a_dig in AS_DIGIT_MAP.items():
+            text = text.replace(as_dig, a_dig)
+        
+        text = re.sub(r'\bPMFBY\b', 'প্ৰধানমন্ত্ৰী শস্য বীমা যোজনা', text, flags=re.IGNORECASE)
+        text = re.sub(r'\bKCC\b', 'কিষাণ ক্ৰেডিট কাৰ্ড', text, flags=re.IGNORECASE)
+        text = re.sub(r'\be-NAM\b', 'ই-নাম', text, flags=re.IGNORECASE)
+        text = re.sub(r'\bWDRA\b', 'পঞ্জীকৃত গুদাম', text, flags=re.IGNORECASE)
+        text = re.sub(r'\bMSP\b', 'চৰকাৰী সমৰ্থন মূল্য', text, flags=re.IGNORECASE)
+        text = re.sub(r'\bCRIDA\b', 'ক্ৰিডা', text, flags=re.IGNORECASE)
+        text = re.sub(r'\bStep\s*(\d+)\s*of\s*(\d+)\b', r'\2 টাৰ ভিতৰত \1 নম্বৰ স্তৰ', text, flags=re.IGNORECASE)
+
+        def replace_phone(m):
+            raw = m.group(0).replace('-', ' ')
+            return ' '.join(num_to_assamese(int(d)) for d in re.findall(r'\d', raw))
+        text = re.sub(r'\b1800[-\s]\d{3}[-\s]\d{4}\b', replace_phone, text)
+
+        def replace_ratio(m):
+            parts = m.group(0).split(':')
+            return ' '.join(num_to_assamese(int(p)) for p in parts)
+        text = re.sub(r'\b\d+:\d+:\d+\b', replace_ratio, text)
+
+        def replace_curr(m):
+            val_str = m.group(1).replace(',', '')
+            return num_to_assamese(int(val_str)) + ' টকা'
+        text = re.sub(r'₹\s*([\d,]+)', replace_curr, text)
+        text = re.sub(r'([\d,]+)\s*(?:টকা|/-|Rs\.?)', replace_curr, text)
+
+        def replace_pct(m):
+            val_str = m.group(1)
+            if '.' in val_str:
+                whole, dec = val_str.split('.')
+                return f'{num_to_assamese(int(whole))} দশমিক {num_to_assamese(int(dec))} শতাংশ'
+            return f'{num_to_assamese(int(val_str))} শতাংশ'
+        text = re.sub(r'([\d.]+)\s*%', replace_pct, text)
+
+        def replace_dec(m):
+            whole, dec = m.group(1), m.group(2)
+            return f'{num_to_assamese(int(whole))} দশমিক {num_to_assamese(int(dec))}'
+        text = re.sub(r'\b(\d+)\.(\d+)\b', replace_dec, text)
+
+        def replace_num(m):
+            n_str = m.group(0).replace(',', '')
+            return num_to_assamese(int(n_str))
+        text = re.sub(r'\b\d+\b', replace_num, text)
+
+    elif effective_lang == 'mr':
+        for d_dig, a_dig in DEVA_DIGIT_MAP.items():
+            text = text.replace(d_dig, a_dig)
+        def replace_curr(m):
+            val_str = m.group(1).replace(',', '')
+            return num_to_marathi(int(val_str)) + ' रुपये'
+        text = re.sub(r'₹\s*([\d,]+)', replace_curr, text)
+        text = re.sub(r'([\d,]+)\s*(?:रुपये|/-|Rs\.?)', replace_curr, text)
+
+        def replace_pct(m):
+            val_str = m.group(1)
+            if '.' in val_str:
+                whole, dec = val_str.split('.')
+                return f'{num_to_marathi(int(whole))} पूर्णांक {num_to_marathi(int(dec))} टक्के'
+            return f'{num_to_marathi(int(val_str))} टक्के'
+        text = re.sub(r'([\d.]+)\s*%', replace_pct, text)
+
+    elif effective_lang == 'hi':
+        for d_dig, a_dig in DEVA_DIGIT_MAP.items():
+            text = text.replace(d_dig, a_dig)
+        def replace_curr(m):
+            val_str = m.group(1).replace(',', '')
+            return num_to_hindi(int(val_str)) + ' रुपये'
+        text = re.sub(r'₹\s*([\d,]+)', replace_curr, text)
+        text = re.sub(r'([\d,]+)\s*(?:रुपये|/-|Rs\.?)', replace_curr, text)
+
+        def replace_pct(m):
+            val_str = m.group(1)
+            if '.' in val_str:
+                whole, dec = val_str.split('.')
+                return f'{num_to_hindi(int(whole))} दशमलव {num_to_hindi(int(dec))} प्रतिशत'
+            return f'{num_to_hindi(int(val_str))} प्रतिशत'
+        text = re.sub(r'([\d.]+)\s*%', replace_pct, text)
+
+    elif effective_lang == 'kn':
+        for kn_dig, a_dig in KN_DIGIT_MAP.items():
+            text = text.replace(kn_dig, a_dig)
+        def replace_curr(m):
+            val_str = m.group(1).replace(',', '')
+            return num_to_kannada(int(val_str)) + ' ರೂಪಾಯಿ'
+        text = re.sub(r'₹\s*([\d,]+)', replace_curr, text)
+        text = re.sub(r'([\d,]+)\s*(?:ರೂಪಾಯಿ|/-|Rs\.?)', replace_curr, text)
+
+        def replace_pct(m):
+            val_str = m.group(1)
+            if '.' in val_str:
+                whole, dec = val_str.split('.')
+                return f'{num_to_kannada(int(whole))} ಬಿಂದು {num_to_kannada(int(dec))} ಪ್ರತಿಶತ'
+            return f'{num_to_kannada(int(val_str))} ಪ್ರತಿಶತ'
+        text = re.sub(r'([\d.]+)\s*%', replace_pct, text)
+
+    return text
+
+ODIA_PHONETIC_DEV = {
+    '\u0B01': '\u0901', '\u0B02': '\u0902', '\u0B03': '\u0903',
+    '\u0B05': '\u0905', '\u0B06': '\u0906', '\u0B07': '\u0907', '\u0B08': '\u0908',
+    '\u0B09': '\u0909', '\u0B0A': '\u090A', '\u0B0B': '\u090B',
+    '\u0B0F': '\u090F', '\u0B10': '\u0910', '\u0B13': '\u0913', '\u0B14': '\u0914',
+    '\u0B15': '\u0915', '\u0B16': '\u0916', '\u0B17': '\u0917', '\u0B18': '\u0918', '\u0B19': '\u0919',
+    '\u0B1A': '\u091A', '\u0B1B': '\u091B', '\u0B1C': '\u091C', '\u0B1D': '\u091D', '\u0B1E': '\u091E',
+    '\u0B1F': '\u091F', '\u0B20': '\u0920', '\u0B21': '\u0921', '\u0B22': '\u0922', '\u0B23': '\u0923',
+    '\u0B24': '\u0924', '\u0B25': '\u0925', '\u0B26': '\u0926', '\u0B27': '\u0927', '\u0B28': '\u0928',
+    '\u0B2A': '\u092A', '\u0B2B': '\u092B', '\u0B2C': '\u092C', '\u0B2D': '\u092D', '\u0B2E': '\u092E',
+    '\u0B2F': '\u092F', '\u0B30': '\u0930', '\u0B32': '\u0932', '\u0B33': '\u0933',
+    '\u0B36': '\u0936', '\u0B37': '\u0937', '\u0B38': '\u0938', '\u0B39': '\u0939',
+    '\u0B3C': '\u093C',
+    '\u0B3E': '\u093E', '\u0B3F': '\u093F', '\u0B40': '\u0940',
+    '\u0B41': '\u0941', '\u0B42': '\u0942', '\u0B43': '\u0943',
+    '\u0B47': '\u0947', '\u0B48': '\u0948', '\u0B4B': '\u094B', '\u0B4C': '\u094C',
+    '\u0B4D': '\u094D',
+    '\u0B56': '\u0948', '\u0B57': '\u094C',
+    '\u0B5C': '\u095C', '\u0B5D': '\u095D',
+    '\u0B5F': '\u092F', '\u0B71': '\u0935'
+}
+
 def odia_to_phonetic_devanagari(text: str) -> str:
     """Phonetically maps Odia Unicode characters (0x0B00-0x0B7F) to Devanagari with proper Indic phonetics"""
-    replacements = {
-        '\u0B5C': '\u095C', '\u0B5D': '\u095D', '\u0B33': '\u0933',
-        '\u0B5F': '\u092F', '\u0B71': '\u0935', '\u0B01': '\u0901',
-        '\u0B02': '\u0902', '\u0B03': '\u0903', '\u0B05': '\u0905',
-        '\u0B06': '\u0906', '\u0B07': '\u0907', '\u0B08': '\u0908',
-        '\u0B09': '\u0909', '\u0B0A': '\u090A', '\u0B0B': '\u090B',
-        '\u0B0F': '\u090F', '\u0B10': '\u0910', '\u0B13': '\u0913',
-        '\u0B14': '\u0914', '\u0B15': '\u0915', '\u0B16': '\u0916',
-        '\u0B17': '\u0917', '\u0B18': '\u0918', '\u0B19': '\u0919',
-        '\u0B1A': '\u091A', '\u0B1B': '\u091B', '\u0B1C': '\u091C',
-        '\u0B1D': '\u091D', '\u0B1E': '\u091E', '\u0B1F': '\u091F',
-        '\u0B20': '\u0920', '\u0B21': '\u0921', '\u0B22': '\u0922',
-        '\u0B23': '\u0923', '\u0B24': '\u0924', '\u0B25': '\u0925',
-        '\u0B26': '\u0926', '\u0B27': '\u0927', '\u0B28': '\u0928',
-        '\u0B2A': '\u092A', '\u0B2B': '\u092B', '\u0B2C': '\u092C',
-        '\u0B2D': '\u092D', '\u0B2E': '\u092E', '\u0B2F': '\u092F',
-        '\u0B30': '\u0930', '\u0B32': '\u0932', '\u0B36': '\u0936',
-        '\u0B37': '\u0937', '\u0B38': '\u0938', '\u0B39': '\u0939',
-        '\u0B3E': '\u093E', '\u0B3F': '\u093F', '\u0B40': '\u0940',
-        '\u0B41': '\u0941', '\u0B42': '\u0942', '\u0B43': '\u0943',
-        '\u0B47': '\u0947', '\u0B48': '\u0948', '\u0B4B': '\u094B',
-        '\u0B4C': '\u094C', '\u0B4D': '\u094D', '\u0B56': '\u0956',
-        '\u0B57': '\u0957',
-    }
-    result = []
-    for ch in text:
-        result.append(replacements.get(ch, ch))
-    return ''.join(result)
+    return ''.join(ODIA_PHONETIC_DEV.get(ch, ch) for ch in text)
 
 def assamese_to_bengali_phonetic(text: str) -> str:
     """Maps Assamese unique characters to Bengali phonetic equivalents for clear speech synthesis"""
@@ -1176,18 +1482,24 @@ async def synthesize_speech(text: str, lang: str) -> bytes:
 
     effective_lang = (lang or 'hi').lower().split('-')[0]
     
-    # Preprocess text for natural regional phonetics
-    if effective_lang == 'or':
-        processed_text = odia_to_phonetic_devanagari(text)
-    elif effective_lang == 'as':
-        processed_text = assamese_to_bengali_phonetic(text)
-    else:
-        processed_text = text
+    # 1. Normalize numbers, percentages, currencies, dates, and terms for authentic spoken form
+    normalized_text = normalize_spoken_indic_text(text, effective_lang)
 
-    # 1. Primary engine: Microsoft Edge Neural TTS (Natural, expressive Indian voices)
+    # 2. Preprocess text for natural regional phonetics
+    if effective_lang == 'or':
+        processed_text = odia_to_phonetic_devanagari(normalized_text)
+        speech_rate = '-4%'
+    elif effective_lang == 'as':
+        processed_text = assamese_to_bengali_phonetic(normalized_text)
+        speech_rate = '-3%'
+    else:
+        processed_text = normalized_text
+        speech_rate = '-2%'
+
+    # 3. Primary engine: Microsoft Edge Neural TTS (Natural, expressive Indian voices)
     try:
         voice = VOICE_MAP.get(effective_lang, 'hi-IN-SwaraNeural')
-        comm = edge_tts.Communicate(processed_text, voice, rate='-3%')
+        comm = edge_tts.Communicate(processed_text, voice, rate=speech_rate, pitch='+0Hz')
         audio_data = b''
         async for chunk in comm.stream():
             if chunk['type'] == 'audio':
@@ -1200,10 +1512,10 @@ async def synthesize_speech(text: str, lang: str) -> bytes:
     except Exception as e:
         print(f"Edge TTS synthesis error ({effective_lang}): {e}, falling back to secondary engine")
 
-    # 2. Secondary fallback engine: Google TTS
+    # 4. Secondary fallback engine: Google TTS with normalized regional text
     try:
         target_tl = 'hi' if effective_lang == 'or' else 'bn' if effective_lang == 'as' else effective_lang
-        parts = re.split(r'([.!?,\u0964\n]+)', processed_text)
+        parts = re.split(r'([.!?,।\n]+)', processed_text)
         chunks = []
         current_chunk = ""
         for part in parts:
