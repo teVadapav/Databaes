@@ -122,80 +122,67 @@ body.script-devanagari {
   font-family: 'Noto Serif Devanagari', 'Noto Sans Devanagari', 'Georgia', serif;
 }
 
-/* ── Font Size Scaling (Scoped to Farmer App & Onboarding) ── */
+/* ── Elegant & Adaptive Font Size Scaling (Scoped to Farmer App & Onboarding) ── */
 #view-farmer.font-size-medium,
 .onboarding-card-wrapper.font-size-medium {
-  --app-scale-factor: 1;
+  --scale-font: 1;
 }
 
 #view-farmer.font-size-large,
 .onboarding-card-wrapper.font-size-large {
-  --app-scale-factor: 1.15;
+  --scale-font: 1.1;
 }
 
 #view-farmer.font-size-xlarge,
 .onboarding-card-wrapper.font-size-xlarge {
-  --app-scale-factor: 1.3;
+  --scale-font: 1.2;
 }
 
-/* Scaled Typography Rules for Large Tier */
-#view-farmer.font-size-large .text-xs,
-.onboarding-card-wrapper.font-size-large .text-xs {
-  font-size: 0.85rem !important;
-  line-height: 1.35 !important;
-}
-#view-farmer.font-size-large .text-sm,
-.onboarding-card-wrapper.font-size-large .text-sm {
-  font-size: 0.98rem !important;
-  line-height: 1.4 !important;
-}
-#view-farmer.font-size-large .text-base,
-.onboarding-card-wrapper.font-size-large .text-base {
-  font-size: 1.15rem !important;
-  line-height: 1.45 !important;
-}
-#view-farmer.font-size-large .text-lg,
-.onboarding-card-wrapper.font-size-large .text-lg {
-  font-size: 1.28rem !important;
-  line-height: 1.45 !important;
-}
-#view-farmer.font-size-large .text-xl,
-.onboarding-card-wrapper.font-size-large .text-xl {
-  font-size: 1.42rem !important;
-}
-#view-farmer.font-size-large .text-2xl,
-.onboarding-card-wrapper.font-size-large .text-2xl {
-  font-size: 1.7rem !important;
+/* Adaptive Content Scaling for Large */
+#view-farmer.font-size-large .farmer-tab-pane,
+#view-farmer.font-size-large .advisory-content,
+#view-farmer.font-size-large p,
+.onboarding-card-wrapper.font-size-large p {
+  font-size: 1.05rem;
+  line-height: 1.5;
 }
 
-/* Scaled Typography Rules for Extra Large Tier */
-#view-farmer.font-size-xlarge .text-xs,
-.onboarding-card-wrapper.font-size-xlarge .text-xs {
-  font-size: 0.96rem !important;
-  line-height: 1.4 !important;
+#view-farmer.font-size-large h1,
+#view-farmer.font-size-large h2,
+#view-farmer.font-size-large h3,
+.onboarding-card-wrapper.font-size-large h2,
+.onboarding-card-wrapper.font-size-large h3 {
+  font-size: 1.15em;
+  line-height: 1.35;
 }
-#view-farmer.font-size-xlarge .text-sm,
-.onboarding-card-wrapper.font-size-xlarge .text-sm {
-  font-size: 1.1rem !important;
-  line-height: 1.45 !important;
+
+/* Adaptive Content Scaling for Extra Large */
+#view-farmer.font-size-xlarge .farmer-tab-pane,
+#view-farmer.font-size-xlarge .advisory-content,
+#view-farmer.font-size-xlarge p,
+.onboarding-card-wrapper.font-size-xlarge p {
+  font-size: 1.18rem;
+  line-height: 1.55;
 }
-#view-farmer.font-size-xlarge .text-base,
-.onboarding-card-wrapper.font-size-xlarge .text-base {
-  font-size: 1.28rem !important;
-  line-height: 1.5 !important;
+
+#view-farmer.font-size-xlarge h1,
+#view-farmer.font-size-xlarge h2,
+#view-farmer.font-size-xlarge h3,
+.onboarding-card-wrapper.font-size-xlarge h2,
+.onboarding-card-wrapper.font-size-xlarge h3 {
+  font-size: 1.25em;
+  line-height: 1.35;
 }
-#view-farmer.font-size-xlarge .text-lg,
-.onboarding-card-wrapper.font-size-xlarge .text-lg {
-  font-size: 1.44rem !important;
-  line-height: 1.5 !important;
+
+/* Ensure UI buttons, inputs and badges always maintain clean flex alignment */
+#view-farmer button, 
+#view-farmer select, 
+.onboarding-card-wrapper button {
+  min-height: 34px;
 }
-#view-farmer.font-size-xlarge .text-xl,
-.onboarding-card-wrapper.font-size-xlarge .text-xl {
-  font-size: 1.6rem !important;
-}
-#view-farmer.font-size-xlarge .text-2xl,
-.onboarding-card-wrapper.font-size-xlarge .text-2xl {
-  font-size: 1.95rem !important;
+
+.farmer-btn {
+  min-height: 85px;
 }
 
 /* ── Mobile Phone Mockup Device for Desktop ── */
