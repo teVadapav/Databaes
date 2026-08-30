@@ -1441,6 +1441,13 @@ async function renderFarmerProfileCard() {
   const unitMap = { en: 'Hectares', hi: 'हेक्टेयर', mr: 'हेक्टर', or: 'ହେକ୍ଟର', as: 'হেক্টৰ', kn: 'ಹೆಕ್ಟೇರ್' };
   const loanDueMap = { en: 'Loan Due', hi: 'ऋण देय तिथि', mr: 'कर्ज मुदत', or: 'ଋଣ ଶେଷ ତାରିଖ', as: 'ঋণ পৰিশোধৰ তাৰিখ', kn: 'ಸಾಲ ಮರುಪಾವತಿ ದಿನಾಂಕ' };
   const vegLabelMap = { en: 'Vegetation:', hi: 'वनस्पति:', mr: 'वनस्पती:', or: 'ଉଦ୍ଭିଦ:', as: 'উদ্ভিদ:', kn: 'ಸಸ್ಯವರ್ಗ:' };
+  const irrigationMap = {
+    rainfed: { en: 'Rainfed', hi: 'बारानी (वर्षा आधारित)', mr: 'कोरडवाहू (पावसावर)', or: 'ବର୍ଷାଧାରିତ', as: 'বৰষুণ-নিৰ্ভৰশীল', kn: 'ಮಳೆಯಾಶ್ರಿತ' },
+    protective_well: { en: 'Borewell / Well', hi: 'बोरवेल / कुआं', mr: 'बोअरवेल / विहीर', or: 'ବୋରୱେଲ୍ / କୁଅ', as: 'নলকূপ / কুঁৱা', kn: 'ಬೋರ್‌ವೆಲ್ / ಭಾವಿ' },
+    borewell: { en: 'Borewell / Well', hi: 'बोरवेल / कुआं', mr: 'बोअरवेल / विहीर', or: 'ବୋରୱେଲ୍ / କୁଅ', as: 'নলকূপ / কুঁৱা', kn: 'ಬೋರ್‌ವೆಲ್ / ಭಾವಿ' },
+    canal: { en: 'Canal', hi: 'नहर', mr: 'कालवा', or: 'କେନାଲ୍', as: 'খালৰ পানী', kn: 'ಕಾಲುವೆ' },
+    drip: { en: 'Drip', hi: 'ड्रिप', mr: 'ठिबक', or: 'ବୁନ୍ଦା', as: 'টোপাল', kn: 'ಹನಿ ನೀರಾವರಿ' }
+  };
 
   const fpName = document.getElementById('fp-name');
   if (fpName) fpName.textContent = f.name;
@@ -1457,6 +1464,11 @@ async function renderFarmerProfileCard() {
 
   const fpLandholding = document.getElementById('fp-landholding');
   if (fpLandholding) fpLandholding.textContent = `📐 ${f.landholding_hectares || f.landholding_ha || '1.0'} ${unitMap[lang] || 'Hectares'}`;
+
+  const irrKey = (f.irrigation_type || f.irrigation || 'rainfed').toLowerCase().trim();
+  const localizedIrr = irrigationMap[irrKey]?.[lang] || irrigationMap[irrKey]?.en || f.irrigation_type || 'Rainfed';
+  const fpIrrigation = document.getElementById('fp-irrigation');
+  if (fpIrrigation) fpIrrigation.textContent = `💧 ${localizedIrr}`;
 
   // 2) Date formatted strictly as DD-MM-YYYY
   const formattedLoanDate = formatDateToDDMMYYYY(f.loan_due_date || '2026-11-15');

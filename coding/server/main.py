@@ -298,6 +298,7 @@ def get_authenticated_farmer_profile(
             "recommended_channel": channel,
             "default_ui_mode": ui_mode,
             "enrolled_schemes": farmer.get("enrolled_schemes", []),
+            "irrigation_type": farmer.get("irrigation_type", "rainfed"),
             "loan_due_date": farmer.get("loan_due_date", ""),
             "loan_amount_inr": farmer.get("loan_amount_inr", 0)
         },
