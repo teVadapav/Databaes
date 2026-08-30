@@ -19,7 +19,6 @@ const AudioTTSController = {
   isPlaying: false,
   isLoading: false,
   currentLanguage: null,
-  activeStep: null,
   debounceTimer: null,
   concurrencyLock: false,
 
@@ -48,7 +47,6 @@ const AudioTTSController = {
     this.isPlaying = false;
     this.isLoading = false;
     this.currentLanguage = null;
-    this.activeStep = null;
     this.concurrencyLock = false;
     this.updateUI();
   },
@@ -109,13 +107,12 @@ const AudioTTSController = {
   },
 
   updateUI() {
-    // 1. Update Screen 1 language card preview pills
     document.querySelectorAll('.lang-select-card').forEach(card => {
       const lang = card.id.replace('lang-card-', '');
       const pill = card.querySelector('.lang-voice-pill');
       if (!pill) return;
 
-      if (this.currentLanguage === lang && !this.activeStep) {
+      if (this.currentLanguage === lang) {
         if (this.isLoading) {
           pill.innerHTML = `<span>⏳</span><span>Loading...</span>`;
           pill.className = 'lang-voice-pill loading';
@@ -132,23 +129,6 @@ const AudioTTSController = {
         card.classList.add('locked');
       } else {
         card.classList.remove('locked');
-      }
-    });
-
-    // 2. Update Screen 2, 3, 4 Info Listen Buttons
-    [2, 3, 4].forEach(step => {
-      const btn = document.getElementById(`ob-step-tts-btn-${step}`);
-      if (!btn) return;
-      const lang = OnboardingState.selectedLanguage || 'en';
-      if (this.isPlaying && this.activeStep === step) {
-        btn.classList.add('playing');
-        btn.innerHTML = `<span class="tts-icon">⏹️</span><span class="tts-label">${Onboarding.t('stopScreenAudio', lang)}</span>`;
-      } else if (this.isLoading && this.activeStep === step) {
-        btn.classList.remove('playing');
-        btn.innerHTML = `<span class="tts-icon">⏳</span><span class="tts-label">${Onboarding.t('loadingAudio', lang)}</span>`;
-      } else {
-        btn.classList.remove('playing');
-        btn.innerHTML = `<span class="tts-icon">🔊</span><span class="tts-label">${Onboarding.t('listenScreenInfo', lang)}</span>`;
       }
     });
   }
@@ -315,10 +295,20 @@ const Onboarding = {
       window.switchGlobalLanguage(initialLang);
     }
 
-    console.log('🚀 Showing mandatory pre-dashboard onboarding flow...');
+    // Always create/render onboarding modal in DOM
     this.renderOnboardingUI(false);
-    this.showModal();
-    this.goToStep(1);
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const forceSetup = urlParams.get('setup') === 'true' || urlParams.get('onboarding') === 'true';
+
+    if (!OnboardingState.isComplete() || forceSetup) {
+      console.log('🚀 Showing mandatory pre-dashboard onboarding flow...');
+      this.showModal();
+      this.goToStep(1);
+    } else {
+      console.log('✅ Active session detected. User:', AuthService.getUser()?.name);
+      this.hideModal();
+    }
   },
 
   openSetupFlow() {
@@ -372,13 +362,37 @@ const Onboarding = {
         step4Title: 'Crop Growth Stage & Confirmation',
         step4Sub: 'Select the current development stage of your crop for accurate ICAR-CRIDA advisories',
         loginTitle: 'Farmer Sign-In',
-        loginSub: 'Enter registered mobile number or Farmer ID (e        btnFinish: 'Go to Farmer Dashboard 🌾',
+        loginSub: 'Enter registered mobile number or Farmer ID (e.g. F1, F2)',
+        fullName: 'Farmer Full Name',
+        mobileNumber: 'Mobile Phone Number',
+        mobilePlaceholder: '10-digit mobile number',
+        stateLabel: 'State',
+        districtLabel: 'District / Taluka',
+        landAreaLabel: 'Total Land Area',
+        soilTypeLabel: 'Soil Type',
+        irrigationLabel: 'Primary Irrigation Type',
+        irrRainfed: 'Rainfed (100% Monsoon Dependent)',
+        irrWell: 'Protective Well / Borewell',
+        irrCanal: 'Canal Assured Irrigation',
+        borewellFailedLabel: 'Borewell / Well Yield Failed this Season',
+        safetyNetsLabel: 'Financial Safety Nets & Loans',
+        pmfbyLabel: 'PMFBY Crop Insurance Enrolled',
+        kccLabel: 'Kisan Credit Card (KCC) Active',
+        informalDebtLabel: 'High-Interest Informal Private Debt (>24% p.a.)',
+        loanDueDateLabel: 'Next Bank / KCC Loan Due Date',
+        loanAmountLabel: 'Outstanding Loan Amount (₹)',
+        deviceTypeLabel: 'Primary Phone / Device Type',
+        smartphone: '📱 Android Smartphone (4G/5G)',
+        featurephone: '📟 Basic Feature Phone (2G / Voice & SMS Only)',
+        btnSaveContinue: 'Save & Continue →',
+        btnUpdateProfile: 'Update Profile ✓',
+        btnBack: '← Back',
+        btnNext: 'Next Step →',
+        btnNextStage: 'Next Step: Crop Stage →',
+        btnFinish: 'Go to Farmer Dashboard 🌾',
         btnLogin: 'Log In & Load Profile →',
         switchToLogin: 'Already registered? Login with Phone / ID',
-        switchToRegister: 'New Farmer? Register New Profile',
-        listenScreenInfo: 'Listen to this Screen 🔊',
-        stopScreenAudio: 'Stop Audio ⏹️',
-        loadingAudio: 'Loading Audio...'
+        switchToRegister: 'New Farmer? Register New Profile'
       },
       hi: {
         step1Title: 'अपनी पसंदीदा भाषा चुनें',
@@ -420,10 +434,7 @@ const Onboarding = {
         btnFinish: 'किसान डैशबोर्ड खोलें 🌾',
         btnLogin: 'लॉगिन करें →',
         switchToLogin: 'पहले से पंजीकृत हैं? फोन / आईडी से लॉगिन करें',
-        switchToRegister: 'नए किसान? नया प्रोफ़ाइल बनाएं',
-        listenScreenInfo: 'यह पृष्ठ सुनें 🔊',
-        stopScreenAudio: 'ऑडियो रोकें ⏹️',
-        loadingAudio: 'लोड हो रहा है...'
+        switchToRegister: 'नए किसान? नया प्रोफ़ाइल बनाएं'
       },
       mr: {
         step1Title: 'आपली पसंतीची भाषा निवडा',
@@ -465,10 +476,7 @@ const Onboarding = {
         btnFinish: 'शेतकरी डॅशबोर्ड सुरू करा 🌾',
         btnLogin: 'लॉगिन करा →',
         switchToLogin: 'आधीच नोंदणीकृत आहात? फोन / आयडीने लॉगिन करा',
-        switchToRegister: 'नवीन शेतकरी? नवीन नोंदणी करा',
-        listenScreenInfo: 'ही माहिती ऐका 🔊',
-        stopScreenAudio: 'ऑडिओ थांबवा ⏹️',
-        loadingAudio: 'लोड होत आहे...'
+        switchToRegister: 'नवीन शेतकरी? नवीन नोंदणी करा'
       },
       or: {
         step1Title: 'ଆପଣଙ୍କ ପସନ୍ଦର ଭାଷା ବାଛନ୍ତୁ',
@@ -490,121 +498,6 @@ const Onboarding = {
         soilTypeLabel: 'ମାଟିର ପ୍ରକାର',
         irrigationLabel: 'ମୁଖ୍ୟ ଜଳସେଚନ ଉତ୍ସ',
         irrRainfed: 'ବର୍ଷାଧାରିତ (୧୦୦% ବର୍ଷା ଉପରେ ନିର୍ଭର)',
-        irrWell: 'କୁଅ / ନଳକୂପ / ବୋରୱେଲ୍',
-        irrCanal: 'କେନାଲ୍ ଜଳସେଚନ',
-        borewellFailedLabel: 'ଏହି ଋତୁରେ ବୋରୱେଲ୍ ପାଣି ଶୁଖିଗଲା',
-        safetyNetsLabel: 'ଆର୍ଥିକ ସୁରକ୍ଷା ଓ ଋଣ',
-        pmfbyLabel: 'PMFBY ଫସଲ ବୀମା ଭୁକ୍ତ',
-        kccLabel: 'କିଷାନ କ୍ରେଡିଟ୍ କାର୍ଡ (KCC) ସକ୍ରିୟ',
-        informalDebtLabel: 'ମହାଜନୀ ଋଣ (>୨୪% ସୁଧ)',
-        loanDueDateLabel: 'ପରବର୍ତ୍ତୀ ବ୍ୟାଙ୍କ ଋଣ ଶେଷ ତାରିଖ',
-        loanAmountLabel: 'ମୋଟ ବାକି ଋଣ ରାଶି (₹)',
-        deviceTypeLabel: 'ବ୍ୟବହୃତ ଫୋନ୍ ପ୍ରକାର',
-        smartphone: '📱 ଆଣ୍ଡ୍ରଏଡ୍ ସ୍ମାର୍ଟଫୋନ୍ (4G/5G)',
-        featurephone: '📟 ସାଧାରଣ ବଟନ୍ ଫୋନ୍ (2G / କେବଳ କଲ୍ ଓ SMS)',
-        btnSaveContinue: 'ସଂରକ୍ଷଣ କରନ୍ତୁ ଏବଂ ଆଗକୁ ଯାଆନ୍ତୁ →',
-        btnUpdateProfile: 'ପ୍ରୋଫାଇଲ୍ ଅପଡେଟ୍ କରନ୍ତୁ ✓',
-        btnBack: '← ପଛକୁ',
-        btnNext: 'ପରବର୍ତ୍ତୀ ପଦକ୍ଷେପ →',
-        btnNextStage: 'ଫସଲ ପର୍ଯ୍ୟାୟ ବାଛନ୍ତୁ →',
-        btnFinish: 'କୃଷକ ଡ୍ୟାସବୋର୍ଡ୍ ଖୋଲନ୍ତୁ 🌾',
-        btnLogin: 'ଲଗଇନ୍ କରନ୍ତୁ →',
-        switchToLogin: 'ପୂର୍ବରୁ ପଞ୍ଜୀକୃତ କି? ଲଗଇନ୍ କରନ୍ତୁ',
-        switchToRegister: 'ନୂତନ କୃଷକ? ନୂଆ ପ୍ରୋଫାଇଲ୍ ତିଆରି କରନ୍ତୁ',
-        listenScreenInfo: 'ଏହି ସୂଚନା ଶୁଣନ୍ତୁ 🔊',
-        stopScreenAudio: 'ଅଡିଓ ବନ୍ଦ କରନ୍ତୁ ⏹️',
-        loadingAudio: 'ଅଡିଓ ଲୋଡ୍ ହେଉଛି...'
-      },
-      as: {
-        step1Title: 'আপোনাৰ পছন্দৰ ভাষা বাছক',
-        step1Sub: 'ভইচ দিহা আৰু বাৰ্তাৰ বাবে নিজৰ ভাষা নিৰ্বাচন কৰক',
-        step2Title: 'কৃষক প্ৰোফাইল আৰু কৃষিভূমিৰ বিৱৰণ',
-        step2Sub: 'বতৰ আৰু শস্যৰ নিৰ্দেশনা নিজৰ মতে নিৰ্ধাৰণ কৰক',
-        step3Title: 'প্ৰধান শস্য নিৰ্বাচন কৰক',
-        step3Sub: 'আপোনাৰ পথাৰত খেতি কৰা শস্য নিৰ্বাচন কৰক',
-        step4Title: 'শস্যৰ বৃদ্ধি পৰ্যায় আৰু নিশ্চিতকৰণ',
-        step4Sub: 'সঠিক পৰামৰ্শৰ বাবে শস্যৰ वर्तमान বৃদ্ধি পৰ্যায় বাছক',
-        loginTitle: 'কৃষক লগইন',
-        loginSub: 'পঞ্জীভুক্ত মবাইল নম্বৰ বা কৃষক আইডি (যেনে F1, F2) দিয়ক',
-        fullName: 'কৃষকৰ সম্পূৰ্ণ নাম',
-        mobileNumber: 'মবাইল নম্বৰ',
-        mobilePlaceholder: '১০ টা সংখ্যাৰ মবাইল নম্বৰ',
-        stateLabel: 'ৰাজ্য',
-        districtLabel: 'জিলা / মহকুমা',
-        landAreaLabel: 'মুঠ কৃষিভূমিৰ পৰিমাণ',
-        soilTypeLabel: 'মাটিৰ প্ৰকাৰ',
-        irrigationLabel: 'প্ৰধান জলসিঞ্চন',
-        irrRainfed: 'বৰষুণ-নিৰ্ভৰশীল (১০০% বৰষুণৰ ওপৰত)',
-        irrWell: 'কুঁৱা / নলকূপ',
-        irrCanal: 'খালৰ পানী যোগান',
-        borewellFailedLabel: 'এই বতৰত কুঁৱাৰ পানী শুকাই গৈছে',
-        safetyNetsLabel: 'আৰ্থিক সুৰক্ষা আৰু ঋণ',
-        pmfbyLabel: 'PMFBY শস্য বীমা অন্তৰ্ভুক্ত',
-        kccLabel: 'কিষাণ ক্ৰেডিট কাৰ্ড (KCC) সক্ৰিয়',
-        informalDebtLabel: 'মহাজনৰ উচ্চ সুতৰ ঋণ (>২৪%)',
-        loanDueDateLabel: 'বেংক ঋণ পৰিশোধৰ তাৰিখ',
-        loanAmountLabel: 'মুঠ ঋণৰ পৰিমাণ (₹)',
-        deviceTypeLabel: 'ব্যৱহৃত ফোনৰ প্ৰকাৰ',
-        smartphone: '📱 এণ্ড্ৰইড স্মাৰ্টফোন (4G/5G)',
-        featurephone: '📟 সাধাৰণ বুটামৰ ফোন (2G / কেৱল ভইচ আৰু SMS)',
-        btnSaveContinue: 'সংৰক্ষণ কৰক আৰু আগবাঢ়ক →',
-        btnUpdateProfile: 'প্ৰোফাইল আপডেট কৰক ✓',
-        btnBack: '← উভতি যাওক',
-        btnNext: 'পৰৱৰ্তী স্তৰ →',
-        btnNextStage: 'বৃদ্ধি পৰ্যায় বাছক →',
-        btnFinish: 'কৃষক ডেশ্বব’ৰ্ড খোলক 🌾',
-        btnLogin: 'লগইন কৰক →',
-        switchToLogin: 'পূৰ্বতে পঞ্জীয়ন কৰিছে নেকি? লগইন কৰক',
-        switchToRegister: 'নতুন কৃষক? নতুন পঞ্জীয়ন কৰক',
-        listenScreenInfo: 'এই পৃষ্ঠাৰ তথ্য শুনক 🔊',
-        stopScreenAudio: 'অডিঅ\' বন্ধ কৰক ⏹️',
-        loadingAudio: 'অডিঅ\' লোড হৈ আছে...'
-      },
-      kn: {
-        step1Title: 'ನಿಮ್ಮ ಆದ್ಯತೆಯ ಭಾಷೆಯನ್ನು ಆಯ್ಕೆಮಾಡಿ',
-        step1Sub: 'ಧ್ವನಿ ಸಲಹೆ ಮತ್ತು ಪಠ್ಯಕ್ಕಾಗಿ ನಿಮ್ಮ ಭಾಷೆಯನ್ನು ಆಯ್ಕೆಮಾಡಿ',
-        step2Title: 'ರೈತರ ವಿವರ ಮತ್ತು ಜಮೀನಿನ ಮಾಹಿತಿ',
-        step2Sub: 'ಹವಾಮಾನ ಮತ್ತು ಬೆಳೆ ರಕ್ಷಣೆಯನ್ನು ಕಸ್ಟಮೈಸ್ ಮಾಡಿ',
-        step3Title: 'ಮುಖ್ಯ ಬೆಳೆಗಳನ್ನು ಆಯ್ಕೆಮಾಡಿ',
-        step3Sub: 'ನಿಮ್ಮ ಜಮೀನಿನಲ್ಲಿ ಬೆಳೆಯಲಾಗುವ ಬೆಳೆಗಳನ್ನು ಆಯ್ಕೆಮಾಡಿ',
-        step4Title: 'ಬೆಳೆ ಬೆಳವಣಿಗೆಯ ಹಂತ ಮತ್ತು ದೃಢೀಕರಣ',
-        step4Sub: 'ನಿಖರವಾದ ICAR-CRIDA ಸಲಹೆಗಾಗಿ ಪ್ರಸ್ತುತ ಬೆಳವಣಿಗೆ ಹಂತವನ್ನು ಆರಿಸಿ',
-        loginTitle: 'ರೈತರ ಲಾಗಿನ್',
-        loginSub: 'ನೋಂದಾಯಿತ ಮೊಬೈಲ್ ಸಂಖ್ಯೆ ಅಥವಾ ರೈತರ ಐಡಿ (ಉದಾ: F1, F2) ನಮೂದಿಸಿ',
-        fullName: 'ರೈತರ ಪೂರ್ಣ ಹೆಸರು',
-        mobileNumber: 'ಮೊಬೈಲ್ ಸಂಖ್ಯೆ',
-        mobilePlaceholder: '೧೦ ಅಂಕಿಗಳ ಮೊಬೈಲ್ ಸಂಖ್ಯೆ',
-        stateLabel: 'ರಾಜ್ಯ',
-        districtLabel: 'ಜಿಲ್ಲೆ / ತಾಲೂಕು',
-        landAreaLabel: 'ಒಟ್ಟು ಜಮೀನಿನ ವಿಸ್ತೀರ್ಣ',
-        soilTypeLabel: 'ಮಣ್ಣಿನ ವಿಧ',
-        irrigationLabel: 'ಪ್ರಮುಖ ನೀರಾವರಿ ವಿಧಾನ',
-        irrRainfed: 'ಮಳೆಯಾಶ್ರಿತ (100% ಮಳೆ ಆಧಾರಿತ)',
-        irrWell: 'ಭಾವಿ / ಬೋರ್‌ವೆಲ್ ನೀರಾವರಿ',
-        irrCanal: 'ಕಾಲುವೆ ನೀರಾವರಿ',
-        borewellFailedLabel: 'ಈ ಋತುವಿನಲ್ಲಿ ಬೋರ್‌ವೆಲ್ ಬತ್ತಿಹೋಗಿದೆ',
-        safetyNetsLabel: 'ಆರ್ಥಿಕ ಭದ್ರತೆ ಮತ್ತು ಸಾಲ',
-        pmfbyLabel: 'PMFBY ಬೆಳೆ ವಿಮೆ ಸಕ್ರಿಯವಾಗಿದೆ',
-        kccLabel: 'ಕಿಸಾನ್ ಕ್ರೆಡಿಟ್ ಕಾರ್ಡ್ (KCC) ಚಾಲ್ತಿಯಲ್ಲಿದೆ',
-        informalDebtLabel: 'ಹೆಚ್ಚಿನ ಬಡ್ಡಿಯ ಖಾಸಗಿ ಸಾಲ (>24%)',
-        loanDueDateLabel: 'ಮುಂದಿನ ಬ್ಯಾಂಕ್ ಸಾಲ ಮರುಪಾವತಿ ದಿನಾಂಕ',
-        loanAmountLabel: 'ಒಟ್ಟು ಬಾಕಿ ಸಾಲದ ಮೊತ್ತ (₹)',
-        deviceTypeLabel: 'ಬಳಸುವ ಫೋನ್ ಪ್ರಕಾರ',
-        smartphone: '📱 ಆಂಡ್ರಾಯ್ಡ್ ಸ್ಮಾರ್ಟ್‌ಫೋನ್ (4G/5G)',
-        featurephone: '📟 ಸಾಮಾನ್ಯ ಕೀಪ್ಯಾಡ್ ಫೋನ್ (2G / ಕರೆ ಮತ್ತು SMS ಮಾತ್ರ)',
-        btnSaveContinue: 'ಉಳಿಸಿ ಮತ್ತು ಮುಂದುವರಿಯಿರಿ →',
-        btnUpdateProfile: 'ವಿವರ ನವೀಕರಿಸಿ ✓',
-        btnBack: '← ಹಿಂದಕ್ಕೆ',
-        btnNext: 'ಮುಂದಿನ ಹಂತ →',
-        btnNextStage: 'ಬೆಳವಣಿಗೆ ಹಂತ ಆರಿಸಿ →',
-        btnFinish: 'ರೈತರ ಡ್ಯಾಶ್‌ಬೋರ್ಡ್ ತೆರೆಯಿರಿ 🌾',
-        btnLogin: 'ಲಾಗಿನ್ ಮಾಡಿ →',
-        switchToLogin: 'ಈಗಾಗಲೇ ನೋಂದಾಯಿಸಿದ್ದೀರಾ? ಲಾಗಿನ್ ಮಾಡಿ',
-        switchToRegister: 'ಹೊಸ ರೈತರೇ? ಹೊಸ ನೋಂದಣಿ ಮಾಡಿ',
-        listenScreenInfo: 'ಈ ಪುಟವನ್ನು ಕೇಳಿ 🔊',
-        stopScreenAudio: 'ಆಡಿಯೋ ನಿಲ್ಲಿಸಿ ⏹️',
-        loadingAudio: 'ಲೋಡ್ ಆಗುತ್ತಿದೆ...'
-      }�ର୍ଭର)',
         irrWell: 'କୁଅ / ନଳକୂପ / ବୋରୱେଲ୍',
         irrCanal: 'କେନାଲ୍ ଜଳସେଚନ',
         borewellFailedLabel: 'ଏହି ଋତୁରେ ବୋରୱେଲ୍ ପାଣି ଶୁଖିଗଲା',
@@ -753,13 +646,10 @@ const Onboarding = {
 
   renderOnboardingUI(isEdit = false) {
     let overlay = document.getElementById('onboarding-modal-overlay');
-    const mobileScreen = document.querySelector('.mobile-device-screen') || document.body;
     if (!overlay) {
       overlay = document.createElement('div');
       overlay.id = 'onboarding-modal-overlay';
-      mobileScreen.appendChild(overlay);
-    } else if (overlay.parentElement !== mobileScreen) {
-      mobileScreen.appendChild(overlay);
+      document.body.appendChild(overlay);
     }
 
     const currentLang = OnboardingState.selectedLanguage;
@@ -850,28 +740,28 @@ const Onboarding = {
                 </div>
               </form>
             ` : `
-              <!-- REGISTRATION / PROFILE FORM (Mobile Clean Layout) -->
-              <form id="ob-farmer-form" class="space-y-3" onsubmit="event.preventDefault(); Onboarding.validateAndGoToStep3();">
-                
-                <!-- Farmer Full Name -->
-                <div class="form-group">
-                  <label class="form-label">${this.t('fullName', currentLang)} *</label>
-                  <input type="text" id="ob-farmer-name" class="form-input" placeholder="e.g. Ramesh Patil" value="${form.farmerName}" required>
-                  <div id="err-farmer-name" class="form-err-msg">Please enter your name</div>
-                </div>
-
-                <!-- Mobile Phone Number -->
-                <div class="form-group">
-                  <label class="form-label">${this.t('mobileNumber', currentLang)} *</label>
-                  <div class="flex items-center space-x-2">
-                    <span class="px-3 py-2 bg-slate-100 border border-slate-300 rounded-xl text-sm font-bold text-slate-700 shrink-0">+91</span>
-                    <input type="tel" id="ob-farmer-phone" class="form-input flex-1" placeholder="9823110293" maxlength="10" value="${form.phone}" required>
+              <!-- REGISTRATION / PROFILE FORM -->
+              <form id="ob-farmer-form" onsubmit="event.preventDefault(); Onboarding.validateAndGoToStep3();">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  
+                  <div class="form-group">
+                    <label class="form-label">${this.t('fullName', currentLang)} *</label>
+                    <input type="text" id="ob-farmer-name" class="form-input" placeholder="e.g. Ramesh Patil" value="${form.farmerName}" required>
+                    <div id="err-farmer-name" class="form-err-msg">Please enter your name</div>
                   </div>
-                  <div id="err-farmer-phone" class="form-err-msg">Enter valid 10-digit mobile number</div>
+
+                  <div class="form-group">
+                    <label class="form-label">${this.t('mobileNumber', currentLang)} *</label>
+                    <div class="flex items-center space-x-2">
+                      <span class="px-3 py-2.5 bg-slate-100 border-2 border-slate-300 rounded-xl text-sm font-bold text-slate-600">+91</span>
+                      <input type="tel" id="ob-farmer-phone" class="form-input" placeholder="9823110293" maxlength="10" value="${form.phone}" required>
+                    </div>
+                    <div id="err-farmer-phone" class="form-err-msg">Enter valid 10-digit mobile number</div>
+                  </div>
+
                 </div>
 
-                <!-- State & District / Taluka (Paired 2-col) -->
-                <div class="grid grid-cols-2 gap-2.5">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div class="form-group">
                     <label class="form-label">${this.t('stateLabel', currentLang)}</label>
                     <select id="ob-farmer-state" class="form-select" onchange="Onboarding.onStateChange(this.value)">
@@ -893,34 +783,35 @@ const Onboarding = {
                   </div>
                 </div>
 
-                <!-- Total Land Area with Unit Toggle (Full Width Row) -->
-                <div class="form-group">
-                  <div class="flex items-center justify-between mb-1.5">
-                    <label class="form-label mb-0">${this.t('landAreaLabel', currentLang)} *</label>
-                    <div class="unit-toggle-group">
-                      <button type="button" id="unit-btn-ha" class="unit-toggle-btn ${form.landUnit === 'hectares' ? 'active' : ''}" onclick="Onboarding.setLandUnit('hectares')">Hectares</button>
-                      <button type="button" id="unit-btn-acres" class="unit-toggle-btn ${form.landUnit === 'acres' ? 'active' : ''}" onclick="Onboarding.setLandUnit('acres')">Acres</button>
+                <!-- Land Area & Unit Switcher -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div class="form-group">
+                    <div class="flex items-center justify-between mb-1">
+                      <label class="form-label mb-0">${this.t('landAreaLabel', currentLang)} *</label>
+                      <div class="unit-toggle-group">
+                        <button type="button" id="unit-btn-ha" class="unit-toggle-btn ${form.landUnit === 'hectares' ? 'active' : ''}" onclick="Onboarding.setLandUnit('hectares')">Hectares</button>
+                        <button type="button" id="unit-btn-acres" class="unit-toggle-btn ${form.landUnit === 'acres' ? 'active' : ''}" onclick="Onboarding.setLandUnit('acres')">Acres</button>
+                      </div>
                     </div>
+                    <input type="number" step="0.1" min="0.1" id="ob-land-area" class="form-input" value="${form.landArea}" required>
                   </div>
-                  <input type="number" step="0.1" min="0.1" id="ob-land-area" class="form-input" value="${form.landArea}" required>
+
+                  <div class="form-group">
+                    <label class="form-label">${this.t('soilTypeLabel', currentLang)}</label>
+                    <select id="ob-soil-type" class="form-select">
+                      <option value="black" ${form.soilType === 'black' ? 'selected' : ''}>${currentLang === 'hi' ? 'काली कपास मिट्टी (रेगुर)' : currentLang === 'mr' ? 'काळी कसदार जमीन (रेगूर)' : currentLang === 'or' ? 'କଳା କପା ମାଟି' : currentLang === 'as' ? 'কলা কপাহী মাটি' : currentLang === 'kn' ? 'ಕಪ್ಪು ಹತ್ತಿ ಮಣ್ಣು' : 'Black Cotton Soil (Regur)'}</option>
+                      <option value="alluvial" ${form.soilType === 'alluvial' ? 'selected' : ''}>${currentLang === 'hi' ? 'जलोढ़ दोमट मिट्टी' : currentLang === 'mr' ? 'गाळाची सुपीक जमीन' : currentLang === 'or' ? 'ପଟୁ ମାଟି' : currentLang === 'as' ? 'পলি মাটি' : currentLang === 'kn' ? 'ಮೆಕ್ಕಲು ಮಣ್ಣು' : 'Alluvial Loam Soil'}</option>
+                      <option value="red" ${form.soilType === 'red' ? 'selected' : ''}>${currentLang === 'hi' ? 'लाल रेतीली मिट्टी' : currentLang === 'mr' ? 'तांबडी वालुकामय जमीन' : currentLang === 'or' ? 'ନାଲି ବାଲିଆ ମାଟି' : currentLang === 'as' ? 'ৰঙা বালিয়া মাটি' : currentLang === 'kn' ? 'ಕೆಂಪು ಮರಳು ಮಿಶ್ರಿತ ಮಣ್ಣು' : 'Red Sandy Loam Soil'}</option>
+                      <option value="laterite" ${form.soilType === 'laterite' ? 'selected' : ''}>${currentLang === 'hi' ? 'लैटेराइट चिकनी मिट्टी' : currentLang === 'mr' ? 'जांभी चिकणमाती' : currentLang === 'or' ? 'ଲେଟେରାଇଟ୍ ମାଟି' : currentLang === 'as' ? 'লেটেৰাইট মাটি' : currentLang === 'kn' ? 'ಲ್ಯಾಟರೈಟ್ ಜೇಡಿ ಮಣ್ಣು' : 'Laterite Clay Soil'}</option>
+                      <option value="sandy" ${form.soilType === 'sandy' ? 'selected' : ''}>${currentLang === 'hi' ? 'बलुई / मरुस्थलीय मिट्टी' : currentLang === 'mr' ? 'वाळवंटी / रेताड जमीन' : currentLang === 'or' ? 'ବାଲିଆ ମାଟି' : currentLang === 'as' ? 'বালিচহীয়া মাটি' : currentLang === 'kn' ? 'ಮರಳು ಭೂಮಿ' : 'Arid Desert / Sandy Soil'}</option>
+                      <option value="saline" ${form.soilType === 'saline' ? 'selected' : ''}>${currentLang === 'hi' ? 'लवणीय एवं क्षारीय मिट्टी' : currentLang === 'mr' ? 'खारवट व चोपण जमीन' : currentLang === 'or' ? 'ଲୁଣି ମାଟି' : currentLang === 'as' ? 'লৱণাক্ত মাটি' : currentLang === 'kn' ? 'ಉಪ್ಪು ಮಿಶ್ರಿತ ಮಣ್ಣು' : 'Saline & Alkaline Soil'}</option>
+                      <option value="peaty" ${form.soilType === 'peaty' ? 'selected' : ''}>${currentLang === 'hi' ? 'दलदली / जैविक मिट्टी' : currentLang === 'mr' ? 'दलदलीची सेंद्रिय जमीन' : currentLang === 'or' ? 'ଜୈବିକ ମାଟି' : currentLang === 'as' ? 'জৈৱিক মাটি' : currentLang === 'kn' ? 'ಜೌಗು ಸಾವಯವ ಮಣ್ಣು' : 'Peaty / Marshy Organic Soil'}</option>
+                      <option value="loamy" ${form.soilType === 'loamy' ? 'selected' : ''}>${currentLang === 'hi' ? 'उर्वर मध्यम दोमट मिट्टी' : currentLang === 'mr' ? 'सुपीक मध्यम पोयटा जमीन' : currentLang === 'or' ? 'ଉର୍ବର ଦୋରସା ମାଟି' : currentLang === 'as' ? 'উৰ্বৰ পলসুৱা মাটি' : currentLang === 'kn' ? 'ಫಲವತ್ತಾದ ಗೋಡು ಮಣ್ಣು' : 'Fertile Medium Loam Soil'}</option>
+                    </select>
+                  </div>
                 </div>
 
-                <!-- Soil Type Dropdown (Full Width Row) -->
-                <div class="form-group">
-                  <label class="form-label">${this.t('soilTypeLabel', currentLang)}</label>
-                  <select id="ob-soil-type" class="form-select">
-                    <option value="black" ${form.soilType === 'black' ? 'selected' : ''}>${currentLang === 'hi' ? 'काली कपास मिट्टी (रेगुर)' : currentLang === 'mr' ? 'काळी कसदार जमीन (रेगूर)' : currentLang === 'or' ? 'କଳା କପା ମାଟି' : currentLang === 'as' ? 'কলা কপাহী মাটি' : currentLang === 'kn' ? 'ಕಪ್ಪು ಹತ್ತಿ ಮಣ್ಣು' : 'Black Cotton Soil (Regur)'}</option>
-                    <option value="alluvial" ${form.soilType === 'alluvial' ? 'selected' : ''}>${currentLang === 'hi' ? 'जलोढ़ दोमट मिट्टी' : currentLang === 'mr' ? 'गाळाची सुपीक जमीन' : currentLang === 'or' ? 'ପଟୁ ମାଟି' : currentLang === 'as' ? 'পলি মাটি' : currentLang === 'kn' ? 'ಮೆಕ್ಕಲು ಮಣ್ಣು' : 'Alluvial Loam Soil'}</option>
-                    <option value="red" ${form.soilType === 'red' ? 'selected' : ''}>${currentLang === 'hi' ? 'लाल रेतीली मिट्टी' : currentLang === 'mr' ? 'तांबडी वालुकामय जमीन' : currentLang === 'or' ? 'ନାଲି ବାଲିଆ ମାଟି' : currentLang === 'as' ? 'ৰঙা বালিয়া মাটি' : currentLang === 'kn' ? 'ಕೆಂಪು ಮರಳು ಮಿಶ್ರಿತ ಮಣ್ಣು' : 'Red Sandy Loam Soil'}</option>
-                    <option value="laterite" ${form.soilType === 'laterite' ? 'selected' : ''}>${currentLang === 'hi' ? 'लैटेराइट चिकनी मिट्टी' : currentLang === 'mr' ? 'जांभी चिकणमाती' : currentLang === 'or' ? 'ଲେଟେରାଇଟ୍ ମାଟି' : currentLang === 'as' ? 'লেটেৰাইট মাটি' : currentLang === 'kn' ? 'ಲ್ಯಾಟರೈಟ್ ಜೇಡಿ ಮಣ್ಣು' : 'Laterite Clay Soil'}</option>
-                    <option value="sandy" ${form.soilType === 'sandy' ? 'selected' : ''}>${currentLang === 'hi' ? 'बलुई / मरुस्थलीय मिट्टी' : currentLang === 'mr' ? 'वाळवंटी / रेताड जमीन' : currentLang === 'or' ? 'ବାଲିଆ ମାଟି' : currentLang === 'as' ? 'বালিಚಹীয়া মাটি' : currentLang === 'kn' ? 'ಮರಳು ಭೂಮಿ' : 'Arid Desert / Sandy Soil'}</option>
-                    <option value="saline" ${form.soilType === 'saline' ? 'selected' : ''}>${currentLang === 'hi' ? 'लवणीय एवं क्षारीय मिट्टी' : currentLang === 'mr' ? 'खारवट व चोपण जमीन' : currentLang === 'or' ? 'ଲୁଣି ମାଟି' : currentLang === 'as' ? 'লৱণাক্ত মাটি' : currentLang === 'kn' ? 'ಉಪ್ಪು ಮಿಶ್ರಿತ ಮಣ್ಣು' : 'Saline & Alkaline Soil'}</option>
-                    <option value="peaty" ${form.soilType === 'peaty' ? 'selected' : ''}>${currentLang === 'hi' ? 'दलदली / जैविक मिट्टी' : currentLang === 'mr' ? 'दलदलीची सेंद्रिय जमीन' : currentLang === 'or' ? 'ଜୈବିକ ମାଟି' : currentLang === 'as' ? 'ଜୈৱিক মাটি' : currentLang === 'kn' ? 'ಜೌಗು ಸಾವಯವ ಮಣ್ಣು' : 'Peaty / Marshy Organic Soil'}</option>
-                    <option value="loamy" ${form.soilType === 'loamy' ? 'selected' : ''}>${currentLang === 'hi' ? 'उर्वर मध्यम दोमट मिट्टी' : currentLang === 'mr' ? 'सुपीक मध्यम पोयटा जमीन' : currentLang === 'or' ? 'ଉର୍ବର ଦୋରସା ମାଟି' : currentLang === 'as' ? 'উৰ্বৰ পলসুৱಾ মাটি' : currentLang === 'kn' ? 'ಫಲವತ್ತಾದ ಗೋಡು ಮಣ್ಣು' : 'Fertile Medium Loam Soil'}</option>
-                  </select>
-                </div>
-
-                <!-- Primary Irrigation Type (Full Width Row) -->
+                <!-- Irrigation Details from Sundargarh -->
                 <div class="form-group">
                   <label class="form-label">${this.t('irrigationLabel', currentLang)}</label>
                   <select id="ob-farmer-irrigation" class="form-select">
@@ -928,48 +819,42 @@ const Onboarding = {
                     <option value="protective_well" ${form.irrigationType === 'protective_well' ? 'selected' : ''}>${this.t('irrWell', currentLang)}</option>
                     <option value="canal" ${form.irrigationType === 'canal' ? 'selected' : ''}>${this.t('irrCanal', currentLang)}</option>
                   </select>
-                  <label class="flex items-center space-x-2.5 text-xs font-semibold text-slate-700 cursor-pointer mt-2 bg-slate-50 p-2.5 rounded-xl border border-slate-200 hover:bg-slate-100 transition">
+                  <label class="flex items-center space-x-2 text-xs font-semibold text-slate-700 cursor-pointer mt-2">
                     <input type="checkbox" id="ob-borewell-failed" ${form.borewellFailed ? 'checked' : ''} class="w-4 h-4 text-emerald-600 rounded">
                     <span>${this.t('borewellFailedLabel', currentLang)}</span>
                   </label>
                 </div>
 
-                <!-- Financial Safety Nets & Loans (Clean Card) -->
-                <div class="p-3.5 bg-slate-50 border border-slate-200 rounded-2xl space-y-2.5">
-                  <div class="text-[11px] font-bold text-slate-800 uppercase tracking-wider flex items-center space-x-1.5">
-                    <span>🛡️</span>
-                    <span>${this.t('safetyNetsLabel', currentLang)}</span>
-                  </div>
-                  
+                <!-- Financial Safety Nets & Loans from Sundargarh -->
+                <div class="p-3.5 bg-slate-50 border border-slate-200 rounded-2xl space-y-3 mb-4">
+                  <div class="text-xs font-bold text-slate-800 uppercase tracking-wider">${this.t('safetyNetsLabel', currentLang)}</div>
                   <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs font-semibold text-slate-700">
-                    <label class="flex items-center space-x-2 p-2 bg-white rounded-xl border border-slate-200 cursor-pointer hover:bg-emerald-50/50 transition">
+                    <label class="flex items-center space-x-2 cursor-pointer">
                       <input type="checkbox" id="ob-pmfby" ${form.hasPmfby ? 'checked' : ''} class="w-4 h-4 text-emerald-600 rounded">
-                      <span class="text-[11px] leading-tight">${this.t('pmfbyLabel', currentLang)}</span>
+                      <span>${this.t('pmfbyLabel', currentLang)}</span>
                     </label>
-                    <label class="flex items-center space-x-2 p-2 bg-white rounded-xl border border-slate-200 cursor-pointer hover:bg-emerald-50/50 transition">
+                    <label class="flex items-center space-x-2 cursor-pointer">
                       <input type="checkbox" id="ob-kcc" ${form.hasKcc ? 'checked' : ''} class="w-4 h-4 text-emerald-600 rounded">
-                      <span class="text-[11px] leading-tight">${this.t('kccLabel', currentLang)}</span>
+                      <span>${this.t('kccLabel', currentLang)}</span>
                     </label>
                   </div>
-
-                  <label class="flex items-center space-x-2 p-2 bg-rose-50/80 rounded-xl border border-rose-200 text-xs font-bold text-rose-800 cursor-pointer hover:bg-rose-100/70 transition">
+                  <label class="flex items-center space-x-2 text-xs font-bold text-rose-700 cursor-pointer">
                     <input type="checkbox" id="ob-informal-debt" ${form.informalDebt ? 'checked' : ''} class="w-4 h-4 text-rose-600 rounded">
-                    <span class="text-[11px] leading-tight">${this.t('informalDebtLabel', currentLang)}</span>
+                    <span>${this.t('informalDebtLabel', currentLang)}</span>
                   </label>
 
-                  <div class="grid grid-cols-2 gap-2 pt-1">
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
                     <div>
-                      <label class="form-label text-[11px] mb-1">${this.t('loanDueDateLabel', currentLang)}</label>
-                      <input type="date" id="ob-loan-due-date" class="form-input text-xs py-1.5 px-2" value="${form.loanDueDate || '2026-11-15'}">
+                      <label class="form-label text-xs">${this.t('loanDueDateLabel', currentLang)}</label>
+                      <input type="date" id="ob-loan-due-date" class="form-input text-xs" value="${form.loanDueDate || '2026-11-15'}">
                     </div>
                     <div>
-                      <label class="form-label text-[11px] mb-1">${this.t('loanAmountLabel', currentLang)}</label>
-                      <input type="number" id="ob-loan-amount" class="form-input text-xs py-1.5 px-2" value="${form.loanAmount || 50000}">
+                      <label class="form-label text-xs">${this.t('loanAmountLabel', currentLang)}</label>
+                      <input type="number" id="ob-loan-amount" class="form-input text-xs" value="${form.loanAmount || 50000}">
                     </div>
                   </div>
                 </div>
 
-                <!-- Device Type -->
                 <div class="form-group">
                   <label class="form-label">${this.t('deviceTypeLabel', currentLang)}</label>
                   <select id="ob-device-type" class="form-select">
@@ -978,7 +863,7 @@ const Onboarding = {
                   </select>
                 </div>
 
-                <div class="text-right pt-1">
+                <div class="text-right">
                   <button type="button" onclick="Onboarding.toggleLoginMode(true)" class="text-xs text-emerald-700 font-bold hover:underline">
                     ${this.t('switchToLogin', currentLang)}
                   </button>
@@ -1343,8 +1228,27 @@ const Onboarding = {
 
       this.hideModal();
 
+      // Immediately sync Farmer Profile card in DOM
+      const nameEl = document.getElementById('fp-name');
+      const cropBadge = document.getElementById('fp-crop-badge');
+      const locEl = document.getElementById('fp-location');
+      const landEl = document.getElementById('fp-landholding');
+      const irrEl = document.getElementById('fp-irrigation');
+      const loanEl = document.getElementById('fp-loan');
+
+      if (nameEl) nameEl.textContent = payload.farmer_name;
+      if (cropBadge) cropBadge.textContent = payload.primary_crops[0] || 'Onion';
+      if (locEl) locEl.textContent = `📍 ${payload.district}, ${payload.state}`;
+      if (landEl) landEl.textContent = `📐 ${payload.land_details.total_area} ${payload.land_details.unit}`;
+      if (irrEl) irrEl.textContent = `💧 ${payload.irrigation_type === 'rainfed' ? 'Rainfed' : payload.irrigation_type === 'protective_well' ? 'Well / Borewell' : 'Canal'}`;
+      if (loanEl) loanEl.textContent = `💳 Loan Due: ${payload.loan_due_date || '15-11-2026'}`;
+
       const targetLang = (langKey || 'en').split('-')[0].toLowerCase();
       localStorage.setItem('sk_locale', targetLang);
+
+      if (typeof window.switchMainView === 'function') {
+        window.switchMainView('farmer');
+      }
 
       if (typeof window.loadFarmersList === 'function') {
         await window.loadFarmersList();
