@@ -1,5 +1,45 @@
 [
   {
+    "district_id": "D_OD_SUN",
+    "crop": "paddy",
+    "date": "2026-08-25",
+    "price_per_quintal": 2150,
+    "govt_msp_per_quintal": 2300,
+    "recent_avg_price": 2280,
+    "market_name": "RMC Sundargarh / Panposh APMC",
+    "unit": "₹/Quintal"
+  },
+  {
+    "district_id": "D_OD_SUN",
+    "crop": "pulses",
+    "date": "2026-08-25",
+    "price_per_quintal": 6800,
+    "govt_msp_per_quintal": 7550,
+    "recent_avg_price": 7400,
+    "market_name": "Sundargarh Regulated Market",
+    "unit": "₹/Quintal"
+  },
+  {
+    "district_id": "D_OD_SUN",
+    "crop": "maize",
+    "date": "2026-08-25",
+    "price_per_quintal": 1950,
+    "govt_msp_per_quintal": 2225,
+    "recent_avg_price": 2180,
+    "market_name": "Bonaigarh Mandi",
+    "unit": "₹/Quintal"
+  },
+  {
+    "district_id": "D_OD_SUN",
+    "crop": "groundnut",
+    "date": "2026-08-25",
+    "price_per_quintal": 6200,
+    "govt_msp_per_quintal": 6783,
+    "recent_avg_price": 6650,
+    "market_name": "Rajgangpur APMC",
+    "unit": "₹/Quintal"
+  },
+  {
     "district_id": "D1",
     "crop": "onion",
     "date": "2026-08-25",

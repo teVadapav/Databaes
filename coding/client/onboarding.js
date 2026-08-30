@@ -214,6 +214,7 @@ const STATE_DISTRICT_MAP = {
     { id: "D3", name: "Yavatmal" }
   ],
   "Odisha": [
+    { id: "D_OD_SUN", name: "Sundargarh (17 Blocks Active)" },
     { id: "D_OD1", name: "Kalahandi" },
     { id: "D_OD2", name: "Balangir" },
     { id: "D_OD3", name: "Bargarh" }

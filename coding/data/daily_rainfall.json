@@ -39,6 +39,19 @@
     "soil_moisture_index": "adequate"
   },
   {
+    "district_id": "D_OD_SUN",
+    "date": "2026-08-25",
+    "rainfall_last_24h_mm": 5.2,
+    "cumulative_season_mm": 1380.0,
+    "normal_to_date_mm": 1422.4,
+    "rainfall_deviation_pct": -3.0,
+    "onset_date": "2026-06-12",
+    "onset_status": "normal",
+    "onset_delay_days": 0,
+    "dry_spell_days": 17,
+    "soil_moisture_index": "moderate"
+  },
+  {
     "district_id": "D_OD1",
     "date": "2026-08-25",
     "rainfall_last_24h_mm": 0.0,

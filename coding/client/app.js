@@ -1437,6 +1437,7 @@ async function renderFarmerProfileCard() {
   const localizedCrop = getLocalizedCrop(f.crop, lang);
   
   const distNames = {
+    D_OD_SUN: { en: 'Sundargarh', hi: 'सुंदरगढ़', mr: 'सुंदरगड', or: 'ସୁନ୍ଦରଗଡ଼', as: 'সুন্দৰগড়', kn: 'ಸುಂದರಗಢ' },
     D1: { en: 'Nashik', hi: 'नासिक', mr: 'नाशिक', or: 'ନାସିକ', as: 'নাছিক', kn: 'ನಾಸಿಕ್' },
     D2: { en: 'Akola', hi: 'अकोला', mr: 'अकोला', or: 'ଆକୋଲା', as: 'আকোলা', kn: 'ಅಕೋಲಾ' },
     D3: { en: 'Yavatmal', hi: 'यवतमाल', mr: 'यवतमाळ', or: 'ୟବତମାଳ', as: 'য়াৱাতমাল', kn: 'ಯವತ್ಮಾಳ್' },
@@ -1564,6 +1565,33 @@ async function renderFarmerAdvisory() {
         as: 'ক্ৰিডা বিকল্প শস্য পৰামৰ্শ (R-10)',
         kn: 'ಕ್ರಿಡಾ ಪರ್ಯಾಯ ಬೆಳೆ ಯೋಜನೆ (R-10)',
         css: 'bg-amber-100 text-amber-800'
+      },
+      moisture_conservation_and_chahata: {
+        en: 'SUNDARGARH DRY SPELL & CHAHATA (R-OD-01)',
+        hi: 'सुंदरगढ़ सूखा एवं चाहता संरक्षण (R-OD-01)',
+        mr: 'सुंदरगड ओलावा व शेततळे संवर्धन (R-OD-01)',
+        or: 'ସୁନ୍ଦରଗଡ଼ ଖରା ଓ ଚାହାଟା ପରାମର୍ଶ (R-OD-01)',
+        as: 'সুন্দৰগড় খৰাং আৰু পুখুৰী পৰামৰ্শ (R-OD-01)',
+        kn: 'ಸುಂದರಗಢ ತೇವಾಂಶ ಮತ್ತು ಹೊಂಡ ಸಂರಕ್ಷಣೆ (R-OD-01)',
+        css: 'bg-amber-100 text-amber-800'
+      },
+      flood_drainage_and_swarna_sub1: {
+        en: 'FLOOD HAZARD & SWARNA-SUB1 (R-OD-02)',
+        hi: 'बाढ़ जल निकासी एवं स्वर्ण-सब1 (R-OD-02)',
+        mr: 'पूर निचरा व स्वर्ण-सब१ संरक्षण (R-OD-02)',
+        or: 'ବନ୍ୟା ନିଷ୍କାସନ ଓ ସ୍ୱର୍ଣ୍ଣ-ସବ୍-୧ (R-OD-02)',
+        as: 'বানপানী নিষ্কাশন আৰু স্বৰ্ণ-চাব১ (R-OD-02)',
+        kn: 'ಪ್ರವಾಹ ನಿರ್ವಹಣೆ ಮತ್ತು ಸ್ವರ್ಣ-ಸಬ್೧ (R-OD-02)',
+        css: 'bg-rose-100 text-rose-800'
+      },
+      heat_stress_mitigation: {
+        en: 'HIGH LST THERMAL STRESS (R-OD-03)',
+        hi: 'उच्च सतही तापमान एवं ताप तनाव (R-OD-03)',
+        mr: 'अति उच्च तापमान उष्मा संरक्षण (R-OD-03)',
+        or: 'ଅତ୍ୟଧିକ ଭୂପୃଷ୍ଠ ତାପମାତ୍ରା ସୁରକ୍ଷା (R-OD-03)',
+        as: 'উচ্চ উষ্ণতা শস্য সুৰক্ষা (R-OD-03)',
+        kn: 'ಹೆಚ್ಚಿನ ತಾಪಮಾನ ನಿರ್ವಹಣೆ (R-OD-03)',
+        css: 'bg-orange-100 text-orange-800'
       },
       default: {
         en: 'AGRONOMY ADVISORY (R-20)',
@@ -2696,6 +2724,129 @@ const ALL_GOVT_SCHEMES = [
     },
     portal_url: 'https://dahd.nic.in',
     trigger_criteria: (farmer, dis) => ((dis && dis.distress_score > 65))
+  },
+  {
+    scheme_id: 'S_OD1',
+    name: 'KALIA (Krushak Assistance for Livelihood and Income Augmentation - Odisha)',
+    category: 'financial_debt',
+    categories: ['financial_debt', 'for_you'],
+    urgency: 'CRITICAL',
+    benefit_badge: {
+      en: '₹10,000 Direct Cash Transfer + 0% Interest Crop Loan',
+      hi: '₹१०,००० सीधा बैंक खाता अनुदान + ०% ब्याज फसली ऋण',
+      mr: '₹१०,००० थेट बँक अनुदान + ०% व्याज पीक कर्ज',
+      or: '₹୧୦,୦୦୦ ସିଧା ବ୍ୟାଙ୍କ ଖାତା ସହାୟତା + ୦% ସୁଧ ଫସଲ ଋଣ',
+      as: '₹১০,০০০ বেংক একাউণ্ট অনুদান + ০% সুতৰ কৃষি ঋণ',
+      kn: '₹೧೦,೦೦೦ ನೇರ ನಗದು ವರ್ಗಾವಣೆ + ೦% ಬಡ್ಡಿ ಬೆಳೆ ಸಾಲ'
+    },
+    title: {
+      en: 'KALIA Direct Farmer Assistance & 0% Crop Loan',
+      hi: 'कालिया योजना (KALIA - ओडिशा किसान प्रत्यक्ष आजीविका सहायता)',
+      mr: 'कालिया योजना (KALIA - थेट शेतकरी अनुदान व ०% कर्ज)',
+      or: 'କାଳିଆ ଯୋଜନା (KALIA - ଚାଷୀ ଜୀବିକା ସହାୟତା ଓ ୦% ଋଣ)',
+      as: 'কালিয়া আঁচনি (KALIA - কৃষক সহায় আৰু ০% ঋণ)',
+      kn: 'ಕಾಲಿಯಾ ಯೋಜನೆ (KALIA - ರೈತ ಸಹಾಯ ಮತ್ತು ೦% ಸಾಲ)'
+    },
+    why_needed: {
+      en: 'Small/marginal farming household in Odisha facing financial distress and working capital needs.',
+      hi: 'ओडिशा के लघु/सीमांत किसान जिन्हें तुरंत खाद, बीज व कार्यशील पूंजी हेतु वित्तीय मदद की आवश्यकता है।',
+      mr: 'ओडिशातील अल्पभूधारक शेतकरी ज्यांना तातडीने खते, बियाणे व भांडवली मदतीची गरज आहे.',
+      or: 'ଓଡ଼ିଶାର କ୍ଷୁଦ୍ର ଓ ନାମମାତ୍ର ଚାଷୀ ଯାହାଙ୍କୁ ବିହନ, ସାର ଓ ଚାଷ ଖର୍ଚ୍ଚ ପାଇଁ ଆର୍ଥିକ ସହାୟତା ଆବଶ୍ୟକ।',
+      as: 'উৰিষ্যাৰ ক্ষুদ্ৰ কৃষকসকলৰ বাবে কঠীয়া আৰু সাৰ ক্ৰয়ৰ জৰুৰী আৰ্থিক সাহায্য।',
+      kn: 'ಒಡಿಶಾದ ಸಣ್ಣ/ಅತಿ ಸಣ್ಣ ರೈತರಿಗೆ ಬಿತ್ತನೆ ಬೀಜ ಮತ್ತು ರಸಗೊಬ್ಬರ ಖರೀದಿಗೆ ನೇರ ಹಣಕಾಸು ನೆರವು.'
+    },
+    how_it_helps: {
+      en: 'Get ₹10,000 per year direct income support credited in 2 installments, plus 0% interest crop loan up to ₹1,00,000.',
+      hi: 'प्रति वर्ष ₹१०,००० दो किस्तों में सीधा बैंक खाते में और ₹१ लाख तक का शून्य प्रतिशत (0%) ब्याज फसली ऋण प्राप्त करें।',
+      mr: 'दरवर्षी ₹१०,००० दोन हप्त्यांत थेट खात्यात आणि ₹१ लाखापर्यंत ०% व्याजाने पीक कर्ज मिळवा.',
+      or: 'ପ୍ରତି ବର୍ଷ ₹୧୦,୦୦୦ ଦୁଇଟି କିସ୍ତିରେ ସିଧା ବ୍ୟାଙ୍କ ଖାତାରେ ଏବଂ ₹୧ ଲକ୍ଷ ପର୍ଯ୍ୟନ୍ତ ୦% ସୁଧରେ ଫସଲ ଋଣ ପାଆନ୍ତୁ।',
+      as: 'বছৰি ₹১০,০০০ দুটা কিস্তিত বেংক একাউণ্টত আৰু ₹১ লাখলৈকে ০% সুতত ঋণ লাভ কৰক।',
+      kn: 'ವರ್ಷಕ್ಕೆ ₹೧೦,೦୦೦ ಎರಡು ಕಂತುಗಳಲ್ಲಿ ನೇರವಾಗಿ ಬ್ಯಾಂಕ್ ಖಾತೆಗೆ ಮತ್ತು ₹೧ ಲಕ್ಷದವರೆಗೆ ೦% ಬಡ್ಡಿದರದಲ್ಲಿ ಬೆಳೆ ಸಾಲ ಪಡೆಯಿರಿ.'
+    },
+    portal_url: 'https://kalia.odisha.gov.in',
+    trigger_criteria: (farmer, dis) => (farmer && (farmer.district_id === 'D_OD_SUN' || (farmer.district_id && farmer.district_id.startsWith('D_OD'))))
+  },
+  {
+    scheme_id: 'S_OD2',
+    name: 'OSDMA Flood Relief & Submergence Minikit (Swarna-Sub1 Seed Distribution)',
+    category: 'disaster',
+    categories: ['disaster', 'for_you'],
+    urgency: 'HIGH',
+    benefit_badge: {
+      en: '100% Free Flood-Tolerant Seed Minikits + Input Subsidy',
+      hi: '१००% मुफ्त जल-सहनशील धान बीज मिनी-किट + इनपुट सब्सिडी',
+      mr: '१००% मोफत पूर-सहनशील भात बियाणे किट + खत अनुदान',
+      or: '୧୦୦% ମାଗଣା ବନ୍ୟା-ସହଣୀୟ ଧାନ ବିହନ ମିନିକିଟ୍ + ରିହାତି',
+      as: '১০০% বিনামূলীয়া বান-সহনশীল ধানৰ বীজ মিনি-কিট',
+      kn: '೧೦೦% ಉಚಿತ ಪ್ರವಾಹ-ನಿರೋಧಕ ಭತ್ತದ ಬೀಜ ಮಿನಿ-ಕಿಟ್'
+    },
+    title: {
+      en: 'OSDMA / SDRF Flood Crop Emergency & Swarna-Sub1 Seed Minikit',
+      hi: 'ओडिशा राज्य आपदा प्रबंधन (OSDMA बाढ़ राहत एवं स्वर्ण-सब1 बीज वितरण)',
+      mr: 'ओडिशा आपत्ती निवारण (OSDMA पूर मदत व स्वर्ण-सब१ बियाणे वाटप)',
+      or: 'ଓଡ଼ିଶା ରାଜ୍ୟ ବିପର୍ଯ୍ୟୟ ପରିଚାଳନା (OSDMA ବନ୍ୟା ସହାୟତା ଓ ସ୍ୱର୍ଣ୍ଣ-ସବ୍-୧ ବିହନ)',
+      as: 'উৰিষ্যা ৰাজ্যিক দুৰ্যোগ ব্যৱস্থাপনা (OSDMA বান সাহায্য আৰু স্বৰ্ণ-চাব১ বীজ)',
+      kn: 'ಒಡಿಶಾ ವಿಪತ್ತು ನಿರ್ವಹಣೆ (OSDMA ಪ್ರವಾಹ ಪರಿಹಾರ ಮತ್ತು ಸ್ವರ್ಣ-ಸಬ್೧ ಬೀಜ ವಿತರಣೆ)'
+    },
+    why_needed: {
+      en: 'Riverine basin in Sundargarh (Bonaigarh / Lahunipada / Koida) facing flash floods and field inundation.',
+      hi: 'सुंदरगढ़ के नदी घाटी प्रखंडों (बोनाईगढ़ / लहुणीपड़ा / कोइडा) में अत्यधिक वर्षा व जलभराव से धान की फसल डूब गई।',
+      mr: 'सुंदरगडमधील नदीकाठच्या भागात अतिवृष्टी व पुरामुळे भाताचे पीक पाण्याखाली गेले आहे.',
+      or: 'ସୁନ୍ଦରଗଡ଼ର ନଦୀ ଉପତ୍ୟକା ବ୍ଲକ୍ (ବଣାଇଗଡ଼ / ଲହୁଣୀପଡ଼ା / କୋଇଡ଼ା)ରେ ବନ୍ୟା ଜଳ ମାଡ଼ି ଧାନ ଫସଲ ବୁଡ଼ି ରହିଛି।',
+      as: 'সুন্দৰগড়ৰ নদী কাষৰীয়া অঞ্চলত বানপানীৰ ফলত ধান খেতি পানীত ডুব গৈছে।',
+      kn: 'ಸುಂದರಗಢದ ನದಿ ತೀರದ ಪ್ರದೇಶಗಳಲ್ಲಿ ಪ್ರವಾಹದಿಂದಾಗಿ ಭತ್ತದ ಗದ್ದೆಗಳು ಮುಳುಗಡೆಯಾಗಿವೆ.'
+    },
+    how_it_helps: {
+      en: 'Receive certified Swarna-Sub1 seed minikits (survives 14 days complete submergence) + ₹8,500/ha input subsidy.',
+      hi: 'प्रमाणित स्वर्ण-सब1 धान बीज मिनी-किट (जो १४ दिन पानी में डूबे रहने पर भी नहीं सड़ता) और ₹८,५००/हेक्टेयर सहायता पाएं।',
+      mr: 'प्रमाणित स्वर्ण-सब१ बियाणे किट (१४ दिवस पाण्याखाली टिकणारे) आणि ₹८,५००/हेक्टर आर्थिक मदत मिळवा.',
+      or: 'ପ୍ରମାଣିତ ସ୍ୱର୍ଣ୍ଣ-ସବ୍-୧ ଧାନ ବିହନ ମିନିକିଟ୍ (ଯାହା ୧୪ ଦିନ ପାଣିରେ ବୁଡ଼ି ରହିଲେ ବି ନଷ୍ଟ ହୁଏନାହିଁ) ଓ ₹୮,୫୦୦/ହେକ୍ଟର ସହାୟତା ପାଆନ୍ତୁ।',
+      as: 'স্বৰ্ণ-চাব১ ধানৰ বীজ মিনি-কিট (যি ১৪ দিন পানীত ডুবি থাকিলেও নষ্ট নহয়) আৰু ₹৮,৫০০/হেক্টৰ সাহায্য লাভ কৰক।',
+      kn: 'ಸ್ವರ್ಣ-ಸಬ್೧ ಭತ್ತದ ಬೀಜ ಮಿನಿ-ಕಿಟ್ (೧೪ ದಿನ ನೀರಿನಲ್ಲಿ ಮುಳುಗಿದ್ದರೂ ಹಾಳಾಗುವುದಿಲ್ಲ) ಮತ್ತು ₹೮,೫೦೦/ಹೆಕ್ಟೇರ್ ಸಹಾಯಧನ ಪಡೆಯಿರಿ.'
+    },
+    portal_url: 'https://osdma.org',
+    trigger_criteria: (farmer, dis) => (farmer && (farmer.district_id === 'D_OD_SUN' || (farmer.district_id && farmer.district_id.startsWith('D_OD'))))
+  },
+  {
+    scheme_id: 'S_OD3',
+    name: 'Odisha Jalanidhi-II & Farm Pond (Chahata) Protective Irrigation Subsidy',
+    category: 'crop_management',
+    categories: ['crop_management', 'for_you'],
+    urgency: 'HIGH',
+    benefit_badge: {
+      en: 'Up to ₹1,00,000 (90%) Subsidy for Farm Pond & Solar Pump',
+      hi: 'खेत तालाब (चाहता) एवं सोलर पंप हेतु ९०% (₹१ लाख) सरकारी अनुदान',
+      mr: 'शेततळे व सौर पंपासाठी ९०% (₹१ लाख) शासकीय अनुदान',
+      or: 'ଫାର୍ମ ପଣ୍ଡ (ଚାହାଟା) ଓ ସୌର ପମ୍ପ ପାଇଁ ୯୦% (₹୧ ଲକ୍ଷ) ସରକାରୀ ସବସିଡି',
+      as: 'পথাৰ পুখুৰী আৰু সৌৰ পাম্পৰ বাবে ৯০% (₹১ লাখ) চৰকাৰী ৰাজসাহায্য',
+      kn: 'ಕೃಷಿ ಹೊಂಡ ಮತ್ತು ಸೌರ ಪಂಪ್‌ಗೆ ೯೦% (₹೧ ಲಕ್ಷ) ಸರ್ಕಾರಿ ಸಬ್ಸಿಡಿ'
+    },
+    title: {
+      en: 'Jalanidhi-II Farm Pond (Chahata) & Solar Pump Subsidy',
+      hi: 'जलनिधि-२ योजना (खेत तालाब / चाहता निर्माण एवं सौर पंप सब्सिडी)',
+      mr: 'जलनिधी-२ योजना (शेततळे निर्मिती व सौर पंप अनुदान)',
+      or: 'ଜଳନିଧି-୨ ଯୋଜନା (ଫାର୍ମ ପଣ୍ଡ / ଚାହାଟା ଖନନ ଓ ସୌର ପମ୍ପ ସବସିଡି)',
+      as: 'জলনিধি-২ আঁচনি (পুখুৰী খনন আৰু সৌৰ পাম্প ৰাজসাহায্য)',
+      kn: 'ಜಲನಿಧಿ-೨ ಯೋಜನೆ (ಕೃಷಿ ಹೊಂಡ ನಿರ್ಮಾಣ ಮತ್ತು ಸೌರ ಪಂಪ್ ಸಬ್ಸಿಡಿ)'
+    },
+    why_needed: {
+      en: 'Red & Yellow soil in Sundargarh with low water retention during prolonged dry spells (>15 CDD).',
+      hi: 'सुंदरगढ़ की लाल व पीली मिट्टी में कम नमी धारण क्षमता और लंबे सूखे खंड (>15 दिन) में फसलों को बचाने हेतु।',
+      mr: 'सुंदरगडमधील तांबड्या व पिवळसर जमिनीत पावसाच्या खंडात पिकांना संरक्षणात्मक पाणी देण्यासाठी.',
+      or: 'ସୁନ୍ଦରଗଡ଼ର ନାଲି ଓ ହଳଦିଆ ମାଟିରେ ଖରାଟିଆ ଶୁଖିଲା ପାଗ (>୧୫ ଦିନ) ସମୟରେ ଫସଲକୁ ସଞ୍ଜୀବନୀ ପାଣି ଦେବା ପାଇଁ।',
+      as: 'সুন্দৰগড়ৰ ৰঙা আৰু হালধীয়া মাটিত খৰাং সময়ত শস্যক ৰক্ষা কৰাৰ বাবে।',
+      kn: 'ಸುಂದರಗಢದ ಕೆಂಪು ಮತ್ತು ಹಳದಿ ಮಣ್ಣಿನಲ್ಲಿ ದೀರ್ಘಾವಧಿಯ ಒಣ ಹವೆಯ ಸಮಯದಲ್ಲಿ ಬೆಳೆಗಳಿಗೆ ರಕ್ಷಣಾತ್ಮಕ ನೀರಾವರಿ ಒದಗಿಸಲು.'
+    },
+    how_it_helps: {
+      en: 'Construct a 20m x 20m farm pond (Chahata) with 90% direct DBT subsidy to store monsoon runoff for critical life-saving irrigation.',
+      hi: '२० मी x २० मी का खेत तालाब (चाहता) बनाएं जिसमें ९०% सरकारी अनुदान मिलेगा और वर्षा जल संचयन से फसल बचेगी।',
+      mr: '२० मी x २० मी शेततळे तयार करा, ज्यावर ९०% थेट बँक अनुदान मिळते आणि दुष्काळात पिकास पाणी देता येते.',
+      or: '୨୦ ମି x ୨୦ ମି ଆକାରର ଫାର୍ମ ପଣ୍ଡ (ଚାହାଟା) ଖୋଳନ୍ତୁ ଯାହା ଉପରେ ୯୦% ସରକାରୀ ସବସିଡି ମିଳିବ ଏବଂ ବର୍ଷା ଜଳ ସଞ୍ଚୟ ହେବ।',
+      as: '২০ মি x ২০ মি জোখৰ পুখুৰী খনন কৰক যাৰ ওপৰତ ৯০% চৰকাৰী ৰাজসাহায্য উপলব্ধ।',
+      kn: '೨೦ ಮೀ x ೨೦ ಮೀ ಕೃಷಿ ಹೊಂಡ ನಿರ್ಮಿಸಿ ಶೇ ೯೦ ರಷ್ಟು ಸರ್ಕಾರಿ ಸಬ್ಸಿಡಿ ಪಡೆಯಿರಿ ಮತ್ತು ಮಳೆ ನೀರನ್ನು ಸಂಗ್ರಹಿಸಿ ಬೆಳೆಯನ್ನು ರಕ್ಷಿಸಿ.'
+    },
+    portal_url: 'https://odishajalanidhi.nic.in',
+    trigger_criteria: (farmer, dis) => (farmer && (farmer.district_id === 'D_OD_SUN' || (farmer.district_id && farmer.district_id.startsWith('D_OD'))))
   }
 ];
 

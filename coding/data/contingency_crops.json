@@ -39,5 +39,28 @@
       }
     ],
     "agronomic_measures": "Broad Bed and Furrow (BBF) planting to conserve in-situ rainwater."
+  },
+  {
+    "crop": "paddy",
+    "soil_type": "Red & Yellow",
+    "onset_delay_condition": ">15 days delay or prolonged dry spell (>14 CDD)",
+    "recommended_contingency_crops": [
+      {
+        "name": "Short Duration Paddy (Sahbhagi Dhan / Khandagiri / Mandakini)",
+        "duration_days": 90,
+        "rationale": "High drought tolerance at flowering stage, escapes terminal moisture stress in upland red soils."
+      },
+      {
+        "name": "Blackgram / Greengram (Urad PU-31 / Moong IPM 02-14)",
+        "duration_days": 65,
+        "rationale": "Short duration pulse contingency requiring 60% less water than transplanted rice."
+      },
+      {
+        "name": "Submergence-Tolerant Paddy (Swarna-Sub1 / CR Dhan 801)",
+        "duration_days": 140,
+        "rationale": "Sub1 gene provides up to 14 days total submergence tolerance in high flood risk riverine blocks (Bonaigarh, Koida, Lahunipada)."
+      }
+    ],
+    "agronomic_measures": "Adopt Direct Seeded Rice (DSR) with seed priming (soaking in 1% KCl for 12 hrs), apply straw mulch @ 4 t/ha, life-saving irrigation from farm ponds."
   }
 ]

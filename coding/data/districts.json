@@ -30,6 +30,16 @@
     "description": "Critical rainfed agrarian zone with high informal credit dependency and seasonal rainfall breaks."
   },
   {
+    "id": "D_OD_SUN",
+    "name": "Sundargarh",
+    "state": "Odisha",
+    "soil_type": "Red & Yellow",
+    "avg_rainfall_mm": 1422.4,
+    "normal_onset_week": "2026-06-12",
+    "historical_vulnerability_index": 78,
+    "description": "Mineral-rich tribal agrarian district in North-Western Odisha across 17 blocks featuring both flood surges in the Brahmani basin and high-LST dry spell zones."
+  },
+  {
     "id": "D_OD1",
     "name": "Kalahandi",
     "state": "Odisha",

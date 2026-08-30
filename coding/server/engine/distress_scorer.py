@@ -210,10 +210,27 @@ def calculate_distress_score(farmer_id: str, custom_weights: dict = None, data: 
         "historical_vulnerability_index": 50, "soil_type": "Loamy Soil"
     })
 
-    weather = next((w for w in daily_rainfall if w["district_id"] == farmer["district_id"]), {
+    weather = dict(next((w for w in daily_rainfall if w["district_id"] == farmer["district_id"]), {
         "rainfall_deviation_pct": 0, "dry_spell_days": 0,
         "onset_status": "normal", "onset_delay_days": 0
-    })
+    }))
+
+    # Hyperspecific Block Match for Sundargarh / Micro-climate data
+    sundargarh_blocks = data.get("sundargarh_blocks", [])
+    matched_block = None
+    farmer_village = (farmer.get("village") or "").lower()
+    if farmer.get("district_id") == "D_OD_SUN" or "sundargarh" in district.get("name", "").lower():
+        matched_block = next((b for b in sundargarh_blocks if b["block_name"].lower() in farmer_village or farmer_village in b["block_name"].lower()), None)
+        if not matched_block and sundargarh_blocks:
+            matched_block = sundargarh_blocks[0]
+
+    if matched_block:
+        weather["rainfall_deviation_pct"] = matched_block.get("rainfall_deviation_pct", weather.get("rainfall_deviation_pct", 0))
+        weather["dry_spell_days"] = matched_block.get("consecutive_dry_days", weather.get("dry_spell_days", 0))
+        weather["flood_hazard_risk"] = matched_block.get("flood_hazard_risk", "Low")
+        weather["mean_summer_lst_c"] = matched_block.get("mean_summer_lst_c", 40.0)
+        weather["ndms_alert_category"] = matched_block.get("ndms_alert_category", "Green (Normal)")
+        weather["block_name"] = matched_block.get("block_name")
 
     crop_name = farmer.get("crop", "").lower()
     mandi_price = next(
@@ -235,7 +252,18 @@ def calculate_distress_score(farmer_id: str, custom_weights: dict = None, data: 
 
     # ── Dimension Computation ────────────────────────────────────────────────
     E, rain_comp, price_comp = _compute_exposure(farmer, weather, mandi_price)
+    
+    # Block-level hazard augmentations for Exposure (E)
+    if weather.get("flood_hazard_risk") == "High":
+        E = min(100.0, E + 15.0)
+    elif weather.get("mean_summer_lst_c", 0) >= 41.5 and weather.get("dry_spell_days", 0) >= 15:
+        E = min(100.0, E + 10.0)
+
     S = _compute_sensitivity(farmer, weather)
+    # Red & yellow soil has lower moisture capacity
+    if "red" in district.get("soil_type", "").lower() and weather.get("dry_spell_days", 0) > 15:
+        S = min(100.0, S + 5.0)
+
     AC, land_score, income_score = _compute_adaptive_capacity(farmer)
     AC_risk = round(100.0 - AC, 1)
     M, protection_score = _compute_mitigation_deficit(farmer)
@@ -389,6 +417,38 @@ def calculate_distress_score(farmer_id: str, custom_weights: dict = None, data: 
                     "crida_dimension": "District Fragility (DF)", "urgency": "HIGH"
                 })
 
+    # Odisha / Sundargarh Hazard Specific Interventions
+    if weather.get("flood_hazard_risk") == "High" or weather.get("rainfall_deviation_pct", 0) >= 10.0:
+        s_od2 = next((s for s in schemes if s["scheme_id"] == "S_OD2"), None)
+        if s_od2:
+            recommended_interventions.insert(0, {
+                "scheme_id": "S_OD2",
+                "scheme_name": s_od2["name"],
+                "trigger": "High Flood Hazard & Inundation Risk in Riverine Basin",
+                "action_item": "Process OSDMA/SDRF input subsidy for sand-cast fields and issue Swarna-Sub1 submerged-tolerant seed minikits",
+                "crida_dimension": "Exposure (E)", "urgency": "CRITICAL"
+            })
+
+    if weather.get("dry_spell_days", 0) >= 18 and "red" in district.get("soil_type", "").lower():
+        s_od3 = next((s for s in schemes if s["scheme_id"] == "S_OD3"), None)
+        if s_od3:
+            recommended_interventions.insert(0, {
+                "scheme_id": "S_OD3",
+                "scheme_name": s_od3["name"],
+                "trigger": f"Prolonged Dry Spell ({weather.get('dry_spell_days')} days) in Red & Yellow Soil",
+                "action_item": "Provide 70% capital subsidy for farm pond (Chahata) and solar pump for emergency protective irrigation",
+                "crida_dimension": "Sensitivity (S)", "urgency": "HIGH"
+            })
+        s_od1 = next((s for s in schemes if s["scheme_id"] == "S_OD1"), None)
+        if s_od1 and not any(i["scheme_id"] == "S_OD1" for i in recommended_interventions):
+            recommended_interventions.append({
+                "scheme_id": "S_OD1",
+                "scheme_name": s_od1["name"],
+                "trigger": "State Agrarian Safety Net for Smallholders",
+                "action_item": "Expedite KALIA seasonal installment of ₹4,000 to offset input stress",
+                "crida_dimension": "Adaptive Capacity (AC)", "urgency": "HIGH"
+            })
+
     # Fallback
     if not recommended_interventions:
         s1 = next((s for s in schemes if s["scheme_id"] == "S1"), None)
@@ -410,6 +470,7 @@ def calculate_distress_score(farmer_id: str, custom_weights: dict = None, data: 
         "farmer_name": farmer["name"],
         "district_id": district.get("id"),
         "district_name": district.get("name"),
+        "block_name": weather.get("block_name"),
         "crop": farmer["crop"],
         "crop_stage": farmer["crop_stage"],
         "distress_score": rounded_score,
@@ -434,6 +495,10 @@ def calculate_distress_score(farmer_id: str, custom_weights: dict = None, data: 
             "protection_score":    protection_score,
             "loan_urgency":        loan_urgency,
             "informal_shock":      informal_shock,
+            "flood_hazard_risk":   weather.get("flood_hazard_risk", "Low"),
+            "mean_summer_lst_c":   weather.get("mean_summer_lst_c"),
+            "consecutive_dry_days": weather.get("dry_spell_days"),
+            "ndms_alert_category": weather.get("ndms_alert_category")
         },
         "points_breakdown": {
             "exposure_pts":           round(pts_E, 1),

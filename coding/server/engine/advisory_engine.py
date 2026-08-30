@@ -34,12 +34,29 @@ def get_advisory(farmer_id: str, data: dict) -> dict:
         raise ValueError(f"Farmer with id {farmer_id} not found")
 
     district = next((d for d in districts if d["id"] == farmer["district_id"]), {})
-    weather = next((w for w in daily_rainfall if w["district_id"] == farmer["district_id"]), {
+    weather = dict(next((w for w in daily_rainfall if w["district_id"] == farmer["district_id"]), {
         "rainfall_deviation_pct": 0,
         "dry_spell_days": 0,
         "onset_status": "normal",
         "onset_delay_days": 0
-    })
+    }))
+
+    # Hyperspecific Block Match for Sundargarh / Micro-climate data
+    sundargarh_blocks = data.get("sundargarh_blocks", [])
+    matched_block = None
+    farmer_village = (farmer.get("village") or "").lower()
+    if farmer.get("district_id") == "D_OD_SUN" or "sundargarh" in district.get("name", "").lower():
+        matched_block = next((b for b in sundargarh_blocks if b["block_name"].lower() in farmer_village or farmer_village in b["block_name"].lower()), None)
+        if not matched_block and sundargarh_blocks:
+            matched_block = sundargarh_blocks[0]
+    
+    if matched_block:
+        weather["rainfall_deviation_pct"] = matched_block.get("rainfall_deviation_pct", weather.get("rainfall_deviation_pct", 0))
+        weather["dry_spell_days"] = matched_block.get("consecutive_dry_days", weather.get("dry_spell_days", 0))
+        weather["flood_hazard_risk"] = matched_block.get("flood_hazard_risk", "Low")
+        weather["mean_summer_lst_c"] = matched_block.get("mean_summer_lst_c", 40.0)
+        weather["ndms_alert_category"] = matched_block.get("ndms_alert_category", "Green (Normal)")
+        weather["block_name"] = matched_block.get("block_name")
 
     crop_name = farmer.get("crop", "").lower()
     mandi_price = next(
@@ -70,6 +87,7 @@ def get_advisory(farmer_id: str, data: dict) -> dict:
             "farmer_id": farmer["id"],
             "farmer_name": farmer["name"],
             "district_name": district.get("name", farmer["district_id"]),
+            "block_name": weather.get("block_name"),
             "crop": farmer["crop"],
             "crop_stage": farmer["crop_stage"],
             "rule_id": "R-30",
@@ -91,6 +109,9 @@ def get_advisory(farmer_id: str, data: dict) -> dict:
             "weather_data": {
                 "rainfall_deviation_pct": weather.get("rainfall_deviation_pct", 0),
                 "dry_spell_days": weather.get("dry_spell_days", 0),
+                "flood_hazard_risk": weather.get("flood_hazard_risk", "Low"),
+                "mean_summer_lst_c": weather.get("mean_summer_lst_c"),
+                "ndms_alert_category": weather.get("ndms_alert_category"),
                 "onset_status": weather.get("onset_status", "normal"),
                 "onset_delay_days": weather.get("onset_delay_days", 0)
             }
@@ -113,6 +134,7 @@ def get_advisory(farmer_id: str, data: dict) -> dict:
             "farmer_id": farmer["id"],
             "farmer_name": farmer["name"],
             "district_name": district.get("name", farmer["district_id"]),
+            "block_name": weather.get("block_name"),
             "crop": farmer["crop"],
             "crop_stage": farmer["crop_stage"],
             "rule_id": "R-10",
@@ -134,10 +156,96 @@ def get_advisory(farmer_id: str, data: dict) -> dict:
             "weather_data": {
                 "rainfall_deviation_pct": weather.get("rainfall_deviation_pct", 0),
                 "dry_spell_days": weather.get("dry_spell_days", 0),
+                "flood_hazard_risk": weather.get("flood_hazard_risk", "Low"),
+                "mean_summer_lst_c": weather.get("mean_summer_lst_c"),
+                "ndms_alert_category": weather.get("ndms_alert_category"),
                 "onset_status": weather.get("onset_status", "delayed"),
                 "onset_delay_days": weather.get("onset_delay_days", 0)
             }
         }
+
+    # 3. High Flood Hazard / Inundation Risk in Riverine Blocks -> R-OD-02
+    flood_risk = weather.get("flood_hazard_risk", "Low")
+    if flood_risk == "High" or weather.get("rainfall_deviation_pct", 0) >= 10.0:
+        r_od2 = next((r for r in advisory_rules if r["rule_id"] == "R-OD-02"), None)
+        if r_od2:
+            titles, texts = format_rule_i18n(r_od2, {})
+            relevant_contingency = [c for c in contingency_crops if c.get("crop", "").lower() == "paddy" and c.get("soil_type") == "Red & Yellow"]
+            contingency_list = relevant_contingency[0].get("recommended_contingency_crops", []) if relevant_contingency else []
+            return {
+                "farmer_id": farmer["id"],
+                "farmer_name": farmer["name"],
+                "district_name": district.get("name", farmer["district_id"]),
+                "block_name": weather.get("block_name"),
+                "crop": farmer["crop"],
+                "crop_stage": farmer["crop_stage"],
+                "rule_id": "R-OD-02",
+                "action_type": "flood_drainage_and_swarna_sub1",
+                "priority": "CRITICAL" if flood_risk == "High" else "HIGH",
+                "title": titles,
+                "text": texts,
+                "audio_stub_url": f"/audio/advisories/{farmer.get('language', 'or')}_R-OD-02.mp3",
+                "contingency_crops": contingency_list,
+                "price_data": {
+                    "crop": farmer["crop"],
+                    "current_price": current_price,
+                    "govt_msp": govt_msp,
+                    "is_below_msp": is_below_msp,
+                    "shortfall_pct": msp_shortfall_pct,
+                    "market_name": mandi_price.get("market_name", "District APMC"),
+                    "date": mandi_price.get("date", "2026-08-25")
+                },
+                "weather_data": {
+                    "rainfall_deviation_pct": weather.get("rainfall_deviation_pct", 0),
+                    "dry_spell_days": weather.get("dry_spell_days", 0),
+                    "flood_hazard_risk": flood_risk,
+                    "mean_summer_lst_c": weather.get("mean_summer_lst_c"),
+                    "ndms_alert_category": weather.get("ndms_alert_category"),
+                    "onset_status": weather.get("onset_status", "normal"),
+                    "onset_delay_days": weather.get("onset_delay_days", 0)
+                }
+            }
+
+    # 4. Severe Dry Spell / High CDD (>= 18 days) in Red & Yellow soil -> R-OD-01
+    dry_spell = weather.get("dry_spell_days", 0)
+    soil_type = district.get("soil_type", "")
+    if dry_spell >= 18 and ("red" in soil_type.lower() or matched_block is not None):
+        r_od1 = next((r for r in advisory_rules if r["rule_id"] == "R-OD-01"), None)
+        if r_od1:
+            titles, texts = format_rule_i18n(r_od1, {"dry_spell_days": dry_spell})
+            return {
+                "farmer_id": farmer["id"],
+                "farmer_name": farmer["name"],
+                "district_name": district.get("name", farmer["district_id"]),
+                "block_name": weather.get("block_name"),
+                "crop": farmer["crop"],
+                "crop_stage": farmer["crop_stage"],
+                "rule_id": "R-OD-01",
+                "action_type": "moisture_conservation_and_chahata",
+                "priority": "HIGH",
+                "title": titles,
+                "text": texts,
+                "audio_stub_url": f"/audio/advisories/{farmer.get('language', 'or')}_R-OD-01.mp3",
+                "contingency_crops": [],
+                "price_data": {
+                    "crop": farmer["crop"],
+                    "current_price": current_price,
+                    "govt_msp": govt_msp,
+                    "is_below_msp": is_below_msp,
+                    "shortfall_pct": msp_shortfall_pct,
+                    "market_name": mandi_price.get("market_name", "District APMC"),
+                    "date": mandi_price.get("date", "2026-08-25")
+                },
+                "weather_data": {
+                    "rainfall_deviation_pct": weather.get("rainfall_deviation_pct", 0),
+                    "dry_spell_days": dry_spell,
+                    "flood_hazard_risk": weather.get("flood_hazard_risk", "Low"),
+                    "mean_summer_lst_c": weather.get("mean_summer_lst_c"),
+                    "ndms_alert_category": weather.get("ndms_alert_category"),
+                    "onset_status": weather.get("onset_status", "normal"),
+                    "onset_delay_days": weather.get("onset_delay_days", 0)
+                }
+            }
 
     # 3. Flowering Stage + Severe Dry Spell (>= 12 days) -> R-12
     dry_spell = weather.get("dry_spell_days", 0)

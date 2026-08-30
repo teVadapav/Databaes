@@ -38,6 +38,7 @@ def init_and_seed_db():
     DROP TABLE IF EXISTS contingency_crops;
     DROP TABLE IF EXISTS advisory_rules;
     DROP TABLE IF EXISTS schemes;
+    DROP TABLE IF EXISTS sundargarh_blocks;
     DROP TABLE IF EXISTS districts;
 
     CREATE TABLE districts (
@@ -49,6 +50,23 @@ def init_and_seed_db():
         normal_onset_week TEXT NOT NULL,
         historical_vulnerability_index INTEGER NOT NULL,
         description TEXT
+    );
+
+    CREATE TABLE sundargarh_blocks (
+        id TEXT PRIMARY KEY,
+        block_name TEXT NOT NULL,
+        district_id TEXT NOT NULL DEFAULT 'D_OD_SUN',
+        district_name TEXT NOT NULL DEFAULT 'Sundargarh',
+        state TEXT NOT NULL DEFAULT 'Odisha',
+        normal_rainfall_mm REAL NOT NULL,
+        rainfall_deviation_pct REAL NOT NULL,
+        flood_hazard_risk TEXT NOT NULL,
+        soil_type TEXT NOT NULL,
+        mean_summer_lst_c REAL NOT NULL,
+        consecutive_dry_days INTEGER NOT NULL,
+        ndms_alert_category TEXT NOT NULL,
+        alert_level TEXT NOT NULL,
+        FOREIGN KEY (district_id) REFERENCES districts(id)
     );
 
     CREATE TABLE mandi_prices (
@@ -230,7 +248,7 @@ def init_and_seed_db():
             cursor.execute("""
             INSERT INTO officers (id, name, designation, phone, email, assigned_districts, office_location)
             VALUES (?, ?, ?, ?, ?, ?, ?)
-            """, (o["id"], o["name"], o["designation"], o["phone"], o["email"], json.dumps(o.get("assigned_districts", [])), o.get("office_location", "")))
+            """, (o["id"], o["name"], o["designation"], o["phone"], o.get("email", ""), json.dumps(o.get("assigned_districts", [])), o.get("office_location", "")))
 
     # Seed Contingency Crops
     with open(os.path.join(DATA_DIR, "contingency_crops.json"), "r", encoding="utf-8") as f:
@@ -257,6 +275,28 @@ def init_and_seed_db():
                 ru.get("title_en", ""), ru.get("title_hi", ""), ru.get("title_mr", ""), ru.get("title_or", ""), ru.get("title_as", ""), ru.get("title_kn", ""),
                 ru.get("template_en", ""), ru.get("template_hi", ""), ru.get("template_mr", ""), ru.get("template_or", ""), ru.get("template_as", ""), ru.get("template_kn", "")
             ))
+
+    # Seed Sundargarh Blocks
+    sundargarh_path = os.path.join(DATA_DIR, "sundargarh_blocks.json")
+    if os.path.exists(sundargarh_path):
+        with open(sundargarh_path, "r", encoding="utf-8") as f:
+            sundargarh_data = json.load(f)
+            for sb in sundargarh_data:
+                cursor.execute("""
+                INSERT INTO sundargarh_blocks (
+                    id, block_name, district_id, district_name, state,
+                    normal_rainfall_mm, rainfall_deviation_pct, flood_hazard_risk,
+                    soil_type, mean_summer_lst_c, consecutive_dry_days,
+                    ndms_alert_category, alert_level
+                )
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """, (
+                    sb["id"], sb["block_name"], sb.get("district_id", "D_OD_SUN"),
+                    sb.get("district_name", "Sundargarh"), sb.get("state", "Odisha"),
+                    sb["normal_rainfall_mm"], sb["rainfall_deviation_pct"],
+                    sb["flood_hazard_risk"], sb["soil_type"], sb["mean_summer_lst_c"],
+                    sb["consecutive_dry_days"], sb["ndms_alert_category"], sb.get("alert_level", "normal")
+                ))
 
     conn.commit()
     conn.close()

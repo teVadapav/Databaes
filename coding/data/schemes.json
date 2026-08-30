@@ -43,5 +43,32 @@
     "action_summary": "Verify Aadhaar seeding and expedite direct benefit transfer release of ₹2,000",
     "portal_url": "https://pmkisan.gov.in",
     "benefit_type": "Immediate Direct Cash Support"
+  },
+  {
+    "scheme_id": "S_OD1",
+    "name": "KALIA Scheme (Krushak Assistance for Livelihood and Income Augmentation)",
+    "short_name": "Odisha KALIA Support",
+    "trigger_signal": "high_vulnerability_index",
+    "action_summary": "Expedite ₹4,000/season financial assistance for small/marginal farmers and landless agricultural households",
+    "portal_url": "https://kalia.odisha.gov.in",
+    "benefit_type": "State Direct Cash & Input Support"
+  },
+  {
+    "scheme_id": "S_OD2",
+    "name": "OSDMA / SDRF Flood Hazard Emergency Compensation",
+    "short_name": "Odisha Flood Calamity Relief",
+    "trigger_signal": "flood_hazard",
+    "action_summary": "Process input subsidy for sand casting (>3 inches) and silted fields; distribution of Swarna-Sub1 submerged-tolerant seed minikits",
+    "portal_url": "https://osdma.org",
+    "benefit_type": "Calamity Restitution & Resilient Seed Kits"
+  },
+  {
+    "scheme_id": "S_OD3",
+    "name": "Jalanidhi / Farm Pond (Chahata) Micro-Irrigation Subsidy",
+    "short_name": "Odisha Farm Pond & Solar Pump",
+    "trigger_signal": "rainfall_deficit",
+    "action_summary": "Provide 70% capital subsidy for excavation of farm pond and 0.5 HP solar pump for protective irrigation during dry spells",
+    "portal_url": "https://agrisnetodisha.ori.nic.in",
+    "benefit_type": "In-situ Water Harvesting Infrastructure"
   }
 ]

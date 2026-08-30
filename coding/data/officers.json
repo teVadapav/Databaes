@@ -16,5 +16,14 @@
     "email": "shradha.sawant@krishi.maharashtra.gov.in",
     "assigned_districts": ["D3"],
     "office_location": "Coastal Zone Krishi Bhavan, Ratnagiri"
+  },
+  {
+    "id": "OFF_OD1",
+    "name": "Shri Manas Ranjan Jena",
+    "designation": "District Agricultural Officer (DAO), Sundargarh",
+    "phone": "+91-94370-19284",
+    "email": "dao.sundargarh@agri.odisha.gov.in",
+    "assigned_districts": ["D_OD_SUN", "D_OD1", "D_OD2", "D_OD3"],
+    "office_location": "Krishi Bhavan, Sundargarh Sadar, Odisha"
   }
 ]

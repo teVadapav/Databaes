@@ -1,5 +1,93 @@
 [
   {
+    "id": "F_SUN1",
+    "name": "Debendra Majhi",
+    "phone": "+91-94371-22819",
+    "district_id": "D_OD_SUN",
+    "village": "Hemgir Block",
+    "crop": "paddy",
+    "crop_stage": "vegetative",
+    "language": "or",
+    "loan_due_date": "2026-11-10",
+    "loan_amount_inr": 65000,
+    "tech_literacy": "low",
+    "device_type": "android_smartphone",
+    "network_quality": "good",
+    "landholding_hectares": 1.5,
+    "irrigation_type": "rainfed",
+    "borewell_failed": true,
+    "income_sources": [
+      "crop_cultivation"
+    ],
+    "has_pmfby_insurance": false,
+    "has_kcc": true,
+    "informal_debt": true,
+    "enrolled_schemes": [
+      "PM-KISAN",
+      "KALIA"
+    ],
+    "officer_id": "OFF_OD1"
+  },
+  {
+    "id": "F_SUN2",
+    "name": "Brundaban Oram",
+    "phone": "+91-94372-55102",
+    "district_id": "D_OD_SUN",
+    "village": "Bonaigarh Block",
+    "crop": "paddy",
+    "crop_stage": "flowering",
+    "language": "or",
+    "loan_due_date": "2026-11-25",
+    "loan_amount_inr": 45000,
+    "tech_literacy": "medium",
+    "device_type": "android_smartphone",
+    "network_quality": "good",
+    "landholding_hectares": 2.0,
+    "irrigation_type": "canal",
+    "borewell_failed": false,
+    "income_sources": [
+      "crop_cultivation",
+      "dairy"
+    ],
+    "has_pmfby_insurance": true,
+    "has_kcc": true,
+    "informal_debt": false,
+    "enrolled_schemes": [
+      "PM-KISAN",
+      "PMFBY",
+      "KALIA"
+    ],
+    "officer_id": "OFF_OD1"
+  },
+  {
+    "id": "F_SUN3",
+    "name": "Saraswati Kisan",
+    "phone": "+91-94373-88234",
+    "district_id": "D_OD_SUN",
+    "village": "Lephripara Block",
+    "crop": "pulses",
+    "crop_stage": "vegetative",
+    "language": "or",
+    "loan_due_date": "2026-10-30",
+    "loan_amount_inr": 35000,
+    "tech_literacy": "low",
+    "device_type": "feature_phone",
+    "network_quality": "poor",
+    "landholding_hectares": 1.0,
+    "irrigation_type": "rainfed",
+    "borewell_failed": false,
+    "income_sources": [
+      "crop_cultivation"
+    ],
+    "has_pmfby_insurance": false,
+    "has_kcc": false,
+    "informal_debt": true,
+    "enrolled_schemes": [
+      "PM-KISAN"
+    ],
+    "officer_id": "OFF_OD1"
+  },
+  {
     "id": "F1",
     "name": "Ramesh Patil",
     "phone": "+91-98231-10293",

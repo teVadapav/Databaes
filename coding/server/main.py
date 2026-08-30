@@ -125,6 +125,10 @@ def load_full_datastore():
         contingency_crops.append(cd)
 
     advisory_rules = [dict(row) for row in cursor.execute("SELECT * FROM advisory_rules").fetchall()]
+    try:
+        sundargarh_blocks = [dict(row) for row in cursor.execute("SELECT * FROM sundargarh_blocks").fetchall()]
+    except Exception:
+        sundargarh_blocks = []
     conn.close()
 
     return {
@@ -135,7 +139,8 @@ def load_full_datastore():
         "daily_rainfall": daily_rainfall,
         "officers": officers,
         "contingency_crops": contingency_crops,
-        "advisory_rules": advisory_rules
+        "advisory_rules": advisory_rules,
+        "sundargarh_blocks": sundargarh_blocks
     }
 
 
@@ -589,6 +594,14 @@ def health_check():
 def get_all_districts():
     data = load_full_datastore()
     return data["districts"]
+
+
+@app.get("/api/sundargarh/blocks")
+@app.get("/api/v1/sundargarh/blocks")
+def get_sundargarh_blocks():
+    """Returns all 17 blocks of Sundargarh District, Odisha with micro-climate & hazard metrics"""
+    data = load_full_datastore()
+    return data.get("sundargarh_blocks", [])
 
 
 @app.get("/api/farmers")
