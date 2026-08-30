@@ -56,7 +56,7 @@
 .onboarding-header {
   background: linear-gradient(135deg, #16539a 0%, #2380de 50%, #3897f1 100%);
   color: #ffffff;
-  padding: 1rem 1.25rem 0.85rem;
+  padding: 0.85rem 1rem 0.75rem;
   position: relative;
   flex-shrink: 0;
 }
@@ -191,29 +191,29 @@
 
 /* Screen 2: Farm & Farmer Form */
 .onboarding-form-body {
-  padding: 0.85rem 1rem;
+  padding: 0.85rem 1.15rem 1.5rem;
   max-height: none;
   overflow-y: auto;
 }
 
 .form-group {
-  margin-bottom: 0.85rem;
+  margin-bottom: 0.95rem;
 }
 
 .form-label {
   display: block;
-  font-size: 0.78rem;
+  font-size: 0.82rem;
   font-weight: 700;
   color: #1e293b;
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.35rem;
 }
 
 .form-input, .form-select {
   width: 100%;
-  padding: 0.55rem 0.75rem;
+  padding: 0.65rem 0.85rem;
   border: 1.5px solid #cbd5e1;
   border-radius: 0.75rem;
-  font-size: 0.85rem;
+  font-size: 0.88rem;
   color: #0f172a;
   background: #f8fafc;
   transition: all 0.2s ease;

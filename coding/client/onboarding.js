@@ -719,16 +719,16 @@ const Onboarding = {
         
         <!-- Header -->
         <div class="onboarding-header">
-          <div class="flex items-center justify-between gap-2 flex-wrap">
-            <div class="flex items-center space-x-2">
-              <span class="text-2xl">🌱</span>
-              <div>
-                <h2 class="text-lg font-black tracking-tight leading-tight">Smart Krishi</h2>
+          <div class="flex items-center justify-between gap-2">
+            <div class="flex items-center space-x-2 min-w-0">
+              <span class="text-2xl shrink-0">🌱</span>
+              <div class="min-w-0">
+                <h2 class="text-base sm:text-lg font-black tracking-tight leading-tight truncate">Smart Krishi</h2>
               </div>
             </div>
-            <div class="flex items-center space-x-1.5">
+            <div class="flex items-center space-x-2 shrink-0">
               <!-- Font Size Selector -->
-              <div class="flex items-center space-x-1 bg-white/15 border border-white/25 px-2 py-0.5 rounded-lg text-white text-xs" title="Adjust Text Readability">
+              <div class="flex items-center space-x-1 bg-white/20 border border-white/30 px-2 py-1 rounded-xl text-white text-xs shadow-xs" title="Adjust Text Readability">
                 <span class="text-[10px]">🔤</span>
                 <select id="ob-font-size-select" onchange="Onboarding.setFontSize(this.value)" class="bg-transparent text-white font-bold text-xs outline-none cursor-pointer">
                   <option value="medium" class="text-slate-900" ${OnboardingState.fontSize === 'medium' ? 'selected' : ''}>Medium</option>
@@ -737,9 +737,9 @@ const Onboarding = {
                 </select>
               </div>
 
-              <span id="ob-step-badge" class="px-2.5 py-1 rounded-full text-xs font-bold bg-white/20 text-white backdrop-blur-sm border border-white/20">Step 1 of 4</span>
+              <span id="ob-step-badge" class="px-2.5 py-1 rounded-full text-[11px] font-extrabold bg-white/20 text-white backdrop-blur-sm border border-white/20 whitespace-nowrap">Step 1 of 4</span>
               ${isEdit || OnboardingState.isComplete() ? `
-                <button onclick="Onboarding.hideModal()" class="text-white/80 hover:text-white text-xl font-bold px-2 py-0.5 rounded-lg hover:bg-white/10 transition">✕</button>
+                <button onclick="Onboarding.hideModal()" class="text-white/90 hover:text-white text-lg font-bold w-7 h-7 flex items-center justify-center rounded-lg hover:bg-white/20 transition">✕</button>
               ` : ''}
             </div>
           </div>
