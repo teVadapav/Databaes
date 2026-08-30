@@ -719,14 +719,24 @@ const Onboarding = {
         
         <!-- Header -->
         <div class="onboarding-header">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center space-x-2.5">
+          <div class="flex items-center justify-between gap-2 flex-wrap">
+            <div class="flex items-center space-x-2">
               <span class="text-2xl">🌱</span>
               <div>
                 <h2 class="text-lg font-black tracking-tight leading-tight">Smart Krishi</h2>
               </div>
             </div>
-            <div class="flex items-center space-x-2">
+            <div class="flex items-center space-x-1.5">
+              <!-- Font Size Selector -->
+              <div class="flex items-center space-x-1 bg-white/15 border border-white/25 px-2 py-0.5 rounded-lg text-white text-xs" title="Adjust Text Readability">
+                <span class="text-[10px]">🔤</span>
+                <select id="ob-font-size-select" onchange="Onboarding.setFontSize(this.value)" class="bg-transparent text-white font-bold text-xs outline-none cursor-pointer">
+                  <option value="medium" class="text-slate-900" ${OnboardingState.fontSize === 'medium' ? 'selected' : ''}>Medium</option>
+                  <option value="large" class="text-slate-900" ${OnboardingState.fontSize === 'large' ? 'selected' : ''}>Large</option>
+                  <option value="xlarge" class="text-slate-900" ${OnboardingState.fontSize === 'xlarge' ? 'selected' : ''}>Extra Large</option>
+                </select>
+              </div>
+
               <span id="ob-step-badge" class="px-2.5 py-1 rounded-full text-xs font-bold bg-white/20 text-white backdrop-blur-sm border border-white/20">Step 1 of 4</span>
               ${isEdit || OnboardingState.isComplete() ? `
                 <button onclick="Onboarding.hideModal()" class="text-white/80 hover:text-white text-xl font-bold px-2 py-0.5 rounded-lg hover:bg-white/10 transition">✕</button>
@@ -1388,4 +1398,25 @@ document.addEventListener('DOMContentLoaded', () => {
   setTimeout(() => {
     Onboarding.init();
   }, 100);
-});
+});  setFontSize(size) {
+    OnboardingState.fontSize = size;
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem('sk_font_size', size);
+    }
+    const wrapper = document.querySelector('.onboarding-card-wrapper');
+    if (wrapper) {
+      wrapper.classList.remove('font-size-medium', 'font-size-large', 'font-size-xlarge');
+      wrapper.classList.add(`font-size-${size}`);
+    }
+    const farmerView = document.getElementById('view-farmer');
+    if (farmerView) {
+      farmerView.classList.remove('font-size-medium', 'font-size-large', 'font-size-xlarge');
+      farmerView.classList.add(`font-size-${size}`);
+    }
+    const appFontSizeSelect = document.getElementById('font-size-select');
+    if (appFontSizeSelect) appFontSizeSelect.value = size;
+    const obFontSizeSelect = document.getElementById('ob-font-size-select');
+    if (obFontSizeSelect) obFontSizeSelect.value = size;
+  },
+
+

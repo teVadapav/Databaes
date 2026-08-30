@@ -1,7 +1,7 @@
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;600;700;800&family=Noto+Sans+Devanagari:wght@400;600;700;800&family=Noto+Sans+Kannada:wght@400;600;700;800&family=Noto+Sans+Oriya:wght@400;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+Bengali:wght@400;600;700;800&family=Noto+Serif+Devanagari:wght@400;600;700;800&family=Noto+Serif+Kannada:wght@400;600;700;800&family=Noto+Serif+Oriya:wght@400;600;700;800&family=Noto+Sans+Bengali:wght@400;600;700;800&family=Noto+Sans+Devanagari:wght@400;600;700;800&family=Noto+Sans+Kannada:wght@400;600;700;800&family=Noto+Sans+Oriya:wght@400;600;700;800&display=swap');
 
 :root {
-  --font-primary: 'Outfit', 'Noto Sans Oriya', 'Noto Sans Devanagari', 'Noto Sans Bengali', 'Noto Sans Kannada', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-primary: 'Georgia', 'Noto Serif', 'Noto Serif Oriya', 'Noto Serif Devanagari', 'Noto Serif Bengali', 'Noto Serif Kannada', 'Noto Sans Oriya', 'Noto Sans Devanagari', 'Noto Sans Bengali', 'Noto Sans Kannada', serif;
 }
 
 body {
@@ -20,6 +20,7 @@ body {
 /* Smooth transitions */
 button, select, input {
   transition: all 0.15s ease-in-out;
+  font-family: inherit;
 }
 
 /* Custom Scrollbars */
@@ -88,7 +89,7 @@ button, select, input {
   transform: translateX(-50%) translateY(120%);
   background: rgba(15, 23, 42, 0.92);
   color: #f1f5f9;
-  font-family: 'Outfit', sans-serif;
+  font-family: var(--font-primary);
   font-size: 0.8rem;
   font-weight: 600;
   padding: 0.5rem 1.2rem;
@@ -109,19 +110,95 @@ button, select, input {
 
 /* ── Regional Script Font Overrides ───────────────────────────────────── */
 body.script-odia {
-  font-family: 'Noto Sans Oriya', 'Outfit', sans-serif;
+  font-family: 'Noto Serif Oriya', 'Noto Sans Oriya', 'Georgia', serif;
 }
 body.script-assamese {
-  font-family: 'Noto Sans Bengali', 'Outfit', sans-serif;
+  font-family: 'Noto Serif Bengali', 'Noto Sans Bengali', 'Georgia', serif;
 }
 body.script-kannada {
-  font-family: 'Noto Sans Kannada', 'Outfit', sans-serif;
+  font-family: 'Noto Serif Kannada', 'Noto Sans Kannada', 'Georgia', serif;
 }
 body.script-devanagari {
-  font-family: 'Noto Sans Devanagari', 'Outfit', sans-serif;
+  font-family: 'Noto Serif Devanagari', 'Noto Sans Devanagari', 'Georgia', serif;
 }
 
-/* ── Mobile Phone Mockup Device for Farmer App ── */
+/* ── Font Size Scaling (Scoped to Farmer App & Onboarding) ── */
+#view-farmer.font-size-medium,
+.onboarding-card-wrapper.font-size-medium {
+  --app-scale-factor: 1;
+}
+
+#view-farmer.font-size-large,
+.onboarding-card-wrapper.font-size-large {
+  --app-scale-factor: 1.15;
+}
+
+#view-farmer.font-size-xlarge,
+.onboarding-card-wrapper.font-size-xlarge {
+  --app-scale-factor: 1.3;
+}
+
+/* Scaled Typography Rules for Large Tier */
+#view-farmer.font-size-large .text-xs,
+.onboarding-card-wrapper.font-size-large .text-xs {
+  font-size: 0.85rem !important;
+  line-height: 1.35 !important;
+}
+#view-farmer.font-size-large .text-sm,
+.onboarding-card-wrapper.font-size-large .text-sm {
+  font-size: 0.98rem !important;
+  line-height: 1.4 !important;
+}
+#view-farmer.font-size-large .text-base,
+.onboarding-card-wrapper.font-size-large .text-base {
+  font-size: 1.15rem !important;
+  line-height: 1.45 !important;
+}
+#view-farmer.font-size-large .text-lg,
+.onboarding-card-wrapper.font-size-large .text-lg {
+  font-size: 1.28rem !important;
+  line-height: 1.45 !important;
+}
+#view-farmer.font-size-large .text-xl,
+.onboarding-card-wrapper.font-size-large .text-xl {
+  font-size: 1.42rem !important;
+}
+#view-farmer.font-size-large .text-2xl,
+.onboarding-card-wrapper.font-size-large .text-2xl {
+  font-size: 1.7rem !important;
+}
+
+/* Scaled Typography Rules for Extra Large Tier */
+#view-farmer.font-size-xlarge .text-xs,
+.onboarding-card-wrapper.font-size-xlarge .text-xs {
+  font-size: 0.96rem !important;
+  line-height: 1.4 !important;
+}
+#view-farmer.font-size-xlarge .text-sm,
+.onboarding-card-wrapper.font-size-xlarge .text-sm {
+  font-size: 1.1rem !important;
+  line-height: 1.45 !important;
+}
+#view-farmer.font-size-xlarge .text-base,
+.onboarding-card-wrapper.font-size-xlarge .text-base {
+  font-size: 1.28rem !important;
+  line-height: 1.5 !important;
+}
+#view-farmer.font-size-xlarge .text-lg,
+.onboarding-card-wrapper.font-size-xlarge .text-lg {
+  font-size: 1.44rem !important;
+  line-height: 1.5 !important;
+}
+#view-farmer.font-size-xlarge .text-xl,
+.onboarding-card-wrapper.font-size-xlarge .text-xl {
+  font-size: 1.6rem !important;
+}
+#view-farmer.font-size-xlarge .text-2xl,
+.onboarding-card-wrapper.font-size-xlarge .text-2xl {
+  font-size: 1.95rem !important;
+}
+
+/* ── Mobile Phone Mockup Device for Desktop ── */
 .mobile-device-wrapper {
   max-width: 440px;
   margin: 1rem auto;
@@ -242,19 +319,45 @@ body.script-devanagari {
   pointer-events: none;
 }
 
-@media (max-width: 640px) {
-  .mobile-device-wrapper {
-    max-width: 100%;
-    margin: 0;
-    border-radius: 0;
-    padding: 0;
-    border: none;
-    box-shadow: none;
-    background: transparent;
+/* ── Mobile Phone Native Fit Mode (Edge-to-Edge Responsive on actual Phones) ── */
+@media (max-width: 768px) {
+  body.is-mobile-phone main,
+  main {
+    padding: 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
   }
+
+  .mobile-device-wrapper {
+    max-width: 100% !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+  }
+
   .mobile-device-screen {
-    border-radius: 0;
-    max-height: none;
-    min-height: auto;
+    border-radius: 0 !important;
+    height: 100dvh !important;
+    max-height: 100dvh !important;
+    min-height: 100dvh !important;
+  }
+
+  .mobile-status-bar {
+    display: none !important; /* Native OS status bar handles this */
+  }
+
+  .mobile-bottom-nav {
+    padding-bottom: max(16px, env(safe-area-inset-bottom, 16px)) !important;
+  }
+
+  .mobile-device-screen-scroll {
+    padding-bottom: max(110px, calc(85px + env(safe-area-inset-bottom, 20px))) !important;
+  }
+
+  #onboarding-modal-overlay {
+    border-radius: 0 !important;
   }
 }

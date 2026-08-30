@@ -1310,9 +1310,58 @@ async function playButtonAudio(buttonKey, event) {
 
 // ─── INITIALIZATION & EVENT LISTENERS ───
 
+
+// ─── DEVICE DETECTION & RESPONSIVENESS ───
+function detectDevice() {
+  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
+  if (isMobile) {
+    document.body.classList.add('is-mobile-phone');
+  } else {
+    document.body.classList.remove('is-mobile-phone');
+  }
+}
+
+// ─── FONT SIZE CONTROLLER (Scoped strictly to Farmer App & Pre-Dashboard) ───
+function initFontSize() {
+  const savedSize = (typeof localStorage !== 'undefined' && localStorage.getItem('sk_font_size')) || 'medium';
+  setFontSize(savedSize);
+}
+
+function setFontSize(size) {
+  state.fontSize = size;
+  if (typeof localStorage !== 'undefined') {
+    localStorage.setItem('sk_font_size', size);
+  }
+
+  const farmerView = document.getElementById('view-farmer');
+  if (farmerView) {
+    farmerView.classList.remove('font-size-medium', 'font-size-large', 'font-size-xlarge');
+    farmerView.classList.add(`font-size-${size}`);
+  }
+
+  const obWrapper = document.querySelector('.onboarding-card-wrapper');
+  if (obWrapper) {
+    obWrapper.classList.remove('font-size-medium', 'font-size-large', 'font-size-xlarge');
+    obWrapper.classList.add(`font-size-${size}`);
+  }
+
+  const farmerSelect = document.getElementById('font-size-select');
+  if (farmerSelect) farmerSelect.value = size;
+
+  const obSelect = document.getElementById('ob-font-size-select');
+  if (obSelect) obSelect.value = size;
+
+  if (window.OnboardingState) {
+    window.OnboardingState.fontSize = size;
+  }
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
+  detectDevice();
+  initFontSize();
   initLanguageSelector();
   initIvrSimulator();
+  window.addEventListener('resize', detectDevice);
   await Promise.all([
     loadFarmersList(),
     fetchOfficerData()
