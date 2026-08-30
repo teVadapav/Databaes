@@ -179,8 +179,9 @@
           <!-- Mobile App Scrollable Viewport -->
           <div class="mobile-device-screen-scroll">
             
-            <!-- Farmer Profile Card (Mobile Unified Identity & Setup Flow) -->
-            <div id="farmer-profile-card" class="bg-gradient-to-br from-sky-900 via-sky-800 to-sky-700 text-white rounded-2xl p-4 shadow-md relative overflow-hidden space-y-2.5">
+            <!-- Farmer Profile Card (Mobile Unified Identity & All Details from integrated2) -->
+            <div id="farmer-profile-card" class="bg-gradient-to-br from-sky-900 via-sky-800 to-sky-700 text-white rounded-2xl p-4 shadow-md space-y-3">
+              <!-- Top Row: Avatar, Farmer Name, Crop Badge, Action Buttons -->
               <div class="flex items-start justify-between gap-2">
                 <div class="flex items-center space-x-2.5 min-w-0">
                   <span class="text-3xl select-none shrink-0">👨‍🌾</span>
@@ -190,25 +191,31 @@
                     <span id="active-farmer-meta-display" class="hidden">Onion</span>
                     <div class="text-xs font-bold text-amber-300 flex items-center space-x-1 mt-0.5">
                       <span id="fp-vegetation-label">Vegetation:</span>
-                      <span id="fp-crop-badge" class="font-black text-white bg-amber-500/20 px-1.5 py-0.2 rounded border border-amber-400/30">Onion</span>
+                      <span id="fp-crop-badge" class="font-black text-white bg-amber-500/20 px-2 py-0.5 rounded-md border border-amber-400/30">Onion</span>
                     </div>
                   </div>
                 </div>
-                <!-- Action Buttons -->
+                <!-- Action Buttons: Setup Flow & Switch -->
                 <div id="farmer-logged-in-badge" class="flex items-center space-x-1.5 shrink-0">
-                  <button onclick="Onboarding.openSetupFlow()" title="Farmer Setup Flow" class="text-[10px] bg-sky-500 hover:bg-sky-400 active:scale-95 text-white font-bold px-2.5 py-1 rounded-xl transition shadow-xs cursor-pointer border border-sky-400/40">Setup Flow</button>
-                  <button onclick="Onboarding.openLoginModal()" title="Switch Account / Login" class="text-[10px] bg-white/20 hover:bg-white/30 active:scale-95 text-white font-bold px-2 py-1 rounded-xl transition cursor-pointer border border-white/20">Switch</button>
+                  <button onclick="Onboarding.openSetupFlow()" title="Farmer Setup Flow" class="text-xs bg-sky-500 hover:bg-sky-400 active:scale-95 text-white font-bold px-2.5 py-1 rounded-xl transition shadow-xs cursor-pointer border border-sky-300/40">Setup Flow</button>
+                  <button onclick="Onboarding.openLoginModal()" title="Switch Account / Login" class="text-xs bg-white/20 hover:bg-white/30 active:scale-95 text-white font-bold px-2 py-1 rounded-xl transition cursor-pointer border border-white/20">Switch</button>
                 </div>
               </div>
               
-              <div class="flex flex-wrap items-center gap-y-1 gap-x-2 text-sky-100 text-[11px] font-medium pt-2 border-t border-sky-700/60">
-                <span id="fp-location">📍 Chandwad, Nashik</span>
-                <span>•</span>
-                <span id="fp-landholding">📐 1.2 Hectares</span>
-                <span>•</span>
-                <span id="fp-irrigation">💧 Rainfed</span>
-                <span>•</span>
-                <span id="fp-loan">💳 Loan Due: 15-11-2026</span>
+              <!-- 2x2 Grid of Profile Details: Location, Landholding, Irrigation, Loan Due -->
+              <div class="grid grid-cols-2 gap-2 pt-2 border-t border-sky-700/60 text-xs">
+                <div class="bg-sky-950/40 rounded-xl px-2.5 py-1.5 border border-sky-600/30 flex items-center space-x-1.5">
+                  <span id="fp-location" class="font-semibold text-sky-100 truncate">📍 Chandwad, Nashik</span>
+                </div>
+                <div class="bg-sky-950/40 rounded-xl px-2.5 py-1.5 border border-sky-600/30 flex items-center space-x-1.5">
+                  <span id="fp-landholding" class="font-semibold text-sky-100 truncate">📐 1.2 Hectares</span>
+                </div>
+                <div class="bg-sky-950/40 rounded-xl px-2.5 py-1.5 border border-sky-600/30 flex items-center space-x-1.5">
+                  <span id="fp-irrigation" class="font-bold text-sky-200 truncate">💧 Rainfed</span>
+                </div>
+                <div class="bg-sky-950/40 rounded-xl px-2.5 py-1.5 border border-sky-600/30 flex items-center space-x-1.5">
+                  <span id="fp-loan" class="font-bold text-amber-300 truncate">💳 Loan Due: 15-11-2026</span>
+                </div>
               </div>
             </div>
 
