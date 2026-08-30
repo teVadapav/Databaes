@@ -1,5 +1,5 @@
 * {
-  font-family: 'Times New Roman', Times, serif !important;
+  font-family: var(--font-primary, 'Outfit', 'Noto Sans Oriya', 'Noto Sans Devanagari', sans-serif);
 }
 
 /* =========================================================================
