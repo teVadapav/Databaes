@@ -636,10 +636,13 @@ const Onboarding = {
 
   renderOnboardingUI(isEdit = false) {
     let overlay = document.getElementById('onboarding-modal-overlay');
+    const mobileScreen = document.querySelector('.mobile-device-screen') || document.body;
     if (!overlay) {
       overlay = document.createElement('div');
       overlay.id = 'onboarding-modal-overlay';
-      document.body.appendChild(overlay);
+      mobileScreen.appendChild(overlay);
+    } else if (overlay.parentElement !== mobileScreen) {
+      mobileScreen.appendChild(overlay);
     }
 
     const currentLang = OnboardingState.selectedLanguage;

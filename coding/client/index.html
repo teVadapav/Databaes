@@ -179,44 +179,36 @@
           <!-- Mobile App Scrollable Viewport -->
           <div class="mobile-device-screen-scroll">
             
-            <!-- Farmer Logged-in Header Badge (Mobile Compact) -->
-            <div id="farmer-logged-in-badge" class="bg-sky-50/90 border border-sky-200 p-3 rounded-2xl flex items-center justify-between shadow-xs">
-              <div class="flex items-center space-x-2.5 min-w-0">
-                <span class="text-2xl select-none">👨‍🌾</span>
-                <div class="min-w-0">
-                  <div id="active-farmer-name-display" class="text-sm font-black text-slate-900 truncate">Aryan Patel</div>
-                  <div id="active-farmer-meta-display" class="text-[10px] font-bold text-slate-500 truncate">Onion (Maharashtra Village)</div>
-                </div>
-              </div>
-              <div class="flex items-center space-x-1.5 shrink-0">
-                <button onclick="Onboarding.openSetupFlow()" title="Farmer Setup Flow" class="text-[10px] bg-sky-600 hover:bg-sky-700 active:scale-95 text-white font-bold px-2.5 py-1 rounded-xl transition shadow-xs cursor-pointer">Setup Flow</button>
-                <button onclick="Onboarding.openLoginModal()" title="Switch Account / Login" class="text-[10px] bg-slate-200 hover:bg-slate-300 active:scale-95 text-slate-700 font-bold px-2.5 py-1 rounded-xl transition cursor-pointer">Switch</button>
-              </div>
-            </div>
-
-            <!-- Farmer Identity & Digital Profile Bar -->
-            <div id="farmer-profile-card" class="bg-gradient-to-br from-sky-900 via-sky-800 to-sky-700 text-white rounded-2xl p-4 shadow-md relative overflow-hidden">
-              <div class="relative z-10 space-y-2">
-                <div class="flex items-start justify-between">
-                  <div>
-                    <h1 id="fp-name" class="text-xl sm:text-2xl font-black tracking-tight text-white">Aryan Patel</h1>
-                    <div class="mt-0.5 text-xs font-bold text-amber-300 flex items-center space-x-1">
+            <!-- Farmer Profile Card (Mobile Unified Identity & Setup Flow) -->
+            <div id="farmer-profile-card" class="bg-gradient-to-br from-sky-900 via-sky-800 to-sky-700 text-white rounded-2xl p-4 shadow-md relative overflow-hidden space-y-2.5">
+              <div class="flex items-start justify-between gap-2">
+                <div class="flex items-center space-x-2.5 min-w-0">
+                  <span class="text-3xl select-none shrink-0">👨‍🌾</span>
+                  <div class="min-w-0">
+                    <h1 id="fp-name" class="text-base sm:text-lg font-black tracking-tight text-white leading-tight truncate">Aryan Patel</h1>
+                    <span id="active-farmer-name-display" class="hidden">Aryan Patel</span>
+                    <span id="active-farmer-meta-display" class="hidden">Onion</span>
+                    <div class="text-xs font-bold text-amber-300 flex items-center space-x-1 mt-0.5">
                       <span id="fp-vegetation-label">Vegetation:</span>
-                      <span id="fp-crop-badge" class="font-black text-white">Onion</span>
+                      <span id="fp-crop-badge" class="font-black text-white bg-amber-500/20 px-1.5 py-0.2 rounded border border-amber-400/30">Onion</span>
                     </div>
                   </div>
-                  <span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-500/20 text-emerald-300 border border-emerald-400/30">Active Farm</span>
                 </div>
-                
-                <div class="flex flex-wrap items-center gap-y-1 gap-x-2 text-sky-100 text-[11px] font-medium pt-1.5 border-t border-sky-700/60">
-                  <span id="fp-location">📍 Chandwad, Nashik</span>
-                  <span>•</span>
-                  <span id="fp-landholding">📐 1.2 Hectares</span>
-                  <span>•</span>
-                  <span id="fp-irrigation">💧 Rainfed</span>
-                  <span>•</span>
-                  <span id="fp-loan">💳 Loan Due: 15-11-2026</span>
+                <!-- Action Buttons -->
+                <div id="farmer-logged-in-badge" class="flex items-center space-x-1.5 shrink-0">
+                  <button onclick="Onboarding.openSetupFlow()" title="Farmer Setup Flow" class="text-[10px] bg-sky-500 hover:bg-sky-400 active:scale-95 text-white font-bold px-2.5 py-1 rounded-xl transition shadow-xs cursor-pointer border border-sky-400/40">Setup Flow</button>
+                  <button onclick="Onboarding.openLoginModal()" title="Switch Account / Login" class="text-[10px] bg-white/20 hover:bg-white/30 active:scale-95 text-white font-bold px-2 py-1 rounded-xl transition cursor-pointer border border-white/20">Switch</button>
                 </div>
+              </div>
+              
+              <div class="flex flex-wrap items-center gap-y-1 gap-x-2 text-sky-100 text-[11px] font-medium pt-2 border-t border-sky-700/60">
+                <span id="fp-location">📍 Chandwad, Nashik</span>
+                <span>•</span>
+                <span id="fp-landholding">📐 1.2 Hectares</span>
+                <span>•</span>
+                <span id="fp-irrigation">💧 Rainfed</span>
+                <span>•</span>
+                <span id="fp-loan">💳 Loan Due: 15-11-2026</span>
               </div>
             </div>
 
