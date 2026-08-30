@@ -295,20 +295,13 @@ const Onboarding = {
       window.switchGlobalLanguage(initialLang);
     }
 
-    // Always create/render onboarding modal in DOM
+    // Always render inside the phone screen container
     this.renderOnboardingUI(false);
 
-    const urlParams = new URLSearchParams(window.location.search);
-    const forceSetup = urlParams.get('setup') === 'true' || urlParams.get('onboarding') === 'true';
-
-    if (!OnboardingState.isComplete() || forceSetup) {
-      console.log('🚀 Showing mandatory pre-dashboard onboarding flow...');
-      this.showModal();
-      this.goToStep(1);
-    } else {
-      console.log('✅ Active session detected. User:', AuthService.getUser()?.name);
-      this.hideModal();
-    }
+    // Reflect first on the phone screen when opening the app
+    console.log('🚀 Showing pre-dashboard onboarding flow on phone screen...');
+    this.showModal();
+    this.goToStep(1);
   },
 
   openSetupFlow() {
@@ -646,10 +639,13 @@ const Onboarding = {
 
   renderOnboardingUI(isEdit = false) {
     let overlay = document.getElementById('onboarding-modal-overlay');
+    const phoneScreen = document.querySelector('.mobile-device-screen') || document.body;
     if (!overlay) {
       overlay = document.createElement('div');
       overlay.id = 'onboarding-modal-overlay';
-      document.body.appendChild(overlay);
+      phoneScreen.appendChild(overlay);
+    } else if (overlay.parentElement !== phoneScreen) {
+      phoneScreen.appendChild(overlay);
     }
 
     const currentLang = OnboardingState.selectedLanguage;
