@@ -23,7 +23,6 @@
 }
 
 #onboarding-modal-overlay.hidden {
-  display: none !important;
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
@@ -380,97 +379,4 @@
     opacity: 1;
     transform: translateX(0);
   }
-}
-
-
-/* Quick Farmer Switcher Cards in Login Modal */
-.quick-farmer-card {
-  padding: 0.75rem 1rem;
-  background: #ffffff;
-  border: 2px solid #e2e8f0;
-  border-radius: 1rem;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  text-align: left;
-}
-
-.quick-farmer-card:hover {
-  border-color: #0284c7;
-  background: #f0f9ff;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-}
-
-.quick-farmer-card.active {
-  border-color: #0284c7;
-  background: #f0f9ff;
-  box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.2);
-}
-
-/* Crop Single Select Cards */
-.crop-single-card {
-  padding: 0.85rem 0.6rem;
-  background: #ffffff;
-  border: 2px solid #e2e8f0;
-  border-radius: 1.25rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.crop-single-card:hover {
-  border-color: #0284c7;
-  background: #f0f9ff;
-  transform: translateY(-2px);
-}
-
-.crop-single-card.selected {
-  border-color: #0284c7;
-  background: #f0f9ff;
-  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.25);
-}
-
-/* Stage Cards */
-.stage-card {
-  width: 100%;
-  padding: 0.75rem 1rem;
-  background: #ffffff;
-  border: 2px solid #e2e8f0;
-  border-radius: 1rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.stage-card:hover {
-  border-color: #0284c7;
-  background: #f0f9ff;
-  transform: translateY(-1px);
-}
-
-.stage-card.selected {
-  border-color: #0284c7;
-  background: #f0f9ff;
-  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.25);
-}
-
-/* Selected Crop Banner */
-.selected-crop-banner {
-  padding: 0.75rem 1rem;
-  background: #f0f9ff;
-  border: 1.5px solid #bae6fd;
-  border-radius: 1rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
 }

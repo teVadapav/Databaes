@@ -1160,7 +1160,7 @@ function switchMainView(viewName) {
   state.activeView = viewName;
   stopSpeech();
 
-  const views = ['farmer', 'officer', 'simulator'];
+  const views = ['farmer', 'officer', 'simulator', 'sandbox'];
   views.forEach(v => {
     const el = document.getElementById(`view-${v}`);
     const btn = document.getElementById(`nav-${v}-btn`);
