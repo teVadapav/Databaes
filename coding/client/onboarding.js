@@ -1385,20 +1385,9 @@ const Onboarding = {
         saveBtn.innerHTML = `<span>Try Again</span>`;
       }
     }
-  }
-};
+  },
 
-// Global expose
-window.Onboarding = Onboarding;
-window.AuthService = AuthService;
-window.AudioTTSController = AudioTTSController;
-
-// Auto-run on DOM ready
-document.addEventListener('DOMContentLoaded', () => {
-  setTimeout(() => {
-    Onboarding.init();
-  }, 100);
-});  setFontSize(size) {
+  setFontSize(size) {
     OnboardingState.fontSize = size;
     if (typeof localStorage !== 'undefined') {
       localStorage.setItem('sk_font_size', size);
@@ -1417,6 +1406,19 @@ document.addEventListener('DOMContentLoaded', () => {
     if (appFontSizeSelect) appFontSizeSelect.value = size;
     const obFontSizeSelect = document.getElementById('ob-font-size-select');
     if (obFontSizeSelect) obFontSizeSelect.value = size;
-  },
+  }
+};
+
+// Global expose
+window.Onboarding = Onboarding;
+window.AuthService = AuthService;
+window.AudioTTSController = AudioTTSController;
+
+// Auto-run on DOM ready
+document.addEventListener('DOMContentLoaded', () => {
+  setTimeout(() => {
+    Onboarding.init();
+  }, 100);
+});
 
 
