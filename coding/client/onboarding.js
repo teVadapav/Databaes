@@ -295,12 +295,6 @@ const Onboarding = {
       window.switchGlobalLanguage(initialLang);
     }
 
-    if (OnboardingState.isComplete()) {
-      console.log('✅ Active session detected. User:', AuthService.getUser()?.name);
-      this.hideModal();
-      return;
-    }
-
     console.log('🚀 Showing mandatory pre-dashboard onboarding flow...');
     this.renderOnboardingUI(false);
     this.showModal();
@@ -336,7 +330,7 @@ const Onboarding = {
     OnboardingState.isLoginMode = false;
     this.renderOnboardingUI(true);
     this.showModal();
-    this.goToStep(2);
+    this.goToStep(1);
   },
 
   openLoginModal() {
