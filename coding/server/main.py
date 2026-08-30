@@ -167,10 +167,18 @@ class FarmerOnboardingPayload(BaseModel):
     district: str
     land_details: LandDetails
     primary_crops: List[str]
+    crop_stage: Optional[str] = "vegetative"
+    irrigation_type: Optional[str] = "rainfed"
+    borewell_failed: Optional[bool] = False
+    has_pmfby: Optional[bool] = True
+    has_kcc: Optional[bool] = True
+    informal_debt: Optional[bool] = False
+    loan_due_date: Optional[str] = "2026-11-15"
+    loan_amount: Optional[float] = 50000.0
     device_type: Optional[str] = "android_smartphone"
     preferred_language: str  # e.g. "hi-IN", "mr-IN", "or-IN", "as-IN", "kn-IN", "en-IN"
     tts_locale: Optional[str] = "hi-IN"
-    voice_profile: Optional[str] = "hi-IN-SwaraNeural"
+    voice_profile: Optional[str] = "hi-IN-SwaraNeural" 
 
 
 class SmsCommunicationRequest(BaseModel):
@@ -374,6 +382,14 @@ def save_onboarding_profile(payload: FarmerOnboardingPayload):
     primary_crop = payload.primary_crops[0] if payload.primary_crops else "onion"
     is_feature_phone = "feature" in device_type_val.lower() or "basic" in device_type_val.lower()
     network_val = "poor_2g" if is_feature_phone else "good_4g"
+    stage_val = payload.crop_stage or "vegetative"
+    irr_val = payload.irrigation_type or "rainfed"
+    borewell_val = 1 if payload.borewell_failed else 0
+    pmfby_val = 1 if payload.has_pmfby else 0
+    kcc_val = 1 if payload.has_kcc else 0
+    informal_val = 1 if payload.informal_debt else 0
+    loan_date_val = payload.loan_due_date or "2026-11-15"
+    loan_amt_val = float(payload.loan_amount) if payload.loan_amount is not None else 50000.0
 
     cursor.execute("""
         INSERT OR REPLACE INTO farmers (
@@ -391,20 +407,20 @@ def save_onboarding_profile(payload: FarmerOnboardingPayload):
         payload.district,
         f"{payload.state} Village",
         primary_crop,
-        "vegetative",
+        stage_val,
         lang_code,
-        "2026-11-15",
-        45000.0,
+        loan_date_val,
+        loan_amt_val,
         "low" if is_feature_phone else "medium",
         device_type_val,
         network_val,
         area_hectares,
-        "borewell",
-        0,
+        irr_val,
+        borewell_val,
         json.dumps(["crop_cultivation"]),
-        1,
-        1,
-        0,
+        pmfby_val,
+        kcc_val,
+        informal_val,
         json.dumps(["PMFBY", "PM-KISAN"]),
         "OFF_01"
     ))

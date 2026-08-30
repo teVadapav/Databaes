@@ -235,6 +235,13 @@ const STATE_DISTRICT_MAP = {
   ]
 };
 
+const CROP_STAGES = [
+  { id: 'sowing', duration: '0–20 Days', emoji: '🌱', name: { en: 'Sowing & Germination', hi: 'बुवाई एवं अंकुरण', mr: 'पेरणी आणि उगवण', or: 'ବୁଣିବା ଓ ଗଜା ହେବା', as: 'বীজ সিঁচা আৰু গজালি মেলা', kn: 'ಬಿತ್ತನೆ ಮತ್ತು ಮೊಳಕೆಯೊಡೆಯುವಿಕೆ' } },
+  { id: 'vegetative', duration: '21–50 Days', emoji: '🌿', name: { en: 'Vegetative Growth', hi: 'वानस्पतिक वृद्धि अवस्था', mr: 'शाकीय वाढ अवस्था', or: 'ବୃଦ୍ଧି ପର୍ଯ୍ୟାୟ', as: 'অঙ্গজ বৃদ্ধি পৰ্যায়', kn: 'ಸಸ್ಯಕ ಬೆಳವಣಿಗೆ ಹಂತ' } },
+  { id: 'flowering', duration: '51–75 Days', emoji: '🌸', name: { en: 'Flowering & Podding', hi: 'फूल व फली लगने की अवस्था', mr: 'फुलधारणा आणि फळधारणा', or: 'ଫୁଲ ଓ ଛୁଇଁ ଧରିବା', as: 'ফুল আৰু শুঁটি ধৰা', kn: 'ಹೂವು ಮತ್ತು ಕಾಯಿ ಕಟ್ಟುವ ಹಂತ' } },
+  { id: 'maturity', duration: '76–100 Days', emoji: '🌾', name: { en: 'Grain Filling & Maturity', hi: 'दाना भराव एवं परिपक्वता', mr: 'दाणे भरणे आणि पक्वता', or: 'ଦାନା ପରିପକ୍ଵତା', as: 'শস্য পূৰঠ হোৱা পৰ্যায়', kn: 'ಕಾಳು ತುಂಬುವ ಮತ್ತು ಪ್ರಬುದ್ಧತೆ' } },
+  { id: 'harvest', duration: '100+ Days', emoji: '🚜', name: { en: 'Harvest Ready', hi: 'कटाई हेतु तैयार', mr: 'काढणीस तयार', or: 'ଅମଳ ଉପଯୋଗୀ', as: 'চপোৱাৰ বাবে সাজু', kn: 'ಕೊಯ್ಲಿಗೆ ಸಿದ್ಧ' } }
+];
 
 const OnboardingState = {
   currentStep: 1,
@@ -247,11 +254,19 @@ const OnboardingState = {
     phone: '',
     state: 'Maharashtra',
     district: 'D1',
-    landArea: 2.5,
+    landArea: 1.2,
     landUnit: 'hectares',
     soilType: 'black',
     deviceType: 'android_smartphone',
-    selectedCrops: ['onion']
+    irrigationType: 'rainfed',
+    borewellFailed: false,
+    hasPmfby: true,
+    hasKcc: true,
+    informalDebt: false,
+    loanDueDate: '2026-11-15',
+    loanAmount: 50000,
+    selectedCrops: ['onion'],
+    cropStage: 'vegetative'
   },
 
   isComplete: function() {
@@ -299,14 +314,22 @@ const Onboarding = {
 
     OnboardingState.formData = {
       farmerName: (current && current.name) || (saved && saved.farmer_name) || 'Ramesh Patil',
-      phone: (current && current.phone ? current.phone.replace('+91-', '').replace('+91', '').trim() : '') || (saved && saved.phone_number) || '9876543210',
+      phone: (current && current.phone ? current.phone.replace('+91-', '').replace('+91', '').trim() : '') || (saved && saved.phone_number) || '9823110293',
       state: (current && current.state) || (saved && saved.state) || 'Maharashtra',
       district: (current && current.district_id) || (saved && saved.district) || 'D1',
-      landArea: (current && current.landholding_hectares) || (saved && saved.land_details && saved.land_details.total_area) || 2.5,
+      landArea: (current && (current.landholding_hectares || current.landholding_ha)) || (saved && saved.land_details && saved.land_details.total_area) || 1.2,
       landUnit: (saved && saved.land_details && saved.land_details.unit) || 'hectares',
       soilType: (current && current.soil_type) || (saved && saved.land_details && saved.land_details.soil_type) || 'black',
       deviceType: (current && current.device_type) || (saved && saved.device_type) || 'android_smartphone',
-      selectedCrops: (saved && saved.primary_crops) || (current && current.crop ? [current.crop.toLowerCase()] : ['onion'])
+      irrigationType: (current && current.irrigation_type) || (saved && saved.irrigation_type) || 'rainfed',
+      borewellFailed: current ? !!current.borewell_failed : (saved ? !!saved.borewell_failed : false),
+      hasPmfby: current ? !!current.has_pmfby_insurance : (saved ? !!saved.has_pmfby : true),
+      hasKcc: current ? !!current.has_kcc : (saved ? !!saved.has_kcc : true),
+      informalDebt: current ? !!current.informal_debt : (saved ? !!saved.informal_debt : false),
+      loanDueDate: (current && current.loan_due_date) || (saved && saved.loan_due_date) || '2026-11-15',
+      loanAmount: (current && current.loan_amount_inr) || (saved && saved.loan_amount) || 50000,
+      selectedCrops: (saved && saved.primary_crops) || (current && current.crop ? [current.crop.toLowerCase()] : ['onion']),
+      cropStage: (saved && saved.crop_stage) || (current && current.crop_stage ? current.crop_stage.toLowerCase() : 'vegetative')
     };
 
     OnboardingState.isEditMode = true;
@@ -332,6 +355,8 @@ const Onboarding = {
         step2Sub: 'Personalize weather, crop and distress indicators',
         step3Title: 'Select Primary Crops',
         step3Sub: 'Select the crops currently cultivated in your farm',
+        step4Title: 'Crop Growth Stage & Confirmation',
+        step4Sub: 'Select the current development stage of your crop for accurate ICAR-CRIDA advisories',
         loginTitle: 'Farmer Sign-In',
         loginSub: 'Enter registered mobile number or Farmer ID (e.g. F1, F2)',
         fullName: 'Farmer Full Name',
@@ -341,6 +366,17 @@ const Onboarding = {
         districtLabel: 'District / Taluka',
         landAreaLabel: 'Total Land Area',
         soilTypeLabel: 'Soil Type',
+        irrigationLabel: 'Primary Irrigation Type',
+        irrRainfed: 'Rainfed (100% Monsoon Dependent)',
+        irrWell: 'Protective Well / Borewell',
+        irrCanal: 'Canal Assured Irrigation',
+        borewellFailedLabel: 'Borewell / Well Yield Failed this Season',
+        safetyNetsLabel: 'Financial Safety Nets & Loans',
+        pmfbyLabel: 'PMFBY Crop Insurance Enrolled',
+        kccLabel: 'Kisan Credit Card (KCC) Active',
+        informalDebtLabel: 'High-Interest Informal Private Debt (>24% p.a.)',
+        loanDueDateLabel: 'Next Bank / KCC Loan Due Date',
+        loanAmountLabel: 'Outstanding Loan Amount (₹)',
         deviceTypeLabel: 'Primary Phone / Device Type',
         smartphone: '📱 Android Smartphone (4G/5G)',
         featurephone: '📟 Basic Feature Phone (2G / Voice & SMS Only)',
@@ -348,6 +384,7 @@ const Onboarding = {
         btnUpdateProfile: 'Update Profile ✓',
         btnBack: '← Back',
         btnNext: 'Next Step →',
+        btnNextStage: 'Next Step: Crop Stage →',
         btnFinish: 'Go to Farmer Dashboard 🌾',
         btnLogin: 'Log In & Load Profile →',
         switchToLogin: 'Already registered? Login with Phone / ID',
@@ -360,6 +397,8 @@ const Onboarding = {
         step2Sub: 'मौसम, फसल और संकट संकेतकों को अनुकूलित करें',
         step3Title: 'प्रमुख फसलें चुनें',
         step3Sub: 'अपने खेत में बोई गई फसलों का चयन करें',
+        step4Title: 'फसल विकास अवस्था एवं पुष्टि',
+        step4Sub: 'सटीक ICAR-CRIDA सलाह हेतु वर्तमान वृद्धि अवस्था चुनें',
         loginTitle: 'किसान लॉगिन',
         loginSub: 'पंजीकृत मोबाइल नंबर या किसान आईडी (जैसे F1, F2) दर्ज करें',
         fullName: 'किसान का पूरा नाम',
@@ -369,6 +408,17 @@ const Onboarding = {
         districtLabel: 'जिला / तालुका',
         landAreaLabel: 'कुल कृषि भूमि',
         soilTypeLabel: 'मिट्टी का प्रकार',
+        irrigationLabel: 'सिंचाई का मुख्य स्रोत',
+        irrRainfed: 'बारानी (100% वर्षा पर निर्भर)',
+        irrWell: 'कुआं / नलकूप / बोरवेल',
+        irrCanal: 'नहर संचित सिंचाई',
+        borewellFailedLabel: 'इस मौसम में बोरवेल / कुआं सूख गया',
+        safetyNetsLabel: 'वित्तीय सुरक्षा कवच और ऋण',
+        pmfbyLabel: 'PMFBY फसल बीमा नामांकित',
+        kccLabel: 'किसान क्रेडिट कार्ड (KCC) सक्रिय',
+        informalDebtLabel: 'निजी साहूकार का उच्च ब्याज ऋण (>24%)',
+        loanDueDateLabel: 'अगली बैंक / KCC ऋण देय तिथि',
+        loanAmountLabel: 'बकाया ऋण राशि (₹)',
         deviceTypeLabel: 'मुख्य फोन / उपकरण का प्रकार',
         smartphone: '📱 एंड्रॉइड स्मार्टफोन (4G/5G)',
         featurephone: '📟 साधारण कीपैड फोन (2G / केवल कॉल व SMS)',
@@ -376,6 +426,7 @@ const Onboarding = {
         btnUpdateProfile: 'प्रोफ़ाइल अपडेट करें ✓',
         btnBack: '← वापस',
         btnNext: 'अगला चरण →',
+        btnNextStage: 'फसल अवस्था चुनें →',
         btnFinish: 'किसान डैशबोर्ड खोलें 🌾',
         btnLogin: 'लॉगिन करें →',
         switchToLogin: 'पहले से पंजीकृत हैं? फोन / आईडी से लॉगिन करें',
@@ -388,6 +439,8 @@ const Onboarding = {
         step2Sub: 'हवामान, पीक व संकट निर्देशांक वैयक्तिकृत करा',
         step3Title: 'मुख्य पिके निवडा',
         step3Sub: 'आपल्या शेतातील चालू पिकांची निवड करा',
+        step4Title: 'पीक वाढीची अवस्था आणि पुष्टी',
+        step4Sub: 'अचूक ICAR-CRIDA सल्ल्यासाठी पिकाची चालू अवस्था निवडा',
         loginTitle: 'शेतकरी लॉगिन',
         loginSub: 'नोंदणीकृत मोबाईल नंबर किंवा शेतकरी आयडी (उदा. F1, F2) टाका',
         fullName: 'शेतकऱ्याचे पूर्ण नाव',
@@ -397,6 +450,17 @@ const Onboarding = {
         districtLabel: 'जिल्हा / तालुका',
         landAreaLabel: 'एकूण जमीन',
         soilTypeLabel: 'मातीचा प्रकार',
+        irrigationLabel: 'सिंचनाचा मुख्य प्रकार',
+        irrRainfed: 'कोरडवाहू (100% पावसावर अवलंबून)',
+        irrWell: 'संरक्षित विहीर / बोअरवेल',
+        irrCanal: 'कालवा बागायत पाणी',
+        borewellFailedLabel: 'हंगाम दरम्यान विहीर / बोअरवेल आटली',
+        safetyNetsLabel: 'आर्थिक सुरक्षा कवच आणि कर्ज',
+        pmfbyLabel: 'PMFBY पीक विमा काढला आहे',
+        kccLabel: 'किसान क्रेडिट कार्ड (KCC) सक्रिय',
+        informalDebtLabel: 'खाजगी सावकारी कर्ज (>24% व्याज)',
+        loanDueDateLabel: 'पुढील बँक / KCC कर्ज परतफेड तारीख',
+        loanAmountLabel: 'एकूण थकीत कर्ज रक्कम (₹)',
         deviceTypeLabel: 'वापरात असलेला फोन प्रकार',
         smartphone: '📱 स्मार्टफोन (4G/5G)',
         featurephone: '📟 साधा बटणाचा फोन (2G / फक्त कॉल व SMS)',
@@ -404,6 +468,7 @@ const Onboarding = {
         btnUpdateProfile: 'प्रोफाइल अपडेट करा ✓',
         btnBack: '← मागे',
         btnNext: 'पुढील टप्पा →',
+        btnNextStage: 'वाढ अवस्था निवडा →',
         btnFinish: 'शेतकरी डॅशबोर्ड सुरू करा 🌾',
         btnLogin: 'लॉगिन करा →',
         switchToLogin: 'आधीच नोंदणीकृत आहात? फोन / आयडीने लॉगिन करा',
@@ -416,6 +481,8 @@ const Onboarding = {
         step2Sub: 'ପାଣିପାଗ ଏବଂ ଫସଲ ସୂଚକାଙ୍କ ବ୍ୟକ୍ତିଗତ କରନ୍ତୁ',
         step3Title: 'ମୁଖ୍ୟ ଫସଲ ଚୟନ କରନ୍ତୁ',
         step3Sub: 'ଆପଣଙ୍କ ଜମିରେ ଥିବା ଫସଲଗୁଡ଼ିକୁ ଚୟନ କରନ୍ତୁ',
+        step4Title: 'ଫସଲ ବୃଦ୍ଧି ପର୍ଯ୍ୟାୟ ଏବଂ ସାରାଂଶ',
+        step4Sub: 'ସଠିକ୍ ICAR-CRIDA ପରାମର୍ଶ ପାଇଁ ବର୍ତ୍ତମାନର ପର୍ଯ୍ୟାୟ ବାଛନ୍ତୁ',
         loginTitle: 'କୃଷକ ଲଗଇନ୍',
         loginSub: 'ପଞ୍ଜୀକୃତ ମୋବାଇଲ୍ ନମ୍ବର ବା କୃଷକ ଆଇଡି (ଯଥା F1, F2) ଦିଅନ୍ତୁ',
         fullName: 'କୃଷକଙ୍କ ପୂରା ନାମ',
@@ -425,6 +492,17 @@ const Onboarding = {
         districtLabel: 'ଜିଲ୍ଲା / ବ୍ଲକ୍',
         landAreaLabel: 'ମୋଟ ଜମି ପରିମାଣ',
         soilTypeLabel: 'ମାଟିର ପ୍ରକାର',
+        irrigationLabel: 'ମୁଖ୍ୟ ଜଳସେଚନ ଉତ୍ସ',
+        irrRainfed: 'ବର୍ଷାଧାରିତ (୧୦୦% ବର୍ଷା ଉପରେ ନିର୍ଭର)',
+        irrWell: 'କୁଅ / ନଳକୂପ / ବୋରୱେଲ୍',
+        irrCanal: 'କେନାଲ୍ ଜଳସେଚନ',
+        borewellFailedLabel: 'ଏହି ଋତୁରେ ବୋରୱେଲ୍ ପାଣି ଶୁଖିଗଲା',
+        safetyNetsLabel: 'ଆର୍ଥିକ ସୁରକ୍ଷା ଓ ଋଣ',
+        pmfbyLabel: 'PMFBY ଫସଲ ବୀମା ଭୁକ୍ତ',
+        kccLabel: 'କିଷାନ କ୍ରେଡିଟ୍ କାର୍ଡ (KCC) ସକ୍ରିୟ',
+        informalDebtLabel: 'ମହାଜନୀ ଋଣ (>୨୪% ସୁଧ)',
+        loanDueDateLabel: 'ପରବର୍ତ୍ତୀ ବ୍ୟାଙ୍କ ଋଣ ଶେଷ ତାରିଖ',
+        loanAmountLabel: 'ମୋଟ ବାକି ଋଣ ରାଶି (₹)',
         deviceTypeLabel: 'ବ୍ୟବହୃତ ଫୋନ୍ ପ୍ରକାର',
         smartphone: '📱 ଆଣ୍ଡ୍ରଏଡ୍ ସ୍ମାର୍ଟଫୋନ୍ (4G/5G)',
         featurephone: '📟 ସାଧାରଣ ବଟନ୍ ଫୋନ୍ (2G / କେବଳ କଲ୍ ଓ SMS)',
@@ -432,6 +510,7 @@ const Onboarding = {
         btnUpdateProfile: 'ପ୍ରୋଫାଇଲ୍ ଅପଡେଟ୍ କରନ୍ତୁ ✓',
         btnBack: '← ପଛକୁ',
         btnNext: 'ପରବର୍ତ୍ତୀ ପଦକ୍ଷେପ →',
+        btnNextStage: 'ଫସଲ ପର୍ଯ୍ୟାୟ ବାଛନ୍ତୁ →',
         btnFinish: 'କୃଷକ ଡ୍ୟାସବୋର୍ଡ୍ ଖୋଲନ୍ତୁ 🌾',
         btnLogin: 'ଲଗଇନ୍ କରନ୍ତୁ →',
         switchToLogin: 'ପୂର୍ବରୁ ପଞ୍ଜୀକୃତ କି? ଲଗଇନ୍ କରନ୍ତୁ',
@@ -444,6 +523,8 @@ const Onboarding = {
         step2Sub: 'বতৰ আৰু শস্যৰ নিৰ্দেশনা নিজৰ মতে নিৰ্ধাৰণ কৰক',
         step3Title: 'প্ৰধান শস্য নিৰ্বাচন কৰক',
         step3Sub: 'আপোনাৰ পথাৰত খেতি কৰা শস্য নিৰ্বাচন কৰক',
+        step4Title: 'শস্যৰ বৃদ্ধি পৰ্যায় আৰু নিশ্চিতকৰণ',
+        step4Sub: 'সঠিক পৰামৰ্শৰ বাবে শস্যৰ বর্তমান বৃদ্ধি পৰ্যায় বাছক',
         loginTitle: 'কৃষক লগইন',
         loginSub: 'পঞ্জীভুক্ত মবাইল নম্বৰ বা কৃষক আইডি (যেনে F1, F2) দিয়ক',
         fullName: 'কৃষকৰ সম্পূৰ্ণ নাম',
@@ -453,6 +534,17 @@ const Onboarding = {
         districtLabel: 'জিলা / মহকুমা',
         landAreaLabel: 'মুঠ কৃষিভূমিৰ পৰিমাণ',
         soilTypeLabel: 'মাটিৰ প্ৰকাৰ',
+        irrigationLabel: 'প্ৰধান জলসিঞ্চন',
+        irrRainfed: 'বৰষুণ-নিৰ্ভৰশীল (১০০% বৰষুণৰ ওপৰত)',
+        irrWell: 'কুঁৱা / নলকূপ',
+        irrCanal: 'খালৰ পানী যোগান',
+        borewellFailedLabel: 'এই বতৰত কুঁৱাৰ পানী শুকাই গৈছে',
+        safetyNetsLabel: 'আৰ্থিক সুৰক্ষা আৰু ঋণ',
+        pmfbyLabel: 'PMFBY শস্য বীমা অন্তৰ্ভুক্ত',
+        kccLabel: 'কিষাণ ক্ৰেডিট কাৰ্ড (KCC) সক্ৰিয়',
+        informalDebtLabel: 'মহাজনৰ উচ্চ সুতৰ ঋণ (>২৪%)',
+        loanDueDateLabel: 'বেংক ঋণ পৰিশোধৰ তাৰিখ',
+        loanAmountLabel: 'মুঠ ঋণৰ পৰিমাণ (₹)',
         deviceTypeLabel: 'ব্যৱহৃত ফোনৰ প্ৰকাৰ',
         smartphone: '📱 এণ্ড্ৰইড স্মাৰ্টফোন (4G/5G)',
         featurephone: '📟 সাধাৰণ বুটামৰ ফোন (2G / কেৱল ভইচ আৰু SMS)',
@@ -460,6 +552,7 @@ const Onboarding = {
         btnUpdateProfile: 'প্ৰোফাইল আপডেট কৰক ✓',
         btnBack: '← উভতি যাওক',
         btnNext: 'পৰৱৰ্তী স্তৰ →',
+        btnNextStage: 'বৃদ্ধি পৰ্যায় বাছক →',
         btnFinish: 'কৃষক ডেশ্বব’ৰ্ড খোলক 🌾',
         btnLogin: 'লগইন কৰক →',
         switchToLogin: 'পূৰ্বতে পঞ্জীয়ন কৰিছে নেকি? লগইন কৰক',
@@ -472,6 +565,8 @@ const Onboarding = {
         step2Sub: 'ಹವಾಮಾನ ಮತ್ತು ಬೆಳೆ ರಕ್ಷಣೆಯನ್ನು ಕಸ್ಟಮೈಸ್ ಮಾಡಿ',
         step3Title: 'ಮುಖ್ಯ ಬೆಳೆಗಳನ್ನು ಆಯ್ಕೆಮಾಡಿ',
         step3Sub: 'ನಿಮ್ಮ ಜಮೀನಿನಲ್ಲಿ ಬೆಳೆಯಲಾಗುವ ಬೆಳೆಗಳನ್ನು ಆಯ್ಕೆಮಾಡಿ',
+        step4Title: 'ಬೆಳೆ ಬೆಳವಣಿಗೆಯ ಹಂತ ಮತ್ತು ದೃಢೀಕರಣ',
+        step4Sub: 'ನಿಖರವಾದ ICAR-CRIDA ಸಲಹೆಗಾಗಿ ಪ್ರಸ್ತುತ ಬೆಳವಣಿಗೆ ಹಂತವನ್ನು ಆರಿಸಿ',
         loginTitle: 'ರೈತರ ಲಾಗಿನ್',
         loginSub: 'ನೋಂದಾಯಿತ ಮೊಬೈಲ್ ಸಂಖ್ಯೆ ಅಥವಾ ರೈತರ ಐಡಿ (ಉದಾ: F1, F2) ನಮೂದಿಸಿ',
         fullName: 'ರೈತರ ಪೂರ್ಣ ಹೆಸರು',
@@ -481,6 +576,17 @@ const Onboarding = {
         districtLabel: 'ಜಿಲ್ಲೆ / ತಾಲೂಕು',
         landAreaLabel: 'ಒಟ್ಟು ಜಮೀನಿನ ವಿಸ್ತೀರ್ಣ',
         soilTypeLabel: 'ಮಣ್ಣಿನ ವಿಧ',
+        irrigationLabel: 'ಪ್ರಮುಖ ನೀರಾವರಿ ವಿಧಾನ',
+        irrRainfed: 'ಮಳೆಯಾಶ್ರಿತ (100% ಮಳೆ ಆಧಾರಿತ)',
+        irrWell: 'ಭಾವಿ / ಬೋರ್‌ವೆಲ್ ನೀರಾವರಿ',
+        irrCanal: 'ಕಾಲುವೆ ನೀರಾವರಿ',
+        borewellFailedLabel: 'ಈ ಋತುವಿನಲ್ಲಿ ಬೋರ್‌ವೆಲ್ ಬತ್ತಿಹೋಗಿದೆ',
+        safetyNetsLabel: 'ಆರ್ಥಿಕ ಭದ್ರತೆ ಮತ್ತು ಸಾಲ',
+        pmfbyLabel: 'PMFBY ಬೆಳೆ ವಿಮೆ ಸಕ್ರಿಯವಾಗಿದೆ',
+        kccLabel: 'ಕಿಸಾನ್ ಕ್ರೆಡಿಟ್ ಕಾರ್ಡ್ (KCC) ಚಾಲ್ತಿಯಲ್ಲಿದೆ',
+        informalDebtLabel: 'ಹೆಚ್ಚಿನ ಬಡ್ಡಿಯ ಖಾಸಗಿ ಸಾಲ (>24%)',
+        loanDueDateLabel: 'ಮುಂದಿನ ಬ್ಯಾಂಕ್ ಸಾಲ ಮರುಪಾವತಿ ದಿನಾಂಕ',
+        loanAmountLabel: 'ಒಟ್ಟು ಬಾಕಿ ಸಾಲದ ಮೊತ್ತ (₹)',
         deviceTypeLabel: 'ಬಳಸುವ ಫೋನ್ ಪ್ರಕಾರ',
         smartphone: '📱 ಆಂಡ್ರಾಯ್ಡ್ ಸ್ಮಾರ್ಟ್‌ಫೋನ್ (4G/5G)',
         featurephone: '📟 ಸಾಮಾನ್ಯ ಕೀಪ್ಯಾಡ್ ಫೋನ್ (2G / ಕರೆ ಮತ್ತು SMS ಮಾತ್ರ)',
@@ -488,6 +594,7 @@ const Onboarding = {
         btnUpdateProfile: 'ವಿವರ ನವೀಕರಿಸಿ ✓',
         btnBack: '← ಹಿಂದಕ್ಕೆ',
         btnNext: 'ಮುಂದಿನ ಹಂತ →',
+        btnNextStage: 'ಬೆಳವಣಿಗೆ ಹಂತ ಆರಿಸಿ →',
         btnFinish: 'ರೈತರ ಡ್ಯಾಶ್‌ಬೋರ್ಡ್ ತೆರೆಯಿರಿ 🌾',
         btnLogin: 'ಲಾಗಿನ್ ಮಾಡಿ →',
         switchToLogin: 'ಈಗಾಗಲೇ ನೋಂದಾಯಿಸಿದ್ದೀರಾ? ಲಾಗಿನ್ ಮಾಡಿ',
@@ -509,6 +616,30 @@ const Onboarding = {
     if (modal) modal.classList.add('hidden');
   },
 
+  getSelectedCropDisplay(lang = OnboardingState.selectedLanguage) {
+    const crops = OnboardingState.formData.selectedCrops;
+    if (!crops || crops.length === 0) return 'Onion';
+    const cropNames = {
+      onion: { en: 'Onion', hi: 'प्याज', mr: 'कांदा', or: 'ପିଆଜ', as: 'পিয়াঁজ', kn: 'ಈರುಳ್ಳಿ' },
+      cotton: { en: 'Cotton', hi: 'कपास', mr: 'कापूस', or: 'କପା', as: 'কপাহ', kn: 'ಹತ್ತಿ' },
+      soybean: { en: 'Soybean', hi: 'सोयाबीन', mr: 'सोयाबीन', or: 'ସୋୟାବିନ୍', as: 'চয়াবিন', kn: 'ಸೋಯಾಬೀನ್' },
+      paddy: { en: 'Paddy / Rice', hi: 'धान (चावल)', mr: 'भात (धान)', or: 'ଧାନ', as: 'ধান', kn: 'ಭತ್ತ' },
+      wheat: { en: 'Wheat', hi: 'गेहूं', mr: 'गहू', or: 'ଗହମ', as: 'গম', kn: 'ಗೋಧಿ' },
+      maize: { en: 'Maize', hi: 'मक्का', mr: 'मका', or: 'ମକା', as: 'মাকৈ', kn: 'ಮೆಕ್ಕೆಜೋಳ' },
+      bajra: { en: 'Bajra', hi: 'बाजरा', mr: 'बाजरी', or: 'ବାଜରା', as: 'বজৰা', kn: 'ಸಜ್ಜೆ' },
+      groundnut: { en: 'Groundnut', hi: 'मूंगफली', mr: 'भुईमूग', or: 'ଚିନାବାଦାମ', as: 'বাদাম', kn: 'ಕಡಲೆಕಾಯಿ' },
+      pigeonpea: { en: 'Pigeonpea (Arhar)', hi: 'अरहर (तुअर)', mr: 'तूर', or: 'ହରଡ଼', as: 'অৰহৰ', kn: 'ತೊಗರಿ' },
+      pulses: { en: 'Pulses', hi: 'दलहन', mr: 'कडधान्ये', or: 'ଡାଲି', as: 'মাহজাতীয়', kn: 'ದ್ವಿದಳ ಧಾನ್ಯ' },
+      sugarcane: { en: 'Sugarcane', hi: 'गन्ना', mr: 'ऊस', or: 'ଆଖୁ', as: 'কুঁহিয়াৰ', kn: 'ಕಬ್ಬು' }
+    };
+    return crops.map(c => (cropNames[c] && cropNames[c][lang]) || (cropNames[c] && cropNames[c]['en']) || c).join(', ');
+  },
+
+  getSelectedStageDisplay(lang = OnboardingState.selectedLanguage) {
+    const stageObj = CROP_STAGES.find(s => s.id === OnboardingState.formData.cropStage) || CROP_STAGES[1];
+    return `${stageObj.emoji} ${(stageObj.name && stageObj.name[lang]) || stageObj.name['en']}`;
+  },
+
   renderOnboardingUI(isEdit = false) {
     let overlay = document.getElementById('onboarding-modal-overlay');
     if (!overlay) {
@@ -519,7 +650,7 @@ const Onboarding = {
 
     const currentLang = OnboardingState.selectedLanguage;
     const form = OnboardingState.formData;
-    const submitBtnLabel = isEdit ? this.t('btnUpdateProfile', currentLang) : this.t('btnSaveContinue', currentLang);
+    const submitBtnLabel = isEdit ? this.t('btnUpdateProfile', currentLang) : this.t('btnFinish', currentLang);
 
     overlay.innerHTML = `
       <div class="onboarding-card-wrapper" role="dialog" aria-modal="true" aria-labelledby="ob-step-title">
@@ -535,7 +666,7 @@ const Onboarding = {
               </div>
             </div>
             <div class="flex items-center space-x-2">
-              <span id="ob-step-badge" class="px-2.5 py-1 rounded-full text-xs font-bold bg-white/20 text-white backdrop-blur-sm border border-white/20">Step 1 of 3</span>
+              <span id="ob-step-badge" class="px-2.5 py-1 rounded-full text-xs font-bold bg-white/20 text-white backdrop-blur-sm border border-white/20">Step 1 of 4</span>
               ${isEdit || OnboardingState.isComplete() ? `
                 <button onclick="Onboarding.hideModal()" class="text-white/80 hover:text-white text-xl font-bold px-2 py-0.5 rounded-lg hover:bg-white/10 transition">✕</button>
               ` : ''}
@@ -543,7 +674,7 @@ const Onboarding = {
           </div>
 
           <div class="onboarding-progress-bar">
-            <div id="ob-progress-fill" class="onboarding-progress-fill" style="width: 33.33%;"></div>
+            <div id="ob-progress-fill" class="onboarding-progress-fill" style="width: 25%;"></div>
           </div>
         </div>
 
@@ -596,7 +727,7 @@ const Onboarding = {
               <form id="ob-login-form" onsubmit="event.preventDefault(); Onboarding.handleLogin();">
                 <div class="form-group">
                   <label class="form-label">${this.t('mobileNumber', currentLang)} / Farmer ID</label>
-                  <input type="text" id="ob-login-input" class="form-input" placeholder="e.g. 9876543210 or F1" required autofocus value="F1">
+                  <input type="text" id="ob-login-input" class="form-input" placeholder="e.g. 9823110293 or F1" required autofocus value="F1">
                 </div>
                 <div class="text-right">
                   <button type="button" onclick="Onboarding.toggleLoginMode(false)" class="text-xs text-emerald-700 font-bold hover:underline">
@@ -619,7 +750,7 @@ const Onboarding = {
                     <label class="form-label">${this.t('mobileNumber', currentLang)} *</label>
                     <div class="flex items-center space-x-2">
                       <span class="px-3 py-2.5 bg-slate-100 border-2 border-slate-300 rounded-xl text-sm font-bold text-slate-600">+91</span>
-                      <input type="tel" id="ob-farmer-phone" class="form-input" placeholder="9876543210" maxlength="10" value="${form.phone}" required>
+                      <input type="tel" id="ob-farmer-phone" class="form-input" placeholder="9823110293" maxlength="10" value="${form.phone}" required>
                     </div>
                     <div id="err-farmer-phone" class="form-err-msg">Enter valid 10-digit mobile number</div>
                   </div>
@@ -629,7 +760,7 @@ const Onboarding = {
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div class="form-group">
                     <label class="form-label">${this.t('stateLabel', currentLang)}</label>
-                                        <select id="ob-farmer-state" class="form-select" onchange="Onboarding.onStateChange(this.value)">
+                    <select id="ob-farmer-state" class="form-select" onchange="Onboarding.onStateChange(this.value)">
                       <option value="Maharashtra" ${form.state === 'Maharashtra' ? 'selected' : ''}>Maharashtra</option>
                       <option value="Odisha" ${form.state === 'Odisha' ? 'selected' : ''}>Odisha</option>
                       <option value="Assam" ${form.state === 'Assam' ? 'selected' : ''}>Assam</option>
@@ -649,22 +780,21 @@ const Onboarding = {
                 </div>
 
                 <!-- Land Area & Unit Switcher -->
-                <div class="form-group">
-                  <div class="flex items-center justify-between mb-1">
-                    <label class="form-label mb-0">${this.t('landAreaLabel', currentLang)} *</label>
-                    <div class="unit-toggle-group">
-                      <button type="button" id="unit-btn-ha" class="unit-toggle-btn ${form.landUnit === 'hectares' ? 'active' : ''}" onclick="Onboarding.setLandUnit('hectares')">Hectares</button>
-                      <button type="button" id="unit-btn-acres" class="unit-toggle-btn ${form.landUnit === 'acres' ? 'active' : ''}" onclick="Onboarding.setLandUnit('acres')">Acres</button>
-                    </div>
-                  </div>
-                  <input type="number" step="0.1" min="0.1" id="ob-land-area" class="form-input" value="${form.landArea}" required>
-                </div>
-
-                <!-- Soil Type & Device Type -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div class="form-group">
+                    <div class="flex items-center justify-between mb-1">
+                      <label class="form-label mb-0">${this.t('landAreaLabel', currentLang)} *</label>
+                      <div class="unit-toggle-group">
+                        <button type="button" id="unit-btn-ha" class="unit-toggle-btn ${form.landUnit === 'hectares' ? 'active' : ''}" onclick="Onboarding.setLandUnit('hectares')">Hectares</button>
+                        <button type="button" id="unit-btn-acres" class="unit-toggle-btn ${form.landUnit === 'acres' ? 'active' : ''}" onclick="Onboarding.setLandUnit('acres')">Acres</button>
+                      </div>
+                    </div>
+                    <input type="number" step="0.1" min="0.1" id="ob-land-area" class="form-input" value="${form.landArea}" required>
+                  </div>
+
+                  <div class="form-group">
                     <label class="form-label">${this.t('soilTypeLabel', currentLang)}</label>
-                                        <select id="ob-soil-type" class="form-select">
+                    <select id="ob-soil-type" class="form-select">
                       <option value="black" ${form.soilType === 'black' ? 'selected' : ''}>${currentLang === 'hi' ? 'काली कपास मिट्टी (रेगुर)' : currentLang === 'mr' ? 'काळी कसदार जमीन (रेगूर)' : currentLang === 'or' ? 'କଳା କପା ମାଟି' : currentLang === 'as' ? 'কলা কপাহী মাটি' : currentLang === 'kn' ? 'ಕಪ್ಪು ಹತ್ತಿ ಮಣ್ಣು' : 'Black Cotton Soil (Regur)'}</option>
                       <option value="alluvial" ${form.soilType === 'alluvial' ? 'selected' : ''}>${currentLang === 'hi' ? 'जलोढ़ दोमट मिट्टी' : currentLang === 'mr' ? 'गाळाची सुपीक जमीन' : currentLang === 'or' ? 'ପଟୁ ମାଟି' : currentLang === 'as' ? 'পলি মাটি' : currentLang === 'kn' ? 'ಮೆಕ್ಕಲು ಮಣ್ಣು' : 'Alluvial Loam Soil'}</option>
                       <option value="red" ${form.soilType === 'red' ? 'selected' : ''}>${currentLang === 'hi' ? 'लाल रेतीली मिट्टी' : currentLang === 'mr' ? 'तांबडी वालुकामय जमीन' : currentLang === 'or' ? 'ନାଲି ବାଲିଆ ମାଟି' : currentLang === 'as' ? 'ৰঙা বালিয়া মাটি' : currentLang === 'kn' ? 'ಕೆಂಪು ಮರಳು ಮಿಶ್ರಿತ ಮಣ್ಣು' : 'Red Sandy Loam Soil'}</option>
@@ -675,14 +805,58 @@ const Onboarding = {
                       <option value="loamy" ${form.soilType === 'loamy' ? 'selected' : ''}>${currentLang === 'hi' ? 'उर्वर मध्यम दोमट मिट्टी' : currentLang === 'mr' ? 'सुपीक मध्यम पोयटा जमीन' : currentLang === 'or' ? 'ଉର୍ବର ଦୋରସା ମାଟି' : currentLang === 'as' ? 'উৰ্বৰ পলসুৱা মাটি' : currentLang === 'kn' ? 'ಫಲವತ್ತಾದ ಗೋಡು ಮಣ್ಣು' : 'Fertile Medium Loam Soil'}</option>
                     </select>
                   </div>
+                </div>
 
-                  <div class="form-group">
-                    <label class="form-label">${this.t('deviceTypeLabel', currentLang)}</label>
-                    <select id="ob-device-type" class="form-select">
-                      <option value="android_smartphone" ${form.deviceType === 'android_smartphone' ? 'selected' : ''}>${this.t('smartphone', currentLang)}</option>
-                      <option value="basic_feature_phone" ${form.deviceType === 'basic_feature_phone' ? 'selected' : ''}>${this.t('featurephone', currentLang)}</option>
-                    </select>
+                <!-- Irrigation Details from Sundargarh -->
+                <div class="form-group">
+                  <label class="form-label">${this.t('irrigationLabel', currentLang)}</label>
+                  <select id="ob-farmer-irrigation" class="form-select">
+                    <option value="rainfed" ${form.irrigationType === 'rainfed' ? 'selected' : ''}>${this.t('irrRainfed', currentLang)}</option>
+                    <option value="protective_well" ${form.irrigationType === 'protective_well' ? 'selected' : ''}>${this.t('irrWell', currentLang)}</option>
+                    <option value="canal" ${form.irrigationType === 'canal' ? 'selected' : ''}>${this.t('irrCanal', currentLang)}</option>
+                  </select>
+                  <label class="flex items-center space-x-2 text-xs font-semibold text-slate-700 cursor-pointer mt-2">
+                    <input type="checkbox" id="ob-borewell-failed" ${form.borewellFailed ? 'checked' : ''} class="w-4 h-4 text-emerald-600 rounded">
+                    <span>${this.t('borewellFailedLabel', currentLang)}</span>
+                  </label>
+                </div>
+
+                <!-- Financial Safety Nets & Loans from Sundargarh -->
+                <div class="p-3.5 bg-slate-50 border border-slate-200 rounded-2xl space-y-3 mb-4">
+                  <div class="text-xs font-bold text-slate-800 uppercase tracking-wider">${this.t('safetyNetsLabel', currentLang)}</div>
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs font-semibold text-slate-700">
+                    <label class="flex items-center space-x-2 cursor-pointer">
+                      <input type="checkbox" id="ob-pmfby" ${form.hasPmfby ? 'checked' : ''} class="w-4 h-4 text-emerald-600 rounded">
+                      <span>${this.t('pmfbyLabel', currentLang)}</span>
+                    </label>
+                    <label class="flex items-center space-x-2 cursor-pointer">
+                      <input type="checkbox" id="ob-kcc" ${form.hasKcc ? 'checked' : ''} class="w-4 h-4 text-emerald-600 rounded">
+                      <span>${this.t('kccLabel', currentLang)}</span>
+                    </label>
                   </div>
+                  <label class="flex items-center space-x-2 text-xs font-bold text-rose-700 cursor-pointer">
+                    <input type="checkbox" id="ob-informal-debt" ${form.informalDebt ? 'checked' : ''} class="w-4 h-4 text-rose-600 rounded">
+                    <span>${this.t('informalDebtLabel', currentLang)}</span>
+                  </label>
+
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                    <div>
+                      <label class="form-label text-xs">${this.t('loanDueDateLabel', currentLang)}</label>
+                      <input type="date" id="ob-loan-due-date" class="form-input text-xs" value="${form.loanDueDate || '2026-11-15'}">
+                    </div>
+                    <div>
+                      <label class="form-label text-xs">${this.t('loanAmountLabel', currentLang)}</label>
+                      <input type="number" id="ob-loan-amount" class="form-input text-xs" value="${form.loanAmount || 50000}">
+                    </div>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">${this.t('deviceTypeLabel', currentLang)}</label>
+                  <select id="ob-device-type" class="form-select">
+                    <option value="android_smartphone" ${form.deviceType === 'android_smartphone' ? 'selected' : ''}>${this.t('smartphone', currentLang)}</option>
+                    <option value="basic_feature_phone" ${form.deviceType === 'basic_feature_phone' ? 'selected' : ''}>${this.t('featurephone', currentLang)}</option>
+                  </select>
                 </div>
 
                 <div class="text-right">
@@ -710,7 +884,7 @@ const Onboarding = {
           </div>
         </div>
 
-        <!-- SCREEN 3: Primary Crop Selection & Final Confirmation -->
+        <!-- SCREEN 3: Primary Crop Selection -->
         <div id="ob-screen-3" class="onboarding-screen">
           <div class="p-6 pb-2 text-center">
             <h3 id="ob-title-3" class="text-xl font-extrabold text-slate-900">${this.t('step3Title', currentLang)}</h3>
@@ -718,30 +892,70 @@ const Onboarding = {
           </div>
 
           <div class="onboarding-form-body space-y-5">
-                        <div>
+            <div>
               <label class="form-label">${currentLang === 'hi' ? 'अपनी मुख्य फसलें चुनें:' : currentLang === 'mr' ? 'आपली मुख्य पिके निवडा:' : currentLang === 'or' ? 'ଆପଣଙ୍କ ପ୍ରମୁଖ ଫସଲ ବାଛନ୍ତୁ:' : currentLang === 'as' ? 'আপোনাৰ প্ৰধান শস্য বাছক:' : currentLang === 'kn' ? 'ನಿಮ್ಮ ಮುಖ್ಯ ಬೆಳೆಗಳನ್ನು ಆಯ್ಕೆಮಾಡಿ:' : 'Select cultivated crops:'}</label>
               <div class="grid grid-cols-2 gap-3 text-left">
                 ${[
-                  { id: 'bajra', en: 'Bajra (Pearl Millet)', hi: 'बाजरा', mr: 'बाजरी', or: 'ବାଜରା', as: 'বজৰা', kn: 'ಸಜ್ಜೆ' },
-                  { id: 'cotton', en: 'Cotton', hi: 'कपास', mr: 'कापूस', or: 'କପା', as: 'কপাহ', kn: 'ಹತ್ತಿ' },
-                  { id: 'groundnut', en: 'Groundnut (Peanut)', hi: 'मूंगफली', mr: 'भुईमूग', or: 'ଚିନାବାଦାମ', as: 'বাদাম', kn: 'ಕಡಲೆಕಾಯಿ' },
-                  { id: 'maize', en: 'Maize (Corn)', hi: 'मक्का', mr: 'मका', or: 'ମକା', as: 'মাকৈ', kn: 'ಮೆಕ್ಕೆಜೋಳ' },
                   { id: 'onion', en: 'Onion', hi: 'प्याज', mr: 'कांदा', or: 'ପିଆଜ', as: 'পিয়াঁজ', kn: 'ಈರುಳ್ಳಿ' },
+                  { id: 'cotton', en: 'Cotton', hi: 'कपास', mr: 'कापूस', or: 'କପା', as: 'কপাহ', kn: 'ಹತ್ತಿ' },
+                  { id: 'soybean', en: 'Soybean', hi: 'सोयाबीन', mr: 'सोयाबीन', or: 'ସୋୟାବିନ୍', as: 'চয়াবিন', kn: 'ಸೋಯಾಬೀನ್' },
                   { id: 'paddy', en: 'Paddy (Rice)', hi: 'धान (चावल)', mr: 'भात (धान)', or: 'ଧାନ', as: 'ধান', kn: 'ಭತ್ತ (ಅಕ್ಕಿ)' },
+                  { id: 'wheat', en: 'Wheat', hi: 'गेहूं', mr: 'गहू', or: 'ଗହମ', as: 'গম', kn: 'ಗೋಧಿ' },
+                  { id: 'maize', en: 'Maize (Corn)', hi: 'मक्का', mr: 'मका', or: 'ମକା', as: 'মাকৈ', kn: 'ಮೆಕ್ಕೆಜೋಳ' },
+                  { id: 'bajra', en: 'Bajra (Pearl Millet)', hi: 'बाजरा', mr: 'बाजरी', or: 'ବାଜରା', as: 'বজৰা', kn: 'ಸಜ್ಜೆ' },
+                  { id: 'groundnut', en: 'Groundnut (Peanut)', hi: 'मूंगफली', mr: 'भुईमूग', or: 'ଚିନାବାଦାମ', as: 'বাদাম', kn: 'ಕಡಲೆಕಾಯಿ' },
                   { id: 'pigeonpea', en: 'Pigeonpea (Arhar/Tur)', hi: 'अरहर (तुअर)', mr: 'तूर', or: 'ହରଡ଼', as: 'অৰহৰ', kn: 'ತೊಗರಿ' },
                   { id: 'pulses', en: 'Pulses (Early-Maturing)', hi: 'दलहन फसलें', mr: 'कडधान्ये', or: 'ଡାଲି ଜାତୀୟ', as: 'মাহজাতীয়', kn: 'ದ್ವಿದಳ ಧಾನ್ಯ' },
-                  { id: 'soybean', en: 'Soybean', hi: 'सोयाबीन', mr: 'सोयाबीन', or: 'ସୋୟାବିନ୍', as: 'চয়াবিন', kn: 'ಸೋಯಾಬೀನ್' },
-                  { id: 'sugarcane', en: 'Sugarcane', hi: 'गन्ना', mr: 'ऊस', or: 'ଆଖୁ', as: 'কুঁহিয়াৰ', kn: 'ಕಬ್ಬು' },
-                  { id: 'wheat', en: 'Wheat', hi: 'गेहूं', mr: 'गहू', or: 'ଗହମ', as: 'গম', kn: 'ಗೋಧಿ' }
+                  { id: 'sugarcane', en: 'Sugarcane', hi: 'गन्ना', mr: 'ऊस', or: 'ଆଖୁ', as: 'কুঁহियाৰ', kn: 'ಕಬ್ಬು' }
                 ].map(c => `
                   <button type="button" id="crop-chip-${c.id}" 
-                       class="crop-chip text-left flex items-center justify-between p-3 rounded-xl border-2 transition-all font-bold text-xs sm:text-sm ${form.selectedCrops.includes(c.id) ? 'bg-sky-100 border-sky-600 text-sky-950 font-black shadow-sm' : 'bg-white border-slate-200 text-slate-700 hover:border-sky-300'}"
+                       class="crop-chip text-left flex items-center justify-between p-3 rounded-xl border-2 transition-all font-bold text-xs sm:text-sm ${form.selectedCrops.includes(c.id) ? 'selected' : ''}"
                        onclick="Onboarding.toggleCrop('${c.id}')">
                     <span class="text-left font-bold">${c[currentLang] || c['en']}</span>
-                    <span class="text-xs font-black ${form.selectedCrops.includes(c.id) ? 'text-sky-700' : 'text-slate-300'}">✓</span>
+                    <span class="text-xs font-black">✓</span>
                   </button>
                 `).join('')}
               </div>
+            </div>
+          </div>
+
+          <div class="onboarding-footer">
+            <button type="button" class="btn-secondary-action" onclick="Onboarding.goToStep(2)">
+              <span>${this.t('btnBack', currentLang)}</span>
+            </button>
+            <button type="button" class="btn-primary-action" onclick="Onboarding.goToStep(4)">
+              <span>${this.t('btnNextStage', currentLang)}</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- SCREEN 4: Crop Growth Stage & Final Summary -->
+        <div id="ob-screen-4" class="onboarding-screen">
+          <div class="p-6 pb-2 text-center">
+            <h3 id="ob-title-4" class="text-xl font-extrabold text-slate-900">${this.t('step4Title', currentLang)}</h3>
+            <p id="ob-sub-4" class="text-xs text-slate-500 mt-1">${this.t('step4Sub', currentLang)}</p>
+          </div>
+
+          <div class="onboarding-form-body space-y-4">
+            
+            <!-- 5 Growth Stages Cards -->
+            <div class="stage-card-grid">
+              ${CROP_STAGES.map(stage => {
+                const isSelected = stage.id === form.cropStage;
+                const localizedName = (stage.name && stage.name[currentLang]) || stage.name['en'];
+                return `
+                  <div class="stage-select-card ${isSelected ? 'active' : ''}" onclick="Onboarding.selectCropStage('${stage.id}')">
+                    <div class="flex items-center space-x-3">
+                      <span class="text-2xl">${stage.emoji}</span>
+                      <div class="text-left">
+                        <div class="font-extrabold text-sm text-slate-900">${localizedName}</div>
+                        <div class="text-[11px] font-semibold text-slate-500">${stage.duration}</div>
+                      </div>
+                    </div>
+                    <div class="stage-card-check">${isSelected ? '✓' : ''}</div>
+                  </div>
+                `;
+              }).join('')}
             </div>
 
             <!-- Profile Summary Card -->
@@ -751,13 +965,16 @@ const Onboarding = {
                 <div><strong>Farmer:</strong> <span id="summary-farmer-name">-</span></div>
                 <div><strong>Language:</strong> <span id="summary-farmer-lang">-</span></div>
                 <div><strong>Location:</strong> <span id="summary-farmer-loc">-</span></div>
-                <div><strong>Device:</strong> <span id="summary-farmer-dev">-</span></div>
+                <div><strong>Landholding:</strong> <span id="summary-farmer-land">-</span></div>
+                <div><strong>Crops:</strong> <span id="summary-farmer-crop">-</span></div>
+                <div><strong>Growth Stage:</strong> <span id="summary-farmer-stage">-</span></div>
               </div>
             </div>
+
           </div>
 
           <div class="onboarding-footer">
-            <button type="button" class="btn-secondary-action" onclick="Onboarding.goToStep(2)">
+            <button type="button" class="btn-secondary-action" onclick="Onboarding.goToStep(3)">
               <span>${this.t('btnBack', currentLang)}</span>
             </button>
             <button type="button" id="btn-save-onboarding" class="btn-primary-action" onclick="Onboarding.submitProfile()">
@@ -779,24 +996,30 @@ const Onboarding = {
 
     const badge = document.getElementById('ob-step-badge');
     const fill = document.getElementById('ob-progress-fill');
-    if (badge) badge.textContent = `Step ${stepNumber} of 3`;
-    if (fill) fill.style.width = `${(stepNumber / 3) * 100}%`;
+    if (badge) badge.textContent = `Step ${stepNumber} of 4`;
+    if (fill) fill.style.width = `${(stepNumber / 4) * 100}%`;
 
-    if (stepNumber === 3) {
+    const lang = OnboardingState.selectedLanguage;
+
+    if (stepNumber === 4) {
       const nameEl = document.getElementById('summary-farmer-name');
       const langEl = document.getElementById('summary-farmer-lang');
       const locEl = document.getElementById('summary-farmer-loc');
-      const devEl = document.getElementById('summary-farmer-dev');
-      const locObj = SUPPORTED_ONBOARDING_LOCALES[OnboardingState.selectedLanguage] || SUPPORTED_ONBOARDING_LOCALES.en;
+      const landEl = document.getElementById('summary-farmer-land');
+      const cropEl = document.getElementById('summary-farmer-crop');
+      const stageEl = document.getElementById('summary-farmer-stage');
+      const locObj = SUPPORTED_ONBOARDING_LOCALES[lang] || SUPPORTED_ONBOARDING_LOCALES.en;
 
       if (nameEl) nameEl.textContent = OnboardingState.formData.farmerName || 'Farmer';
       if (langEl) langEl.textContent = `${locObj.native} (${locObj.name})`;
       if (locEl) locEl.textContent = `${OnboardingState.formData.district}, ${OnboardingState.formData.state}`;
-      if (devEl) devEl.textContent = OnboardingState.formData.deviceType === 'android_smartphone' ? 'Smartphone (4G)' : 'Feature Phone (2G)';
+      if (landEl) landEl.textContent = `${OnboardingState.formData.landArea} ${OnboardingState.formData.landUnit}`;
+      if (cropEl) cropEl.textContent = this.getSelectedCropDisplay(lang);
+      if (stageEl) stageEl.textContent = this.getSelectedStageDisplay(lang);
     }
   },
 
-    selectLanguage(langCode) {
+  selectLanguage(langCode) {
     const cleanLang = (langCode || 'en').split('-')[0].toLowerCase();
     OnboardingState.selectedLanguage = cleanLang;
     localStorage.setItem('sk_locale', cleanLang);
@@ -805,16 +1028,25 @@ const Onboarding = {
     const activeCard = document.getElementById(`lang-card-${cleanLang}`);
     if (activeCard) activeCard.classList.add('active');
 
-    // Update texts inside onboarding modal itself
     this.renderOnboardingUI(OnboardingState.isEditMode);
     this.goToStep(1);
 
-    // Immediately trigger full main dashboard live translation in real-time
     if (typeof window.switchGlobalLanguage === 'function') {
       window.switchGlobalLanguage(cleanLang);
     } else if (window.state) {
       window.state.selectedLanguage = cleanLang;
       if (typeof window.applyI18n === 'function') window.applyI18n();
+    }
+  },
+
+  selectCropStage(stageId) {
+    OnboardingState.formData.cropStage = stageId;
+    document.querySelectorAll('.stage-select-card').forEach(c => c.classList.remove('active'));
+    event.currentTarget.classList.add('active');
+
+    const stageEl = document.getElementById('summary-farmer-stage');
+    if (stageEl) {
+      stageEl.textContent = this.getSelectedStageDisplay(OnboardingState.selectedLanguage);
     }
   },
 
@@ -861,6 +1093,13 @@ const Onboarding = {
     const districtInput = document.getElementById('ob-farmer-district');
     const landInput = document.getElementById('ob-land-area');
     const soilInput = document.getElementById('ob-soil-type');
+    const irrInput = document.getElementById('ob-farmer-irrigation');
+    const borewellInput = document.getElementById('ob-borewell-failed');
+    const pmfbyInput = document.getElementById('ob-pmfby');
+    const kccInput = document.getElementById('ob-kcc');
+    const debtInput = document.getElementById('ob-informal-debt');
+    const loanDateInput = document.getElementById('ob-loan-due-date');
+    const loanAmtInput = document.getElementById('ob-loan-amount');
     const deviceInput = document.getElementById('ob-device-type');
 
     let valid = true;
@@ -886,8 +1125,15 @@ const Onboarding = {
     OnboardingState.formData.phone = cleanPhone;
     OnboardingState.formData.state = stateInput?.value || 'Maharashtra';
     OnboardingState.formData.district = districtInput?.value || 'D1';
-    OnboardingState.formData.landArea = parseFloat(landInput?.value || '2.5');
+    OnboardingState.formData.landArea = parseFloat(landInput?.value || '1.2');
     OnboardingState.formData.soilType = soilInput?.value || 'black';
+    OnboardingState.formData.irrigationType = irrInput?.value || 'rainfed';
+    OnboardingState.formData.borewellFailed = borewellInput ? borewellInput.checked : false;
+    OnboardingState.formData.hasPmfby = pmfbyInput ? pmfbyInput.checked : true;
+    OnboardingState.formData.hasKcc = kccInput ? kccInput.checked : true;
+    OnboardingState.formData.informalDebt = debtInput ? debtInput.checked : false;
+    OnboardingState.formData.loanDueDate = loanDateInput?.value || '2026-11-15';
+    OnboardingState.formData.loanAmount = parseFloat(loanAmtInput?.value || '50000');
     OnboardingState.formData.deviceType = deviceInput?.value || 'android_smartphone';
 
     this.goToStep(3);
@@ -932,19 +1178,28 @@ const Onboarding = {
     const langKey = OnboardingState.selectedLanguage;
     const bcp47 = OnboardingState.getBcp47Locale(langKey);
     const voice = OnboardingState.getVoiceProfile(langKey);
+    const f = OnboardingState.formData;
 
     const payload = {
-      farmer_name: OnboardingState.formData.farmerName,
-      phone_number: OnboardingState.formData.phone,
-      state: OnboardingState.formData.state,
-      district: OnboardingState.formData.district,
+      farmer_name: f.farmerName,
+      phone_number: f.phone,
+      state: f.state,
+      district: f.district,
       land_details: {
-        total_area: OnboardingState.formData.landArea,
-        unit: OnboardingState.formData.landUnit,
-        soil_type: OnboardingState.formData.soilType
+        total_area: f.landArea,
+        unit: f.landUnit,
+        soil_type: f.soilType
       },
-      primary_crops: OnboardingState.formData.selectedCrops,
-      device_type: OnboardingState.formData.deviceType,
+      primary_crops: f.selectedCrops,
+      crop_stage: f.cropStage,
+      irrigation_type: f.irrigationType,
+      borewell_failed: f.borewellFailed,
+      has_pmfby: f.hasPmfby,
+      has_kcc: f.hasKcc,
+      informal_debt: f.informalDebt,
+      loan_due_date: f.loanDueDate,
+      loan_amount: f.loanAmount,
+      device_type: f.deviceType,
       preferred_language: bcp47,
       tts_locale: bcp47,
       voice_profile: voice
@@ -981,8 +1236,9 @@ const Onboarding = {
         await window.fetchFarmers();
       }
 
-      if (typeof window.selectFarmer === 'function') {
-        await window.selectFarmer(data.farmer_id);
+      const savedId = data.farmer_id || (data.user && data.user.id) || OnboardingState.formData.farmerId;
+      if (savedId && typeof window.selectFarmer === 'function') {
+        await window.selectFarmer(savedId);
       }
 
       if (typeof window.switchGlobalLanguage === 'function') {
