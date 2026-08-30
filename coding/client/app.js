@@ -1191,6 +1191,16 @@ function setFarmerAccessMode(mode) {
   state.farmerAccessMode = mode;
 }
 
+function updateMobileClock() {
+  const clockEl = document.getElementById('mobile-clock');
+  if (clockEl) {
+    const now = new Date();
+    clockEl.textContent = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+  }
+}
+setInterval(updateMobileClock, 10000);
+setTimeout(updateMobileClock, 500);
+
 function showFarmerTab(tabName) {
   state.activeFarmerTab = tabName;
   stopSpeech();
@@ -1199,6 +1209,7 @@ function showFarmerTab(tabName) {
   tabs.forEach(t => {
     const el = document.getElementById(`farmer-tab-${t}`);
     const btn = document.getElementById(`tab-btn-${t}`);
+    const mobileBtn = document.getElementById(`mobile-nav-${t}`);
     if (el) {
       if (t === tabName) {
         el.classList.remove('hidden');
@@ -1211,6 +1222,13 @@ function showFarmerTab(tabName) {
         btn.classList.add('ring-4', 'ring-emerald-500/30', 'border-sky-600');
       } else {
         btn.classList.remove('ring-4', 'ring-emerald-500/30', 'border-sky-600');
+      }
+    }
+    if (mobileBtn) {
+      if (t === tabName) {
+        mobileBtn.classList.add('active');
+      } else {
+        mobileBtn.classList.remove('active');
       }
     }
   });
