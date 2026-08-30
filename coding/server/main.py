@@ -152,6 +152,7 @@ class IvrRequest(BaseModel):
     farmer_id: str
     digit_pressed: Optional[str] = None
     language: Optional[str] = None
+    menu_state: Optional[str] = None
 
 
 class LandDetails(BaseModel):
@@ -786,7 +787,7 @@ def get_all_schemes():
 def simulate_ivr(payload: IvrRequest):
     """
     Simulates Interactive Voice Response (IVR) phone tree for low-literacy / feature-phone farmers
-    with native multi-language voice prompt support and keypad language switcher.
+    with native multi-language voice prompt support and keypad language switcher (9 -> 1:en, 2:hi, 3:mr, 4:or, 5:as, 6:kn).
     """
     data = load_full_datastore()
     farmer = next((f for f in data["farmers"] if f["id"] == payload.farmer_id), None)
@@ -797,47 +798,112 @@ def simulate_ivr(payload: IvrRequest):
 
     advisory = get_advisory(farmer["id"], data)
     distress = calculate_distress_score(farmer["id"], DEFAULT_WEIGHTS, data)
-    lang = (payload.language or farmer.get("language", "hi")).lower()
+    lang = (payload.language or farmer.get("language", "en")).lower()
     if lang not in ["en", "hi", "mr", "or", "as", "kn"]:
-        lang = "hi"
-
-    # Digit mapping for language selection
-    lang_digit_map = {
-        "91": "hi", "92": "mr", "93": "or", "94": "as", "95": "kn", "96": "en"
-    }
+        lang = "en"
 
     digit = str(payload.digit_pressed).strip() if payload.digit_pressed else ""
-
-    # If language switch key pressed
-    if digit in lang_digit_map:
-        lang = lang_digit_map[digit]
-        digit = ""  # Reset to show main menu in new language
+    menu_state = payload.menu_state or "MAIN_MENU"
 
     farmer_name = farmer.get("name", "Farmer")
     crop_name = farmer.get("crop", "Crop")
-    stage_name = farmer.get("crop_stage", "vegetative")
 
-    # If no digit pressed or returned to main menu
+    def get_main_menu_content(l):
+        greetings = {
+            "mr": f"नमस्कार {farmer_name} शेतकरी बंधू! आपल्या {crop_name} पिकासाठी कृषी सल्ला व साहाय्य केंद्रात आपले स्वागत आहे.",
+            "or": f"ନମସ୍କାର {farmer_name} କୃଷକ ଭାଇ! ଆପଣଙ୍କ {crop_name} ଫସଲ ପାଇଁ ସ୍ମାର୍ଟ କୃଷି ପରାମର୍ଶ କେନ୍ଦ୍ରକୁ ସ୍ୱାଗତ।",
+            "as": f"নমস্কাৰ {farmer_name} কৃষক ভাই! আপোনাৰ {crop_name} শস্যৰ বাবে স্মাৰ্ট কৃষি সেৱালৈ স্বাগতম।",
+            "kn": f"ನಮಸ್ಕಾರ {farmer_name} ರೈತ ಬಾಂಧವರೇ! ನಿಮ್ಮ {crop_name} ಬೆಳೆಗಾಗಿ ಸ್ಮಾರ್ಟ್ ಕೃಷಿ ಸಲಹಾ ಕೇಂದ್ರಕ್ಕೆ ತಮಗೆ ಸುಸ್ವಾಗತ.",
+            "hi": f"नमस्ते {farmer_name} किसान भाई! आपकी {crop_name} फसल हेतु स्मार्ट कृषि सलाह एवं सहायता केंद्र में आपका स्वागत है।",
+            "en": f"Welcome {farmer_name} to Kisan Krishi Advisory Helpline for your {crop_name} crop."
+        }
+        menus = {
+            "mr": "हवामान व पीक सल्ल्यासाठी १ दाबा. बाजार भाव व हमीभावासाठी २ दाबा. शासकीय योजना व मदतीसाठी ३ दाबा. भाषा बदलण्यासाठी ९ दाबा. कृषी अधिकाऱ्यांशी संपर्क साधण्यासाठी ० दाबा.",
+            "or": "ପାଣିପାଗ ଓ ଫସଲ ପରାମର୍ଶ ପାଇଁ ୧ ଦବାନ୍ତୁ। ମଣ୍ଡି ଦର ଓ ଏମଏସପି ପାଇଁ ୨ ଦବାନ୍ତୁ। ସରକାରୀ ଯୋଜନା ପାଇଁ ୩ ଦବାନ୍ତୁ। ଭାଷା ପରିବର୍ତ୍ତନ ପାଇଁ ୯ ଦବାନ୍ତୁ। କୃଷି ଅଧିକାରୀଙ୍କ ସହ କଥା ହେବା ପାଇଁ ୦ ଦବାନ୍ତୁ।",
+            "as": "বতৰ আৰু শস্যৰ দিহাৰ বাবে ১ টিপক। বজাৰ দৰ আৰু সমৰ্থন মূল্যৰ বাবে ২ টিপক। চৰকাৰী আঁচনিৰ বাবে ৩ টিপক। ভাষা সলনি কৰিবলৈ ৯ টিপক। কৃষি বিষয়াৰ সৈতে কথা পাতিবলৈ ০ টিপক।",
+            "kn": "ಹವಾಮಾನ ಮತ್ತು ಬೆಳೆ ಸಲಹೆಗಾಗಿ ೧ ಒತ್ತಿ. ಮಾರುಕಟ್ಟೆ ಬೆಲೆ ಮತ್ತು ಎಂಎಸ್‌ಪಿಗಾಗಿ ೨ ಒತ್ತಿ. ಸರ್ಕಾರಿ ಯೋಜನೆಗಳಿಗಾಗಿ ೩ ಒತ್ತಿ. ಭಾಷೆ ಬದಲಾಯಿಸಲು ೯ ಒತ್ತಿ. ಕೃಷಿ ಅಧಿಕಾರಿಯೊಂದಿಗೆ ಮಾತನಾಡಲು ೦ ಒತ್ತಿ.",
+            "hi": "मौसम एवं फसल सलाह के लिए 1 दबाएं। मंडी भाव एवं समर्थन मूल्य के लिए 2 दबाएं। सरकारी योजनाओं व ऋण सहायता के लिए 3 दबाएं। भाषा बदलने के लिए 9 दबाएं। कृषि अधिकारी से बात करने के लिए 0 दबाएं।",
+            "en": "Press 1 for Weather & Crop Advisory. Press 2 for Mandi Price & MSP comparison. Press 3 for Government Schemes & Loan Support. Press 9 to change language. Press 0 to connect to officer."
+        }
+        return greetings.get(l, greetings["en"]), menus.get(l, menus["en"])
+
+    # Handle Language Selection if in LANGUAGE_MENU
+    lang_key_map = {
+        "1": "en", "2": "hi", "3": "mr", "4": "or", "5": "as", "6": "kn",
+        "91": "en", "92": "hi", "93": "mr", "94": "or", "95": "as", "96": "kn"
+    }
+
+    if (menu_state == "LANGUAGE_MENU" and digit in ["1", "2", "3", "4", "5", "6"]) or digit in ["91", "92", "93", "94", "95", "96"]:
+        new_lang = lang_key_map[digit]
+        lang = new_lang
+        
+        # Persist to database for this farmer
+        try:
+            conn = get_db_connection()
+            conn.cursor().execute("UPDATE farmers SET language = ? WHERE id = ?", (new_lang, farmer["id"]))
+            conn.commit()
+            conn.close()
+        except Exception as e:
+            print("Language update error:", e)
+
+        confirmations = {
+            "en": "Language changed to English.",
+            "hi": "भाषा बदलकर हिंदी कर दी गई है।",
+            "mr": "भाषा बदलून मराठी करण्यात आली आहे.",
+            "or": "ଭାଷା ପରିବର୍ତ୍ତନ କରି ଓଡ଼ିଆ କରାଗଲା।",
+            "as": "ভাষা সলনি কৰি অসমীয়া কৰা হ'ল।",
+            "kn": "ಭಾಷೆಯನ್ನು ಕನ್ನಡಕ್ಕೆ ಬದಲಾಯಿಸಲಾಗಿದೆ."
+        }
+        conf = confirmations.get(lang, "Language updated.")
+        greeting, menu_text = get_main_menu_content(lang)
+
+        return {
+            "farmer_id": farmer["id"],
+            "farmer_name": farmer_name,
+            "crop": crop_name,
+            "language": lang,
+            "language_changed": True,
+            "state": "MAIN_MENU",
+            "voice_prompt_text": f"{conf} {greeting} {menu_text}",
+            "options": [
+                {"key": "1", "label": "Crop & Weather Advisory"},
+                {"key": "2", "label": "Mandi Price vs Govt MSP"},
+                {"key": "3", "label": "Govt Schemes & Debt Relief"},
+                {"key": "9", "label": "Change Language (भाषा / ଭାଷା)"},
+                {"key": "0", "label": "Connect to Officer"}
+            ]
+        }
+
+    # If farmer pressed Key 9 -> Enter Language Sub-Menu
+    if digit == "9":
+        lang_prompts = {
+            "en": "To select language: Press 1 for English, 2 for Hindi, 3 for Marathi, 4 for Odia, 5 for Assamese, 6 for Kannada. Press * to return to main menu.",
+            "hi": "अपनी भाषा चुनने के लिए: अंग्रेजी के लिए 1, हिंदी के लिए 2, मराठी के लिए 3, ओड़िया के लिए 4, असमिया के लिए 5, कन्नड़ के लिए 6 दबाएं। मुख्य मेनू के लिए * दबाएं।",
+            "mr": "आपली भाषा निवडण्यासाठी: इंग्रजीसाठी १, हिंदीसाठी २, मराठीसाठी ३, ओडियासाठी ४, आसामीसाठी ५, कन्नडसाठी ६ दाबा. मुख्य मेनूसाठी * दाबा.",
+            "or": "ଆପଣଙ୍କ ଭାଷା ଚୟନ ପାଇଁ: ଇଂରାଜୀ ପାଇଁ ୧, ହିନ୍ଦୀ ପାଇଁ ୨, ମରାଠୀ ପାଇଁ ୩, ଓଡ଼ିଆ ପାଇଁ ୪, ଅସମୀୟା ପାଇଁ ୫, କନ୍ନଡ଼ ପାଇଁ ୬ ଦବାନ୍ତୁ। ମୁଖ୍ୟ ମେନୁ ପାଇଁ * ଦବାନ୍ତୁ।",
+            "as": "আপোনাৰ ভাষা বাছনিৰ বাবে: ইংৰাজীৰ বাবে ১, হিন্দীৰ বাবে ২, মাৰাঠীৰ বাবে ৩, ওড়িয়াৰ বাবে ৪, অসমীয়াৰ বাবে ৫, কন্নড়ৰ বাবে ৬ টিপক। মুখ্য মেনুৰ বাবে * টিপক।",
+            "kn": "ನಿಮ್ಮ ಭಾಷೆ ಆಯ್ಕೆಗಾಗಿ: ಇಂಗ್ಲಿಷ್‌ಗಾಗಿ ೧, ಹಿಂದಿಗಾಗಿ ೨, ಮರಾಠಿಗಾಗಿ ೩, ಒಡಿಯಾಕ್ಕಾಗಿ ೪, ಅಸ್ಸಾಮಿಗಾಗಿ ೫, ಕನ್ನಡಕ್ಕಾಗಿ ೬ ಒತ್ತಿ. ಮುಖ್ಯ ಮೆನುಗಾಗಿ * ಒತ್ತಿ."
+        }
+        return {
+            "farmer_id": farmer["id"],
+            "farmer_name": farmer_name,
+            "language": lang,
+            "state": "LANGUAGE_MENU",
+            "digit": "9",
+            "voice_prompt_text": lang_prompts.get(lang, lang_prompts["en"]),
+            "options": [
+                {"key": "1", "label": "English"},
+                {"key": "2", "label": "हिंदी (Hindi)"},
+                {"key": "3", "label": "मराठी (Marathi)"},
+                {"key": "4", "label": "ଓଡ଼ିଆ (Odia)"},
+                {"key": "5", "label": "অসমীয়া (Assamese)"},
+                {"key": "6", "label": "ಕನ್ನಡ (Kannada)"}
+            ]
+        }
+
+    # If no digit pressed or * pressed -> Return to Main Menu
     if not digit or digit == "*":
-        if lang == "mr":
-            greeting = f"नमस्कार {farmer_name} शेतकरी बंधू! आपल्या {crop_name} पिकासाठी कृषी सल्ला व साहाय्य केंद्रात आपले स्वागत आहे."
-            menu_text = "हवामान व पीक सल्ल्यासाठी १ दाबा. बाजार भाव व हमीभावासाठी २ दाबा. शासकीय योजना व मदतीसाठी ३ दाबा. भाषा बदलण्यासाठी ९ दाबा."
-        elif lang == "or":
-            greeting = f"ନମସ୍କାର {farmer_name} କୃଷକ ଭାଇ! ଆପଣଙ୍କ {crop_name} ଫସଲ ପାଇଁ ସ୍ମାର୍ଟ କୃଷି ପରାମର୍ଶ କେନ୍ଦ୍ରକୁ ସ୍ୱାଗତ।"
-            menu_text = "ପାଣିପାଗ ଓ ଫସଲ ପରାମର୍ଶ ପାଇଁ ୧ ଦବାନ୍ତୁ। ମଣ୍ଡି ଦର ଓ ଏମଏସପି ପାଇଁ ୨ ଦବାନ୍ତୁ। ସରକାରୀ ଯୋଜନା ପାଇଁ ୩ ଦବାନ୍ତୁ। ଭାଷା ପରିବର୍ତ୍ତନ ପାଇଁ ୯ ଦବାନ୍ତୁ।"
-        elif lang == "as":
-            greeting = f"নমস্কাৰ {farmer_name} কৃষক ভাই! আপোনাৰ {crop_name} শস্যৰ বাবে স্মাৰ্ট কৃষি সেৱালৈ স্বাগতম।"
-            menu_text = "বতৰ আৰু শস্যৰ দিহাৰ বাবে ১ টিপক। বজাৰ দৰ আৰু সমৰ্থন মূল্যৰ বাবে ২ টিপক। চৰকাৰী আঁচনিৰ বাবে ৩ টিপক। ভাষা সলনি কৰিবলৈ ৯ টিপক।"
-        elif lang == "kn":
-            greeting = f"ನಮಸ್ಕಾರ {farmer_name} ರೈತ ಬಾಂಧವರೇ! ನಿಮ್ಮ {crop_name} ಬೆಳೆಗಾಗಿ ಸ್ಮಾರ್ಟ್ ಕೃಷಿ ಸಲಹಾ ಕೇಂದ್ರಕ್ಕೆ ತಮಗೆ ಸುಸ್ವಾಗತ."
-            menu_text = "ಹವಾಮಾನ ಮತ್ತು ಬೆಳೆ ಸಲಹೆಗಾಗಿ ೧ ಒತ್ತಿ. ಮಾರುಕಟ್ಟೆ ಬೆಲೆ ಮತ್ತು ಎಂಎಸ್‌ಪಿಗಾಗಿ ೨ ಒತ್ತಿ. ಸರ್ಕಾರಿ ಯೋಜನೆಗಳಿಗಾಗಿ ೩ ಒತ್ತಿ. ಭಾಷೆ ಬದಲಾಯಿಸಲು ೯ ಒತ್ತಿ."
-        elif lang == "hi":
-            greeting = f"नमस्ते {farmer_name} किसान भाई! आपकी {crop_name} फसल हेतु स्मार्ट कृषि सलाह एवं सहायता केंद्र में आपका स्वागत है।"
-            menu_text = "मौसम एवं फसल सलाह के लिए 1 दबाएं। मंडी भाव एवं समर्थन मूल्य के लिए 2 दबाएं। सरकारी योजनाओं व ऋण सहायता के लिए 3 दबाएं। भाषा बदलने के लिए 9 दबाएं।"
-        else:
-            greeting = f"Welcome {farmer_name} to Kisan Krishi Advisory Helpline for your {crop_name} crop."
-            menu_text = "Press 1 for Weather & Crop Advisory. Press 2 for Mandi Price & MSP comparison. Press 3 for Government Schemes & Loan Support. Press 9 to change language."
-
+        greeting, menu_text = get_main_menu_content(lang)
         return {
             "farmer_id": farmer["id"],
             "farmer_name": farmer_name,
@@ -849,35 +915,8 @@ def simulate_ivr(payload: IvrRequest):
                 {"key": "1", "label": "Crop & Weather Advisory"},
                 {"key": "2", "label": "Mandi Price vs Govt MSP"},
                 {"key": "3", "label": "Govt Schemes & Debt Relief"},
-                {"key": "9", "label": "Change Language (ଭାଷା / भाषा)"},
-                {"key": "0", "label": "Operator / Extension Officer"}
-            ]
-        }
-
-    # Handle Key 9: Language Selection Menu
-    if digit == "9":
-        lang_prompt = {
-            "hi": "भाषा बदलने के लिए: 91 हिंदी, 92 मराठी, 93 ओड़िया, 94 असमिया, 95 कन्नड़, 96 अंग्रेजी दबाएं।",
-            "mr": "भाषा बदलण्यासाठी: ९१ हिंदी, ९२ मराठी, ९३ ओडिया, ९४ आसामी, ९५ कन्नड, ९६ इंग्रजी दाबा.",
-            "or": "ଭାଷା ବଦଳାଇବା ପାଇଁ: ୯୧ ହିନ୍ଦୀ, ୯୨ ମରାଠୀ, ୯୩ ଓଡ଼ିଆ, ୯୪ ଅସମୀୟା, ୯୫ କନ୍ନଡ଼, ୯୬ ଇଂରାଜୀ ଦବାନ୍ତୁ।",
-            "as": "ভাষা সলনি কৰিবলৈ: ৯১ হিন্দী, ৯২ মাৰাঠী, ৯৩ ওড়িয়া, ৯৪ অসমীয়া, ৯৫ কন্নড়, ৯৬ ইংৰাজী টিপক।",
-            "kn": "ಭಾಷೆ ಬದಲಾಯಿಸಲು: ೯೧ ಹಿಂದಿ, ೯೨ ಮರಾಠಿ, ೯೩ ಒಡಿಯಾ, ೯೪ ಅಸ್ಸಾಮಿ, ೯೫ ಕನ್ನಡ, ೯೬ ಇಂಗ್ಲಿಷ್ ಒತ್ತಿ.",
-            "en": "To change language: Press 91 for Hindi, 92 for Marathi, 93 for Odia, 94 for Assamese, 95 for Kannada, 96 for English."
-        }
-        return {
-            "farmer_id": farmer["id"],
-            "farmer_name": farmer_name,
-            "language": lang,
-            "state": "LANGUAGE_MENU",
-            "digit": "9",
-            "voice_prompt_text": lang_prompt.get(lang, lang_prompt["en"]),
-            "options": [
-                {"key": "91", "label": "हिंदी (Hindi)"},
-                {"key": "92", "label": "मराठी (Marathi)"},
-                {"key": "93", "label": "ଓଡ଼ିଆ (Odia)"},
-                {"key": "94", "label": "অসমীয়া (Assamese)"},
-                {"key": "95", "label": "ಕನ್ನಡ (Kannada)"},
-                {"key": "96", "label": "English"}
+                {"key": "9", "label": "Change Language (भाषा / ଭାଷା)"},
+                {"key": "0", "label": "Connect to Officer"}
             ]
         }
 
@@ -995,7 +1034,7 @@ def simulate_ivr(payload: IvrRequest):
             "farmer_name": farmer_name,
             "language": lang,
             "state": "INVALID_DIGIT",
-            "voice_prompt_text": "Invalid choice. Please press 1 for Advisory, 2 for Mandi, 3 for Schemes, or 9 for Language."
+            "voice_prompt_text": "Invalid choice. Please press 1 for Advisory, 2 for Mandi, 3 for Schemes, 9 for Language, or 0 for Officer."
         }
 
 

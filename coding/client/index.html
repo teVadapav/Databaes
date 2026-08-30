@@ -839,32 +839,13 @@
                   <div class="text-xs text-emerald-400">Connected: Kisan Helpline 1800-180-1551</div>
                 </div>
               </div>
-              
-              <div class="flex items-center space-x-2 self-end sm:self-auto">
-                <!-- IVR Dedicated Language Selector -->
-                <div class="flex items-center space-x-1 bg-slate-800 px-2 py-1 rounded-lg border border-slate-700">
-                  <span class="text-xs text-amber-400">🌐</span>
-                  <select id="sim-ivr-lang-select" onchange="onIvrLanguageSelect(this.value)" class="bg-transparent text-emerald-300 text-xs font-bold outline-none cursor-pointer">
-                    <option value="hi" class="bg-slate-900 text-white">हिंदी (Hindi)</option>
-                    <option value="mr" class="bg-slate-900 text-white">मराठी (Marathi)</option>
-                    <option value="or" class="bg-slate-900 text-white">ଓଡ଼ିଆ (Odia)</option>
-                    <option value="as" class="bg-slate-900 text-white">অসমীয়া (Assamese)</option>
-                    <option value="kn" class="bg-slate-900 text-white">ಕನ್ನಡ (Kannada)</option>
-                    <option value="en" class="bg-slate-900 text-white">English</option>
-                  </select>
-                </div>
-
-                <select id="sim-farmer-select" onchange="onSimFarmerChange(this.value)" class="bg-slate-800 text-white text-xs font-bold rounded-lg px-2.5 py-1.5 border border-slate-700">
-                  <!-- Populated dynamically -->
-                </select>
-              </div>
             </div>
 
             <!-- Virtual Phone Screen / Speaker Prompt Display -->
             <div class="bg-slate-950 border border-slate-800 rounded-2xl p-5 space-y-3 font-mono">
               <div class="flex items-center justify-between text-xs text-slate-500">
-                <span id="ivr-status-pill" class="text-emerald-400 font-bold">● IN CALL (00:14)</span>
-                <span id="ivr-lang-pill" class="text-amber-400 font-bold">LANG: HI</span>
+                <span id="ivr-status-pill" class="text-emerald-400 font-bold">● IN CALL (MAIN MENU)</span>
+                <span id="ivr-lang-pill" class="text-amber-400 font-bold">LANG: EN</span>
               </div>
               <div id="ivr-screen-text" class="text-sm text-slate-200 leading-relaxed font-sans font-medium min-h-[90px]">
                 Connecting to farmer...
@@ -919,12 +900,12 @@
                 <span data-i18n="quickLangSwitch">Keypad Language Direct Switch:</span>
               </div>
               <div class="flex flex-wrap gap-1.5 justify-center">
-                <button onclick="switchIvrLanguage('hi')" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-800 hover:bg-sky-600 text-slate-200 border border-slate-700 transition">हिंदी (91)</button>
-                <button onclick="switchIvrLanguage('mr')" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-800 hover:bg-sky-600 text-slate-200 border border-slate-700 transition">मराठी (92)</button>
-                <button onclick="switchIvrLanguage('or')" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-800 hover:bg-sky-600 text-slate-200 border border-slate-700 transition">ଓଡ଼ିଆ (93)</button>
-                <button onclick="switchIvrLanguage('as')" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-800 hover:bg-sky-600 text-slate-200 border border-slate-700 transition">অসমীয়া (94)</button>
-                <button onclick="switchIvrLanguage('kn')" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-800 hover:bg-sky-600 text-slate-200 border border-slate-700 transition">ಕನ್ನಡ (95)</button>
-                <button onclick="switchIvrLanguage('en')" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-800 hover:bg-sky-600 text-slate-200 border border-slate-700 transition">English (96)</button>
+                <button onclick="pressIvrKey('9'); setTimeout(() => pressIvrKey('1'), 250)" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-800 hover:bg-sky-600 text-slate-200 border border-slate-700 transition">English (9→1)</button>
+                <button onclick="pressIvrKey('9'); setTimeout(() => pressIvrKey('2'), 250)" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-800 hover:bg-sky-600 text-slate-200 border border-slate-700 transition">हिंदी (9→2)</button>
+                <button onclick="pressIvrKey('9'); setTimeout(() => pressIvrKey('3'), 250)" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-800 hover:bg-sky-600 text-slate-200 border border-slate-700 transition">मराठी (9→3)</button>
+                <button onclick="pressIvrKey('9'); setTimeout(() => pressIvrKey('4'), 250)" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-800 hover:bg-sky-600 text-slate-200 border border-slate-700 transition">ଓଡ଼ିଆ (9→4)</button>
+                <button onclick="pressIvrKey('9'); setTimeout(() => pressIvrKey('5'), 250)" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-800 hover:bg-sky-600 text-slate-200 border border-slate-700 transition">অসমীয়া (9→5)</button>
+                <button onclick="pressIvrKey('9'); setTimeout(() => pressIvrKey('6'), 250)" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-800 hover:bg-sky-600 text-slate-200 border border-slate-700 transition">ಕನ್ನಡ (9→6)</button>
               </div>
             </div>
 

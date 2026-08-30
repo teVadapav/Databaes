@@ -3470,47 +3470,36 @@ async function playModalCaseBriefingAudio() {
 }
 
 // --- MODULE 3: SMS & IVR FALLBACK SIMULATOR ---
+let ivrMenuState = 'MAIN_MENU';
 
 async function onSimFarmerChange(farmerId) {
   await startIvrCall(farmerId);
   await triggerSmsDelivery(farmerId);
 }
 
-// Dedicated IVR Keypad Language Switcher
-async function onIvrLanguageSelect(lang) {
-  state.ivrLanguage = lang;
-  await startIvrCall(null, lang);
-  playIvrAudioPrompt();
-}
-
-async function switchIvrLanguage(lang) {
-  state.ivrLanguage = lang;
-  const select = document.getElementById('sim-ivr-lang-select');
-  if (select) select.value = lang;
-  await startIvrCall(null, lang);
-  playIvrAudioPrompt();
-}
-
 async function startIvrCall(customFarmerId, customLang) {
-  const farmerId = customFarmerId || document.getElementById('sim-farmer-select')?.value || state.selectedFarmerId;
-  const lang = customLang || state.ivrLanguage || state.selectedLanguage || 'hi';
+  const farmerId = customFarmerId || state.selectedFarmerId || 'F1';
+  const lang = customLang || state.ivrLanguage || state.selectedLanguage || 'en';
+  ivrMenuState = 'MAIN_MENU';
   try {
     const res = await fetch(`${API_BASE}/simulate/ivr`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ farmer_id: farmerId, language: lang })
+      body: JSON.stringify({ farmer_id: farmerId, language: lang, menu_state: ivrMenuState })
     });
 
     state.ivrState = await res.json();
     state.ivrLanguage = state.ivrState.language || lang;
+    ivrMenuState = state.ivrState.state || 'MAIN_MENU';
 
-    // Sync select dropdown
-    const select = document.getElementById('sim-ivr-lang-select');
-    if (select && state.ivrState.language) select.value = state.ivrState.language;
-
-    document.getElementById('ivr-screen-text').textContent = state.ivrState.voice_prompt_text;
-    document.getElementById('ivr-status-pill').textContent = '● IN CALL (MAIN MENU)';
-    document.getElementById('ivr-lang-pill').textContent = `LANG: ${(state.ivrState.language || lang).toUpperCase()}`;
+    const screenEl = document.getElementById('ivr-screen-text');
+    if (screenEl) screenEl.textContent = state.ivrState.voice_prompt_text;
+    
+    const statusPill = document.getElementById('ivr-status-pill');
+    if (statusPill) statusPill.textContent = '● IN CALL (MAIN MENU)';
+    
+    const langPill = document.getElementById('ivr-lang-pill');
+    if (langPill) langPill.textContent = `LANG: ${(state.ivrState.language || lang).toUpperCase()}`;
 
     // Auto-trigger SMS emulator to match
     await triggerSmsDelivery(farmerId, state.ivrLanguage);
@@ -3521,27 +3510,52 @@ async function startIvrCall(customFarmerId, customLang) {
 }
 
 async function pressIvrKey(digit) {
-  const farmerId = document.getElementById('sim-farmer-select')?.value || state.selectedFarmerId;
-  const lang = state.ivrLanguage || state.selectedLanguage || 'hi';
+  const farmerId = state.selectedFarmerId || 'F1';
+  const lang = state.ivrLanguage || state.selectedLanguage || 'en';
   try {
     const res = await fetch(`${API_BASE}/simulate/ivr`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ farmer_id: farmerId, digit_pressed: digit, language: lang })
+      body: JSON.stringify({ 
+        farmer_id: farmerId, 
+        digit_pressed: digit, 
+        language: lang,
+        menu_state: ivrMenuState
+      })
     });
 
-    state.ivrState = await res.json();
-    if (state.ivrState.language) {
-      state.ivrLanguage = state.ivrState.language;
-      const select = document.getElementById('sim-ivr-lang-select');
-      if (select) select.value = state.ivrState.language;
-      document.getElementById('ivr-lang-pill').textContent = `LANG: ${state.ivrState.language.toUpperCase()}`;
+    const data = await res.json();
+    state.ivrState = data;
+    ivrMenuState = data.state || 'MAIN_MENU';
+
+    if (data.language) {
+      state.ivrLanguage = data.language;
+      const langPill = document.getElementById('ivr-lang-pill');
+      if (langPill) langPill.textContent = `LANG: ${data.language.toUpperCase()}`;
     }
 
-    document.getElementById('ivr-screen-text').textContent = state.ivrState.voice_prompt_text;
-    document.getElementById('ivr-status-pill').textContent = `● KEY [${digit}] PRESSED`;
+    // If language was changed through keypad, activate globally
+    if (data.language_changed && data.language) {
+      if (typeof onLanguageChanged === 'function') {
+        await onLanguageChanged(data.language);
+      }
+    }
 
-    // Speak response
+    const screenEl = document.getElementById('ivr-screen-text');
+    if (screenEl) screenEl.textContent = data.voice_prompt_text;
+
+    const statusPill = document.getElementById('ivr-status-pill');
+    if (statusPill) {
+      if (data.state === 'LANGUAGE_MENU') {
+        statusPill.textContent = `● KEY [9] PRESSED - LANGUAGE MENU`;
+      } else if (data.state === 'CONNECTING_OPERATOR') {
+        statusPill.textContent = `● KEY [0] PRESSED - CONNECTING OFFICER`;
+      } else {
+        statusPill.textContent = `● KEY [${digit}] PRESSED`;
+      }
+    }
+
+    // Speak prompt
     playIvrAudioPrompt();
 
   } catch (err) {
@@ -3551,13 +3565,13 @@ async function pressIvrKey(digit) {
 
 function playIvrAudioPrompt() {
   if (state.ivrState && state.ivrState.voice_prompt_text) {
-    speakText(state.ivrState.voice_prompt_text, state.ivrState.language || state.ivrLanguage || state.selectedLanguage || 'hi');
+    speakText(state.ivrState.voice_prompt_text, state.ivrState.language || state.ivrLanguage || state.selectedLanguage || 'en');
   }
 }
 
 async function triggerSmsDelivery(customFarmerId, customLang) {
-  const farmerId = customFarmerId || document.getElementById('sim-farmer-select')?.value || state.selectedFarmerId;
-  const lang = customLang || state.ivrLanguage || state.selectedLanguage || 'hi';
+  const farmerId = customFarmerId || state.selectedFarmerId || 'F1';
+  const lang = customLang || state.ivrLanguage || state.selectedLanguage || 'en';
   try {
     const res = await fetch(`${API_BASE}/simulate/sms`, {
       method: 'POST',
@@ -3566,9 +3580,12 @@ async function triggerSmsDelivery(customFarmerId, customLang) {
     });
 
     const data = await res.json();
-    document.getElementById('sms-screen-body').textContent = data.sms_body;
-    document.getElementById('sms-char-count').textContent = `Length: ${data.character_count} chars (${data.sms_segments} SMS)`;
-    document.getElementById('sms-time').textContent = '16:45 IST';
+    const smsBody = document.getElementById('sms-screen-body');
+    if (smsBody) smsBody.textContent = data.sms_body;
+    const smsCount = document.getElementById('sms-char-count');
+    if (smsCount) smsCount.textContent = `Length: ${data.character_count} chars (${data.sms_segments} SMS)`;
+    const smsTime = document.getElementById('sms-time');
+    if (smsTime) smsTime.textContent = '16:45 IST';
 
   } catch (err) {
     console.error('Error triggering SMS delivery:', err);
@@ -3576,10 +3593,7 @@ async function triggerSmsDelivery(customFarmerId, customLang) {
 }
 
 function initIvrSimulator() {
-  const simLangSelect = document.getElementById("sim-ivr-lang-select");
-  if (simLangSelect) {
-    simLangSelect.value = state.selectedLanguage || "hi";
-  }
+  // IVR initialized
 }
 
 // Global exports for Onboarding and Interop
