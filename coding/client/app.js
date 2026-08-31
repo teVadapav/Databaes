@@ -3790,15 +3790,15 @@ function renderOfficerTable() {
       : (lang === 'hi' ? 'कम' : lang === 'mr' ? 'कमी' : lang === 'or' ? 'କମ୍' : lang === 'as' ? 'কম' : lang === 'kn' ? 'ಕಡಿಮೆ' : 'LOW');
 
     const bandBadge = f.risk_band === 'High'
-      ? `<span class="px-2.5 py-1 rounded-full text-[11px] font-black bg-red-50 text-red-700 border border-red-200 shadow-2xs whitespace-nowrap">${bandLabel} (71+)</span>`
+      ? `<span class="px-1.5 py-0.5 rounded-full text-[10px] font-black bg-red-50 text-red-700 border border-red-200 shrink-0">${bandLabel} (71+)</span>`
       : f.risk_band === 'Medium'
-      ? `<span class="px-2.5 py-1 rounded-full text-[11px] font-black bg-amber-50 text-amber-800 border border-amber-200 shadow-2xs whitespace-nowrap">${bandLabel} (41-70)</span>`
-      : `<span class="px-2.5 py-1 rounded-full text-[11px] font-black bg-emerald-50 text-emerald-800 border border-emerald-200 shadow-2xs whitespace-nowrap">${bandLabel} (0-40)</span>`;
+      ? `<span class="px-1.5 py-0.5 rounded-full text-[10px] font-black bg-amber-50 text-amber-800 border border-amber-200 shrink-0">${bandLabel} (41-70)</span>`
+      : `<span class="px-1.5 py-0.5 rounded-full text-[10px] font-black bg-emerald-50 text-emerald-800 border border-emerald-200 shrink-0">${bandLabel} (0-40)</span>`;
 
     const channelText = f.recommended_channel === 'ivr_or_sms' ? (t.callIvr || 'Call / IVR') : (t.appPush || 'App Push');
     const channelBadge = f.recommended_channel === 'ivr_or_sms'
-      ? `<span class="inline-flex items-center space-x-1.5 font-bold text-amber-800 bg-amber-50 px-2.5 py-1.5 rounded-xl border border-amber-200/80 text-xs shadow-2xs whitespace-nowrap"><span>☎️</span><span>${channelText}</span></span>`
-      : `<span class="inline-flex items-center space-x-1.5 font-bold text-sky-800 bg-emerald-50 px-2.5 py-1.5 rounded-xl border border-sky-200/80 text-xs shadow-2xs whitespace-nowrap"><span>📱</span><span>${channelText}</span></span>`;
+      ? `<span class="inline-flex items-center space-x-1 font-bold text-amber-800 bg-amber-50 px-2 py-1 rounded-lg border border-amber-200/80 text-[10px] shadow-2xs"><span>☎️</span><span>${channelText}</span></span>`
+      : `<span class="inline-flex items-center space-x-1 font-bold text-sky-800 bg-emerald-50 px-2 py-1 rounded-lg border border-sky-200/80 text-[10px] shadow-2xs"><span>📱</span><span>${channelText}</span></span>`;
 
     const cropKey = (f.crop || '').toLowerCase();
     const localizedCrop = (CROP_TRANSLATIONS[cropKey] && CROP_TRANSLATIONS[cropKey][lang]) || f.crop;
@@ -3807,72 +3807,74 @@ function renderOfficerTable() {
 
     const safeName = (f.farmer_name || 'Farmer').replace(/'/g, "\\'");
 
-    // Format Scheme text neatly without clumsy overflowing text
+    // Format Scheme text neatly and compactly
     const rawScheme = f.primary_recommended_scheme || 'PMFBY';
     let schemeHtml = '';
     if (rawScheme.includes('PMFBY')) {
-      schemeHtml = `<div class="inline-flex flex-col text-left px-2.5 py-1 rounded-xl bg-indigo-50/80 border border-indigo-200/80 text-indigo-900 max-w-[220px] shadow-2xs"><span class="font-extrabold text-xs">PMFBY</span><span class="text-[10px] text-indigo-700 font-semibold leading-tight">Crop Loss Insurance</span></div>`;
+      schemeHtml = `<div class="inline-flex flex-col text-left px-2 py-0.5 rounded-lg bg-indigo-50/80 border border-indigo-200/80 text-indigo-900 shadow-2xs"><span class="font-extrabold text-[11px]">PMFBY</span><span class="text-[9px] text-indigo-700 font-semibold leading-tight">Crop Insurance</span></div>`;
     } else if (rawScheme.includes('Jalanidhi') || rawScheme.includes('Farm Pond')) {
-      schemeHtml = `<div class="inline-flex flex-col text-left px-2.5 py-1 rounded-xl bg-sky-50/80 border border-sky-200/80 text-sky-900 max-w-[220px] shadow-2xs"><span class="font-extrabold text-xs">Jalanidhi / Farm Pond</span><span class="text-[10px] text-sky-700 font-semibold leading-tight">Micro-Irrigation Subsidy</span></div>`;
+      schemeHtml = `<div class="inline-flex flex-col text-left px-2 py-0.5 rounded-lg bg-sky-50/80 border border-sky-200/80 text-sky-900 shadow-2xs"><span class="font-extrabold text-[11px]">Jalanidhi</span><span class="text-[9px] text-sky-700 font-semibold leading-tight">Micro-Irrigation</span></div>`;
+    } else if (rawScheme.includes('OSDMA') || rawScheme.includes('Flood')) {
+      schemeHtml = `<div class="inline-flex flex-col text-left px-2 py-0.5 rounded-lg bg-blue-50/80 border border-blue-200/80 text-blue-900 shadow-2xs"><span class="font-extrabold text-[11px]">OSDMA Flood</span><span class="text-[9px] text-blue-700 font-semibold leading-tight">Emergency Relief</span></div>`;
+    } else if (rawScheme.includes('Drought') || rawScheme.includes('Package')) {
+      schemeHtml = `<div class="inline-flex flex-col text-left px-2 py-0.5 rounded-lg bg-amber-50/80 border border-amber-200/80 text-amber-900 shadow-2xs"><span class="font-extrabold text-[11px]">Drought Relief</span><span class="text-[9px] text-amber-700 font-semibold leading-tight">State Package</span></div>`;
     } else if (rawScheme.includes('PM-AASHA') || rawScheme.includes('AASHA')) {
-      schemeHtml = `<div class="inline-flex flex-col text-left px-2.5 py-1 rounded-xl bg-amber-50/80 border border-amber-200/80 text-amber-900 max-w-[220px] shadow-2xs"><span class="font-extrabold text-xs">PM-AASHA</span><span class="text-[10px] text-amber-700 font-semibold leading-tight">Price Deficit Support</span></div>`;
+      schemeHtml = `<div class="inline-flex flex-col text-left px-2 py-0.5 rounded-lg bg-amber-50/80 border border-amber-200/80 text-amber-900 shadow-2xs"><span class="font-extrabold text-[11px]">PM-AASHA</span><span class="text-[9px] text-amber-700 font-semibold leading-tight">Price Support</span></div>`;
     } else if (rawScheme.includes('KCC')) {
-      schemeHtml = `<div class="inline-flex flex-col text-left px-2.5 py-1 rounded-xl bg-blue-50/80 border border-blue-200/80 text-blue-900 max-w-[220px] shadow-2xs"><span class="font-extrabold text-xs">Kisan Credit Card (KCC)</span><span class="text-[10px] text-blue-700 font-semibold leading-tight">Interest Subvention</span></div>`;
+      schemeHtml = `<div class="inline-flex flex-col text-left px-2 py-0.5 rounded-lg bg-blue-50/80 border border-blue-200/80 text-blue-900 shadow-2xs"><span class="font-extrabold text-[11px]">KCC</span><span class="text-[9px] text-blue-700 font-semibold leading-tight">Interest Subvention</span></div>`;
     } else {
-      schemeHtml = `<div class="inline-block text-left px-2.5 py-1 rounded-xl bg-indigo-50/80 border border-indigo-200/80 text-indigo-900 text-xs font-bold shadow-2xs max-w-[220px]">${rawScheme}</div>`;
+      schemeHtml = `<div class="inline-block text-left px-2 py-0.5 rounded-lg bg-indigo-50/80 border border-indigo-200/80 text-indigo-900 text-[11px] font-bold shadow-2xs">${rawScheme}</div>`;
     }
 
     return `
       <tr class="hover:bg-slate-50/90 transition-colors">
-        <td class="px-5 py-4.5 align-middle">
-          <div class="flex items-center space-x-2">
-            <span class="px-2 py-0.5 rounded-md font-mono font-black text-xs bg-slate-900 text-emerald-400 border border-slate-700 shadow-2xs shrink-0 whitespace-nowrap">${f.farmer_id}</span>
-            <span class="font-bold text-slate-900 text-sm whitespace-nowrap">${f.farmer_name}</span>
+        <td class="py-2.5 px-3 align-middle">
+          <div class="flex items-center space-x-1.5">
+            <span class="px-1.5 py-0.5 rounded font-mono font-bold text-[10px] bg-slate-900 text-emerald-400 border border-slate-700 shrink-0">${f.farmer_id}</span>
+            <span class="font-bold text-slate-900 text-xs">${f.farmer_name}</span>
           </div>
-          <div class="text-xs text-slate-500 flex items-center space-x-1 mt-1 whitespace-nowrap">
-            <span class="shrink-0">📍</span>
-            <span>${f.village ? f.village + ', ' : ''}${f.district_name}</span>
-          </div>
-        </td>
-        <td class="px-4 py-4.5 align-middle whitespace-nowrap">
-          <div class="space-y-0.5 text-xs">
-            <div class="font-bold text-slate-800 flex items-center space-x-1.5 font-mono">
-              <span class="shrink-0">📞</span>
-              <span class="text-sky-900 tracking-tight">${f.phone || 'N/A'}</span>
-            </div>
-            <div class="text-[11px] text-slate-400 capitalize">
-              ${(f.device_type || 'phone').replace(/_/g, ' ')} • <span class="font-semibold text-slate-600">${f.network_quality || '4G'}</span>
-            </div>
+          <div class="text-[11px] text-slate-500 flex items-center space-x-1 mt-0.5">
+            <span class="shrink-0 text-[10px]">📍</span>
+            <span title="${f.village ? f.village + ', ' : ''}${f.district_name}">${f.village ? f.village + ', ' : ''}${f.district_name}</span>
           </div>
         </td>
-        <td class="px-4 py-4.5 align-middle whitespace-nowrap">
-          <div class="font-black text-slate-900 text-sm capitalize">${localizedCrop}</div>
-          <div class="inline-block mt-0.5 text-[10px] font-bold text-slate-600 bg-slate-100 px-2 py-0.5 rounded-md tracking-wider uppercase">${localizedStage}</div>
+        <td class="py-2.5 px-2.5 align-middle">
+          <div class="font-bold text-slate-800 flex items-center space-x-1 font-mono text-[11px]">
+            <span class="shrink-0 text-[10px]">📞</span>
+            <span class="text-sky-900">${f.phone || 'N/A'}</span>
+          </div>
+          <div class="text-[10px] text-slate-400 capitalize mt-0.5">
+            ${(f.device_type || 'phone').replace(/_/g, ' ')} • <span class="font-semibold text-slate-600">${f.network_quality || '4G'}</span>
+          </div>
         </td>
-        <td class="px-4 py-4.5 align-middle whitespace-nowrap">
-          <div class="flex items-center space-x-2.5">
-            <span class="text-lg font-black text-slate-900 font-mono">${f.distress_score}</span>
+        <td class="py-2.5 px-2.5 align-middle">
+          <div class="font-bold text-slate-900 text-xs capitalize">${localizedCrop}</div>
+          <div class="inline-block mt-0.5 text-[9px] font-bold text-slate-600 bg-slate-100 px-1.5 py-0.5 rounded uppercase tracking-tight">${localizedStage}</div>
+        </td>
+        <td class="py-2.5 px-2.5 align-middle">
+          <div class="flex items-center space-x-1.5">
+            <span class="text-sm font-black text-slate-900 font-mono">${f.distress_score}</span>
             ${bandBadge}
           </div>
         </td>
-        <td class="px-4 py-4.5 align-middle">
-          <div class="text-xs font-semibold text-slate-700 leading-snug min-w-[150px] max-w-[200px]">
-            ${f.top_contributing_signal ? f.top_contributing_signal.label : 'Normal Agronomy'}
+        <td class="py-2.5 px-2.5 align-middle">
+          <div class="text-[11px] font-semibold text-slate-700 leading-tight">
+            ${f.top_contributing_signal ? f.top_contributing_signal.label : 'Normal'}
           </div>
         </td>
-        <td class="px-4 py-4.5 align-middle">
+        <td class="py-2.5 px-2.5 align-middle">
           ${schemeHtml}
         </td>
-        <td class="px-4 py-4.5 align-middle whitespace-nowrap">
+        <td class="py-2.5 px-2 align-middle">
           ${channelBadge}
         </td>
-        <td class="px-5 py-4.5 text-right align-middle whitespace-nowrap">
-          <div class="flex items-center justify-end space-x-2">
-            <button onclick="openOfficerModal('${f.farmer_id}')" title="View Full Risk Breakdown" class="px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 active:scale-95 text-white font-bold text-xs shadow-xs transition flex items-center space-x-1.5 cursor-pointer">
+        <td class="py-2.5 px-3 text-right align-middle">
+          <div class="flex items-center justify-end space-x-1.5">
+            <button onclick="openOfficerModal('${f.farmer_id}')" title="View Full Risk Breakdown" class="px-2 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 active:scale-95 text-white font-bold text-[11px] shadow-xs transition flex items-center space-x-1 cursor-pointer">
               <span>🔍</span>
               <span>Details</span>
             </button>
-            <button onclick="deleteFarmerAccount('${f.farmer_id}', '${safeName}')" title="Delete Farmer Account" class="px-2.5 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-600 active:scale-95 text-rose-700 hover:text-white border border-rose-200 hover:border-rose-600 font-bold text-xs shadow-xs transition flex items-center space-x-1 cursor-pointer">
+            <button onclick="deleteFarmerAccount('${f.farmer_id}', '${safeName}')" title="Delete Farmer Account" class="px-2 py-1 rounded-lg bg-rose-50 hover:bg-rose-600 active:scale-95 text-rose-700 hover:text-white border border-rose-200 hover:border-rose-600 font-bold text-[11px] shadow-xs transition flex items-center space-x-1 cursor-pointer">
               <span>🗑️</span>
               <span>Delete</span>
             </button>
