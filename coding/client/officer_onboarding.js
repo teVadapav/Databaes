@@ -25,50 +25,6 @@ const MOCK_OFFICER_REGISTRY = [
     scope: 'district'
   },
   {
-    id: 'OFI-02',
-    name: 'Dr. Vijay Kulkarni',
-    phone: '9421188320',
-    state: 'Maharashtra',
-    district: 'Nashik',
-    district_id: 'D1',
-    designation: 'District Agricultural Officer (DAO)',
-    language: 'mr',
-    scope: 'district'
-  },
-  {
-    id: 'OFI-08',
-    name: 'Shri Anand Waghmare',
-    phone: '9422244556',
-    state: 'Maharashtra',
-    district: 'Akola',
-    district_id: 'D2',
-    designation: 'District Agricultural Officer (DAO)',
-    language: 'mr',
-    scope: 'district'
-  },
-  {
-    id: 'OFI-03',
-    name: 'Smt. Shradha Sawant',
-    phone: '9423311209',
-    state: 'Maharashtra',
-    district: 'Yavatmal',
-    district_id: 'D3',
-    designation: 'District Agricultural Officer (DAO)',
-    language: 'mr',
-    scope: 'district'
-  },
-  {
-    id: 'OFI-04',
-    name: 'Dr. Himanta Barua',
-    phone: '9435011223',
-    state: 'Assam',
-    district: 'Nagaon',
-    district_id: 'D_AS1',
-    designation: 'District Agricultural Officer (DAO)',
-    language: 'as',
-    scope: 'district'
-  },
-  {
     id: 'OFI-05',
     name: 'Shri Biswajit Rout',
     phone: '9437133445',
@@ -102,14 +58,36 @@ const MOCK_OFFICER_REGISTRY = [
     scope: 'district'
   },
   {
-    id: 'OFI-09',
-    name: 'Shri Mallikarjun Swamy',
-    phone: '9448077665',
-    state: 'Karnataka',
-    district: 'Raichur',
-    district_id: 'D_KN1',
+    id: 'OFI-02',
+    name: 'Dr. Vijay Kulkarni',
+    phone: '9421188320',
+    state: 'Maharashtra',
+    district: 'Nashik',
+    district_id: 'D1',
     designation: 'District Agricultural Officer (DAO)',
-    language: 'kn',
+    language: 'mr',
+    scope: 'district'
+  },
+  {
+    id: 'OFI-08',
+    name: 'Shri Anand Waghmare',
+    phone: '9422244556',
+    state: 'Maharashtra',
+    district: 'Akola',
+    district_id: 'D2',
+    designation: 'District Agricultural Officer (DAO)',
+    language: 'mr',
+    scope: 'district'
+  },
+  {
+    id: 'OFI-03',
+    name: 'Smt. Shradha Sawant',
+    phone: '9423311209',
+    state: 'Maharashtra',
+    district: 'Yavatmal',
+    district_id: 'D3',
+    designation: 'District Agricultural Officer (DAO)',
+    language: 'mr',
     scope: 'district'
   },
   {
@@ -132,6 +110,39 @@ const MOCK_OFFICER_REGISTRY = [
     district_id: 'ALL_MAHARASHTRA',
     designation: 'State Agriculture Commissioner & Principal Secretary',
     language: 'mr',
+    scope: 'statewide'
+  },
+  {
+    id: 'OFI-12',
+    name: 'Dr. K. G. Jagadeesha, IAS',
+    phone: '9448000300',
+    state: 'Karnataka',
+    district: 'Statewide (All Karnataka Districts)',
+    district_id: 'ALL_KARNATAKA',
+    designation: 'State Agriculture Commissioner & Secretary',
+    language: 'kn',
+    scope: 'statewide'
+  },
+  {
+    id: 'OFI-13',
+    name: 'Dr. Om Prakash, IAS',
+    phone: '9435000400',
+    state: 'Assam',
+    district: 'Statewide (All Assam Districts)',
+    district_id: 'ALL_ASSAM',
+    designation: 'State Agriculture Commissioner & Secretary',
+    language: 'as',
+    scope: 'statewide'
+  },
+  {
+    id: 'OFI-14',
+    name: 'Dr. Devesh Chaturvedi, IAS',
+    phone: '9450000500',
+    state: 'Uttar Pradesh',
+    district: 'Statewide (All Uttar Pradesh Districts)',
+    district_id: 'ALL_UP',
+    designation: 'Agriculture Production Commissioner & ACS',
+    language: 'hi',
     scope: 'statewide'
   }
 ];
@@ -437,21 +448,25 @@ const OfficerOnboarding = {
           </div>
           <div class="mt-2.5 p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-2 text-[11px] text-slate-600">
             <div>
-              <div class="font-bold text-slate-800 mb-1">🏛️ District Officers (Specific District):</div>
+              <div class="font-bold text-slate-800 mb-1">🏛️ District Officers (Strict Single District View):</div>
               <div class="flex flex-wrap gap-1.5">
                 <button type="button" onclick="document.getElementById('officer-login-query').value='01'; OfficerOnboarding.submitQuickLogin();" class="px-2 py-0.5 bg-white border border-slate-300 rounded text-[10px] font-bold text-sky-700 hover:bg-sky-50 cursor-pointer">OFI-01 (Sundargarh DAO)</button>
+                <button type="button" onclick="document.getElementById('officer-login-query').value='05'; OfficerOnboarding.submitQuickLogin();" class="px-2 py-0.5 bg-white border border-slate-300 rounded text-[10px] font-bold text-sky-700 hover:bg-sky-50 cursor-pointer">OFI-05 (Kalahandi DAO)</button>
+                <button type="button" onclick="document.getElementById('officer-login-query').value='06'; OfficerOnboarding.submitQuickLogin();" class="px-2 py-0.5 bg-white border border-slate-300 rounded text-[10px] font-bold text-sky-700 hover:bg-sky-50 cursor-pointer">OFI-06 (Balangir DAO)</button>
+                <button type="button" onclick="document.getElementById('officer-login-query').value='07'; OfficerOnboarding.submitQuickLogin();" class="px-2 py-0.5 bg-white border border-slate-300 rounded text-[10px] font-bold text-sky-700 hover:bg-sky-50 cursor-pointer">OFI-07 (Bargarh DAO)</button>
                 <button type="button" onclick="document.getElementById('officer-login-query').value='02'; OfficerOnboarding.submitQuickLogin();" class="px-2 py-0.5 bg-white border border-slate-300 rounded text-[10px] font-bold text-sky-700 hover:bg-sky-50 cursor-pointer">OFI-02 (Nashik DAO)</button>
                 <button type="button" onclick="document.getElementById('officer-login-query').value='08'; OfficerOnboarding.submitQuickLogin();" class="px-2 py-0.5 bg-white border border-slate-300 rounded text-[10px] font-bold text-sky-700 hover:bg-sky-50 cursor-pointer">OFI-08 (Akola DAO)</button>
                 <button type="button" onclick="document.getElementById('officer-login-query').value='03'; OfficerOnboarding.submitQuickLogin();" class="px-2 py-0.5 bg-white border border-slate-300 rounded text-[10px] font-bold text-sky-700 hover:bg-sky-50 cursor-pointer">OFI-03 (Yavatmal DAO)</button>
-                <button type="button" onclick="document.getElementById('officer-login-query').value='05'; OfficerOnboarding.submitQuickLogin();" class="px-2 py-0.5 bg-white border border-slate-300 rounded text-[10px] font-bold text-sky-700 hover:bg-sky-50 cursor-pointer">OFI-05 (Kalahandi DAO)</button>
-                <button type="button" onclick="document.getElementById('officer-login-query').value='04'; OfficerOnboarding.submitQuickLogin();" class="px-2 py-0.5 bg-white border border-slate-300 rounded text-[10px] font-bold text-sky-700 hover:bg-sky-50 cursor-pointer">OFI-04 (Nagaon DAO)</button>
               </div>
             </div>
             <div class="pt-2 border-t border-slate-200">
               <div class="font-bold text-amber-900 mb-1">⭐ Senior State Officers (Full Statewide Jurisdiction):</div>
               <div class="flex flex-wrap gap-1.5">
-                <button type="button" onclick="document.getElementById('officer-login-query').value='10'; OfficerOnboarding.submitQuickLogin();" class="px-2.5 py-1 bg-amber-100/80 border border-amber-300 rounded-lg text-[10px] font-black text-amber-900 hover:bg-amber-200 cursor-pointer shadow-2xs">OFI-10 (State Director • All Odisha Farmers)</button>
-                <button type="button" onclick="document.getElementById('officer-login-query').value='11'; OfficerOnboarding.submitQuickLogin();" class="px-2.5 py-1 bg-amber-100/80 border border-amber-300 rounded-lg text-[10px] font-black text-amber-900 hover:bg-amber-200 cursor-pointer shadow-2xs">OFI-11 (State Commissioner • All Maharashtra Farmers)</button>
+                <button type="button" onclick="document.getElementById('officer-login-query').value='10'; OfficerOnboarding.submitQuickLogin();" class="px-2.5 py-1 bg-amber-100/80 border border-amber-300 rounded-lg text-[10px] font-black text-amber-900 hover:bg-amber-200 cursor-pointer shadow-2xs">OFI-10 (State Director • Odisha)</button>
+                <button type="button" onclick="document.getElementById('officer-login-query').value='11'; OfficerOnboarding.submitQuickLogin();" class="px-2.5 py-1 bg-amber-100/80 border border-amber-300 rounded-lg text-[10px] font-black text-amber-900 hover:bg-amber-200 cursor-pointer shadow-2xs">OFI-11 (State Commissioner • Maharashtra)</button>
+                <button type="button" onclick="document.getElementById('officer-login-query').value='12'; OfficerOnboarding.submitQuickLogin();" class="px-2.5 py-1 bg-amber-100/80 border border-amber-300 rounded-lg text-[10px] font-black text-amber-900 hover:bg-amber-200 cursor-pointer shadow-2xs">OFI-12 (State Commissioner • Karnataka)</button>
+                <button type="button" onclick="document.getElementById('officer-login-query').value='13'; OfficerOnboarding.submitQuickLogin();" class="px-2.5 py-1 bg-amber-100/80 border border-amber-300 rounded-lg text-[10px] font-black text-amber-900 hover:bg-amber-200 cursor-pointer shadow-2xs">OFI-13 (State Commissioner • Assam)</button>
+                <button type="button" onclick="document.getElementById('officer-login-query').value='14'; OfficerOnboarding.submitQuickLogin();" class="px-2.5 py-1 bg-amber-100/80 border border-amber-300 rounded-lg text-[10px] font-black text-amber-900 hover:bg-amber-200 cursor-pointer shadow-2xs">OFI-14 (State APC • Uttar Pradesh)</button>
               </div>
             </div>
           </div>

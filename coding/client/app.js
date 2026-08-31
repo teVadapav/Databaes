@@ -1493,20 +1493,20 @@ function switchMainView(viewName) {
   });
 
   if (viewName === 'farmer') {
-    const farmerVisited = typeof localStorage !== 'undefined' && localStorage.getItem('sk_farmer_visited');
+    const farmerVisited = typeof sessionStorage !== 'undefined' && sessionStorage.getItem('sk_farmer_modal_opened');
     if (!farmerVisited) {
-      if (typeof localStorage !== 'undefined') {
-        localStorage.setItem('sk_farmer_visited', 'true');
+      if (typeof sessionStorage !== 'undefined') {
+        sessionStorage.setItem('sk_farmer_modal_opened', 'true');
       }
       if (window.Onboarding && typeof window.Onboarding.init === 'function') {
         window.Onboarding.init();
       }
     }
   } else if (viewName === 'officer') {
-    const officerVisited = typeof localStorage !== 'undefined' && localStorage.getItem('sk_officer_visited');
-    if (!officerVisited) {
-      if (typeof localStorage !== 'undefined') {
-        localStorage.setItem('sk_officer_visited', 'true');
+    const officerOpenedInSession = typeof sessionStorage !== 'undefined' && sessionStorage.getItem('sk_officer_modal_opened');
+    if (!officerOpenedInSession) {
+      if (typeof sessionStorage !== 'undefined') {
+        sessionStorage.setItem('sk_officer_modal_opened', 'true');
       }
       if (window.OfficerOnboarding && typeof window.OfficerOnboarding.openModal === 'function') {
         window.OfficerOnboarding.openModal(false);
@@ -3701,8 +3701,20 @@ async function fetchOfficerData() {
       body: JSON.stringify(state.weights)
     });
     const data = await res.json();
-    state.officerFarmers = data.farmers || (Array.isArray(data) ? data : []);
-    state.officerMetrics = data.metrics || {
+    let farmers = data.farmers || (Array.isArray(data) ? data : []);
+
+    // Strict district and statewide isolation guarantee
+    if (session) {
+      const isStatewide = session.scope === 'statewide' || 
+                          (session.district_id && session.district_id.startsWith('ALL_')) || 
+                          (session.designation && (session.designation.includes('Director') || session.designation.includes('Commissioner') || session.designation.includes('Secretary')));
+      if (!isStatewide && session.district_id && !session.district_id.startsWith('ALL_')) {
+        farmers = farmers.filter(f => f.district_id === session.district_id);
+      }
+    }
+
+    state.officerFarmers = farmers;
+    state.officerMetrics = {
       total_farmers: state.officerFarmers.length,
       high_risk_count: state.officerFarmers.filter(f => (f.risk_band || '').toUpperCase() === 'HIGH').length,
       medium_risk_count: state.officerFarmers.filter(f => (f.risk_band || '').toUpperCase() === 'MEDIUM').length,

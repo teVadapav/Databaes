@@ -13,45 +13,6 @@
     "scope": "district"
   },
   {
-    "id": "OFI-02",
-    "name": "Dr. Vijay Kulkarni",
-    "designation": "District Agricultural Officer (DAO)",
-    "phone": "+91-94211-88320",
-    "email": "vijay.kulkarni@krishi.maharashtra.gov.in",
-    "state": "Maharashtra",
-    "district": "Nashik",
-    "district_id": "D1",
-    "assigned_districts": ["D1"],
-    "office_location": "District Ag Office, Nashik, Maharashtra",
-    "scope": "district"
-  },
-  {
-    "id": "OFI-03",
-    "name": "Smt. Shradha Sawant",
-    "designation": "District Agricultural Officer (DAO)",
-    "phone": "+91-94233-11209",
-    "email": "shradha.sawant@krishi.maharashtra.gov.in",
-    "state": "Maharashtra",
-    "district": "Yavatmal",
-    "district_id": "D3",
-    "assigned_districts": ["D3"],
-    "office_location": "Krishi Bhavan, Yavatmal, Maharashtra",
-    "scope": "district"
-  },
-  {
-    "id": "OFI-04",
-    "name": "Dr. Himanta Barua",
-    "designation": "District Agricultural Officer (DAO)",
-    "phone": "+91-94350-11223",
-    "email": "dao.nagaon@agri.assam.gov.in",
-    "state": "Assam",
-    "district": "Nagaon",
-    "district_id": "D_AS1",
-    "assigned_districts": ["D_AS1"],
-    "office_location": "District Agriculture Complex, Nagaon, Assam",
-    "scope": "district"
-  },
-  {
     "id": "OFI-05",
     "name": "Shri Biswajit Rout",
     "designation": "District Agricultural Officer (DAO)",
@@ -91,6 +52,19 @@
     "scope": "district"
   },
   {
+    "id": "OFI-02",
+    "name": "Dr. Vijay Kulkarni",
+    "designation": "District Agricultural Officer (DAO)",
+    "phone": "+91-94211-88320",
+    "email": "vijay.kulkarni@krishi.maharashtra.gov.in",
+    "state": "Maharashtra",
+    "district": "Nashik",
+    "district_id": "D1",
+    "assigned_districts": ["D1"],
+    "office_location": "District Ag Office, Nashik, Maharashtra",
+    "scope": "district"
+  },
+  {
     "id": "OFI-08",
     "name": "Shri Anand Waghmare",
     "designation": "District Agricultural Officer (DAO)",
@@ -104,16 +78,16 @@
     "scope": "district"
   },
   {
-    "id": "OFI-09",
-    "name": "Shri Mallikarjun Swamy",
+    "id": "OFI-03",
+    "name": "Smt. Shradha Sawant",
     "designation": "District Agricultural Officer (DAO)",
-    "phone": "+91-94480-77665",
-    "email": "dao.raichur@agri.karnataka.gov.in",
-    "state": "Karnataka",
-    "district": "Raichur",
-    "district_id": "D_KN1",
-    "assigned_districts": ["D_KN1"],
-    "office_location": "Raichur Agriculture Bhavan, Karnataka",
+    "phone": "+91-94233-11209",
+    "email": "shradha.sawant@krishi.maharashtra.gov.in",
+    "state": "Maharashtra",
+    "district": "Yavatmal",
+    "district_id": "D3",
+    "assigned_districts": ["D3"],
+    "office_location": "Krishi Bhavan, Yavatmal, Maharashtra",
     "scope": "district"
   },
   {
@@ -140,6 +114,45 @@
     "district_id": "ALL_MAHARASHTRA",
     "assigned_districts": ["D1", "D2", "D3"],
     "office_location": "Commissioner of Agriculture, Central Building, Pune, Maharashtra",
+    "scope": "statewide"
+  },
+  {
+    "id": "OFI-12",
+    "name": "Dr. K. G. Jagadeesha, IAS",
+    "designation": "State Agriculture Commissioner & Secretary",
+    "phone": "+91-94480-00300",
+    "email": "comm.agri@karnataka.gov.in",
+    "state": "Karnataka",
+    "district": "Statewide (All Karnataka Districts)",
+    "district_id": "ALL_KARNATAKA",
+    "assigned_districts": ["D_KN1", "D_KN2", "D_KN3"],
+    "office_location": "Commissioner of Agriculture, Sheshadri Road, Bengaluru, Karnataka",
+    "scope": "statewide"
+  },
+  {
+    "id": "OFI-13",
+    "name": "Dr. Om Prakash, IAS",
+    "designation": "State Agriculture Commissioner & Secretary",
+    "phone": "+91-94350-00400",
+    "email": "comm.agri@assam.gov.in",
+    "state": "Assam",
+    "district": "Statewide (All Assam Districts)",
+    "district_id": "ALL_ASSAM",
+    "assigned_districts": ["D_AS1", "D_AS2", "D_AS3"],
+    "office_location": "Directorate of Agriculture, Khanapara, Guwahati, Assam",
+    "scope": "statewide"
+  },
+  {
+    "id": "OFI-14",
+    "name": "Dr. Devesh Chaturvedi, IAS",
+    "designation": "Agriculture Production Commissioner & ACS",
+    "phone": "+91-94500-00500",
+    "email": "apc.up@nic.in",
+    "state": "Uttar Pradesh",
+    "district": "Statewide (All Uttar Pradesh Districts)",
+    "district_id": "ALL_UP",
+    "assigned_districts": ["D_UP1", "D_UP2", "D_UP3"],
+    "office_location": "Krishi Bhavan, Madan Mohan Malviya Marg, Lucknow, Uttar Pradesh",
     "scope": "statewide"
   }
 ]

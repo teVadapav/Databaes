@@ -978,29 +978,35 @@ def get_officer_farmer_list(
 
     if officer_id:
         norm_off_id = officer_id if officer_id.startswith("OFI-") else f"OFI-{officer_id.zfill(2) if officer_id.isdigit() else officer_id}"
-        officer = next((o for o in data["officers"] if o["id"] == officer_id or o["id"] == norm_off_id), None)
+        officer = next((o for o in data["officers"] if o["id"].upper() == officer_id.upper() or o["id"].upper() == norm_off_id.upper()), None)
         if officer:
             scope = officer.get("scope", "district")
-            off_state = officer.get("state")
+            off_state = (officer.get("state") or "").strip().lower()
             off_dist_id = officer.get("district_id")
             assigned_dists = officer.get("assigned_districts", [])
-            desig = officer.get("designation", "").lower()
+            desig = (officer.get("designation") or "").lower()
 
             if scope == "statewide" or "director" in desig or "commissioner" in desig or "secretary" in desig or "all_" in str(off_dist_id).lower():
                 # Senior State Officer: View all farmers across their entire state
-                state_district_ids = [d["id"] for d in data["districts"] if (d.get("state") or "").lower() == (off_state or "").lower()]
-                target_farmers = [f for f in target_farmers if f["district_id"] in state_district_ids or f["district_id"] in assigned_dists]
+                state_district_ids = {d["id"] for d in data["districts"] if (d.get("state") or "").strip().lower() == off_state}
+                state_district_ids.update(assigned_dists)
+                target_farmers = [f for f in data["farmers"] if f["district_id"] in state_district_ids]
             else:
-                # District Officer: View only their assigned district farmers
+                # District Officer: View ONLY their assigned district farmers
                 allowed_dists = set(assigned_dists)
-                if off_dist_id:
+                if off_dist_id and not off_dist_id.startswith("ALL_"):
                     allowed_dists.add(off_dist_id)
-                target_farmers = [f for f in target_farmers if f["district_id"] in allowed_dists or f.get("officer_id") == officer["id"]]
-    elif district_id and district_id != "ALL":
-        target_farmers = [f for f in target_farmers if f["district_id"] == district_id]
+                target_farmers = [f for f in data["farmers"] if f["district_id"] in allowed_dists]
+        elif district_id and district_id != "ALL" and not district_id.startswith("ALL_"):
+            target_farmers = [f for f in data["farmers"] if f["district_id"] == district_id]
+        elif state and state != "ALL":
+            state_district_ids = {d["id"] for d in data["districts"] if (d.get("state") or "").strip().lower() == state.strip().lower()}
+            target_farmers = [f for f in data["farmers"] if f["district_id"] in state_district_ids]
+    elif district_id and district_id != "ALL" and not district_id.startswith("ALL_"):
+        target_farmers = [f for f in data["farmers"] if f["district_id"] == district_id]
     elif state and state != "ALL":
-        state_district_ids = [d["id"] for d in data["districts"] if (d.get("state") or "").lower() == state.lower()]
-        target_farmers = [f for f in target_farmers if f["district_id"] in state_district_ids]
+        state_district_ids = {d["id"] for d in data["districts"] if (d.get("state") or "").strip().lower() == state.strip().lower()}
+        target_farmers = [f for f in data["farmers"] if f["district_id"] in state_district_ids]
 
     scored_farmers = []
     for farmer in target_farmers:

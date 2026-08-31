@@ -485,7 +485,7 @@
     "enrolled_schemes": [
       "PM-KISAN"
     ],
-    "officer_id": "OFI-04"
+    "officer_id": "OFI-13"
   },
   {
     "id": "F_AS2",
@@ -511,7 +511,36 @@
     "has_kcc": false,
     "informal_debt": true,
     "enrolled_schemes": [],
-    "officer_id": "OFI-04"
+    "officer_id": "OFI-13"
+  },
+  {
+    "id": "F_AS3",
+    "name": "Priyanka Bora",
+    "phone": "+91-94353-33003",
+    "district_id": "D_AS2",
+    "village": "Bokakhat",
+    "crop": "paddy",
+    "crop_stage": "vegetative",
+    "language": "as",
+    "loan_due_date": "2026-12-15",
+    "loan_amount_inr": 46000,
+    "tech_literacy": "medium",
+    "device_type": "android_smartphone",
+    "network_quality": "good",
+    "landholding_hectares": 1.8,
+    "irrigation_type": "canal",
+    "borewell_failed": false,
+    "income_sources": [
+      "crop_cultivation"
+    ],
+    "has_pmfby_insurance": true,
+    "has_kcc": true,
+    "informal_debt": false,
+    "enrolled_schemes": [
+      "PM-KISAN",
+      "PMFBY"
+    ],
+    "officer_id": "OFI-13"
   },
   {
     "id": "F_KN1",
@@ -539,7 +568,7 @@
     "enrolled_schemes": [
       "PM-KISAN"
     ],
-    "officer_id": "OFI-09"
+    "officer_id": "OFI-12"
   },
   {
     "id": "F_KN2",
@@ -568,6 +597,91 @@
       "PM-KISAN",
       "PMFBY"
     ],
-    "officer_id": "OFI-09"
+    "officer_id": "OFI-12"
+  },
+  {
+    "id": "F_KN3",
+    "name": "Mallappa Hubballi",
+    "phone": "+91-94483-11223",
+    "district_id": "D_KN2",
+    "village": "Gokak",
+    "crop": "maize",
+    "crop_stage": "flowering",
+    "language": "kn",
+    "loan_due_date": "2026-11-15",
+    "loan_amount_inr": 62000,
+    "tech_literacy": "medium",
+    "device_type": "android_smartphone",
+    "network_quality": "good",
+    "landholding_hectares": 2.0,
+    "irrigation_type": "canal",
+    "borewell_failed": false,
+    "income_sources": [
+      "crop_cultivation"
+    ],
+    "has_pmfby_insurance": true,
+    "has_kcc": true,
+    "informal_debt": false,
+    "enrolled_schemes": [
+      "PM-KISAN"
+    ],
+    "officer_id": "OFI-12"
+  },
+  {
+    "id": "F_UP1",
+    "name": "Ramakant Yadav",
+    "phone": "+91-94510-12345",
+    "district_id": "D_UP1",
+    "village": "Pindra",
+    "crop": "paddy",
+    "crop_stage": "flowering",
+    "language": "hi",
+    "loan_due_date": "2026-11-20",
+    "loan_amount_inr": 50000,
+    "tech_literacy": "low",
+    "device_type": "basic_smartphone",
+    "network_quality": "good",
+    "landholding_hectares": 1.5,
+    "irrigation_type": "canal",
+    "borewell_failed": false,
+    "income_sources": [
+      "crop_cultivation"
+    ],
+    "has_pmfby_insurance": true,
+    "has_kcc": true,
+    "informal_debt": false,
+    "enrolled_schemes": [
+      "PM-KISAN",
+      "PMFBY"
+    ],
+    "officer_id": "OFI-14"
+  },
+  {
+    "id": "F_UP2",
+    "name": "Shyam Sundar Mishra",
+    "phone": "+91-94520-67890",
+    "district_id": "D_UP2",
+    "village": "Phulpur",
+    "crop": "pulses",
+    "crop_stage": "vegetative",
+    "language": "hi",
+    "loan_due_date": "2026-10-28",
+    "loan_amount_inr": 42000,
+    "tech_literacy": "medium",
+    "device_type": "android_smartphone",
+    "network_quality": "good",
+    "landholding_hectares": 1.2,
+    "irrigation_type": "rainfed",
+    "borewell_failed": false,
+    "income_sources": [
+      "crop_cultivation"
+    ],
+    "has_pmfby_insurance": true,
+    "has_kcc": false,
+    "informal_debt": false,
+    "enrolled_schemes": [
+      "PM-KISAN"
+    ],
+    "officer_id": "OFI-14"
   }
 ]
