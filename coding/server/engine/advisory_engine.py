@@ -247,11 +247,14 @@ def get_advisory(farmer_id: str, data: dict) -> dict:
                 }
             }
 
-    # 3. Flowering Stage + Severe Dry Spell (>= 12 days) -> R-12
+    # 3. Flowering Stage + Severe Dry Spell (>= 12 days) or Borewell Failure -> R-12
     dry_spell = weather.get("dry_spell_days", 0)
-    if farmer.get("crop_stage") == "flowering" and dry_spell >= 12:
+    borewell_failed = bool(farmer.get("borewell_failed", False))
+
+    if farmer.get("crop_stage") == "flowering" and (dry_spell >= 12 or borewell_failed):
         r12 = next((r for r in advisory_rules if r["rule_id"] == "R-12"), {})
-        titles, texts = format_rule_i18n(r12, {"dry_spell_days": dry_spell})
+        display_days = dry_spell if dry_spell > 0 else (14 if borewell_failed else 12)
+        titles, texts = format_rule_i18n(r12, {"dry_spell_days": display_days})
 
         return {
             "farmer_id": farmer["id"],
@@ -283,10 +286,11 @@ def get_advisory(farmer_id: str, data: dict) -> dict:
             }
         }
 
-    # 4. Vegetative Stage + Moderate Dry Spell (>= 7 days) -> R-11
-    if farmer.get("crop_stage") == "vegetative" and dry_spell >= 7:
+    # 4. Vegetative / Growing Stage + Dry Spell (>= 7 days) or Borewell Failure -> R-11
+    if (dry_spell >= 7 or borewell_failed) and farmer.get("crop_stage") != "harvest":
         r11 = next((r for r in advisory_rules if r["rule_id"] == "R-11"), {})
-        titles, texts = format_rule_i18n(r11, {"dry_spell_days": dry_spell})
+        display_days = dry_spell if dry_spell > 0 else (8 if borewell_failed else 7)
+        titles, texts = format_rule_i18n(r11, {"dry_spell_days": display_days})
 
         return {
             "farmer_id": farmer["id"],

@@ -2341,10 +2341,10 @@ def evaluate_simulation(payload: SimulationPayload):
         },
         {
             "priority": 3,
-            "rule": "R-15 / R-11 / R-12 (Protective Moisture & Irrigation)",
-            "condition": "irrigation_type == 'protective_well' (borewell_failed) or dry_spell >= 7d",
-            "evaluated": f"Irrigation: '{sim_farmer['irrigation_type']}', Borewell Failed: {sim_farmer['borewell_failed']}, Dry Spell: {dry_spell_val}d",
-            "triggered": (fired_rule in ["R-15", "R-11", "R-12", "R-OD-01"])
+            "rule": "R-11 / R-12 (Protective Moisture & Critical Irrigation)",
+            "condition": "borewell_failed == True or dry_spell >= 7d (vegetative/flowering)",
+            "evaluated": f"Stage: '{crop_stage}', Dry Spell: {dry_spell_val}d, Borewell Failed: {sim_farmer['borewell_failed']}",
+            "triggered": (fired_rule in ["R-11", "R-12", "R-OD-01", "R-15"])
         },
         {
             "priority": 4,

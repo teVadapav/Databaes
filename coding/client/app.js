@@ -4628,31 +4628,44 @@ function renderSandboxResults(data) {
   const fdiFormulaEl = document.getElementById('sb-fdi-formula');
   const b = dist.breakdown || dist.raw_dimensions || dist.sub_components;
   if (fdiFormulaEl && b) {
+    const eVal = (b.E !== undefined ? b.E : (b.exposure || 0));
+    const sVal = (b.S !== undefined ? b.S : (b.sensitivity || 0));
+    const acVal = (b.AC !== undefined ? b.AC : (b.adaptive_capacity || 0));
+    const mVal = (b.M !== undefined ? b.M : (b.mitigation_deficit || 0));
+    const tVal = (b.T !== undefined ? b.T : (b.trigger || 0));
+    const dfVal = (b.DF !== undefined ? b.DF : (b.district_fragility || 0));
+
     fdiFormulaEl.innerHTML = `
-      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2 text-center text-xs">
-        <div class="bg-white p-2 rounded-xl border border-slate-200">
-          <div class="text-slate-400 font-bold">Exposure (E)</div>
-          <div class="font-black text-slate-900 text-sm mt-0.5">${(b.E !== undefined ? b.E : (b.exposure||0)).toFixed(1)}</div>
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 text-center">
+        <div class="bg-slate-50 border border-slate-200 hover:border-slate-300 rounded-2xl p-3 shadow-xs flex flex-col justify-between transition">
+          <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Exposure<br><span class="text-indigo-600 font-extrabold">(E)</span></div>
+          <div class="font-black text-slate-900 text-base sm:text-lg my-1.5">${eVal.toFixed(1)}</div>
+          <div class="text-[9px] font-semibold text-slate-400">Weight: 25%</div>
         </div>
-        <div class="bg-white p-2 rounded-xl border border-slate-200">
-          <div class="text-slate-400 font-bold">Sensitivity (S)</div>
-          <div class="font-black text-slate-900 text-sm mt-0.5">${(b.S !== undefined ? b.S : (b.sensitivity||0)).toFixed(1)}</div>
+        <div class="bg-slate-50 border border-slate-200 hover:border-slate-300 rounded-2xl p-3 shadow-xs flex flex-col justify-between transition">
+          <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Sensitivity<br><span class="text-indigo-600 font-extrabold">(S)</span></div>
+          <div class="font-black text-slate-900 text-base sm:text-lg my-1.5">${sVal.toFixed(1)}</div>
+          <div class="text-[9px] font-semibold text-slate-400">Weight: 15%</div>
         </div>
-        <div class="bg-white p-2 rounded-xl border border-slate-200">
-          <div class="text-slate-400 font-bold">Adaptive (AC)</div>
-          <div class="font-black text-slate-900 text-sm mt-0.5">${(b.AC !== undefined ? b.AC : (b.adaptive_capacity||0)).toFixed(1)}</div>
+        <div class="bg-slate-50 border border-slate-200 hover:border-slate-300 rounded-2xl p-3 shadow-xs flex flex-col justify-between transition">
+          <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Adaptive<br><span class="text-indigo-600 font-extrabold">(AC)</span></div>
+          <div class="font-black text-slate-900 text-base sm:text-lg my-1.5">${acVal.toFixed(1)}</div>
+          <div class="text-[9px] font-semibold text-slate-400">100-AC: ${(100 - acVal).toFixed(1)}</div>
         </div>
-        <div class="bg-white p-2 rounded-xl border border-slate-200">
-          <div class="text-slate-400 font-bold">Mitigation (M)</div>
-          <div class="font-black text-slate-900 text-sm mt-0.5">${(b.M !== undefined ? b.M : (b.mitigation_deficit||0)).toFixed(1)}</div>
+        <div class="bg-slate-50 border border-slate-200 hover:border-slate-300 rounded-2xl p-3 shadow-xs flex flex-col justify-between transition">
+          <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Mitigation<br><span class="text-indigo-600 font-extrabold">(M)</span></div>
+          <div class="font-black text-slate-900 text-base sm:text-lg my-1.5">${mVal.toFixed(1)}</div>
+          <div class="text-[9px] font-semibold text-slate-400">Weight: 15%</div>
         </div>
-        <div class="bg-white p-2 rounded-xl border border-slate-200">
-          <div class="text-slate-400 font-bold">Trigger (T)</div>
-          <div class="font-black text-slate-900 text-sm mt-0.5">${(b.T !== undefined ? b.T : (b.trigger||0)).toFixed(1)}</div>
+        <div class="bg-slate-50 border border-slate-200 hover:border-slate-300 rounded-2xl p-3 shadow-xs flex flex-col justify-between transition">
+          <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Trigger<br><span class="text-indigo-600 font-extrabold">(T)</span></div>
+          <div class="font-black text-slate-900 text-base sm:text-lg my-1.5">${tVal.toFixed(1)}</div>
+          <div class="text-[9px] font-semibold text-slate-400">Weight: 20%</div>
         </div>
-        <div class="bg-white p-2 rounded-xl border border-slate-200">
-          <div class="text-slate-400 font-bold">Fragility (DF)</div>
-          <div class="font-black text-slate-900 text-sm mt-0.5">${(b.DF !== undefined ? b.DF : (b.district_fragility||0)).toFixed(1)}</div>
+        <div class="bg-slate-50 border border-slate-200 hover:border-slate-300 rounded-2xl p-3 shadow-xs flex flex-col justify-between transition">
+          <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Fragility<br><span class="text-indigo-600 font-extrabold">(DF)</span></div>
+          <div class="font-black text-slate-900 text-base sm:text-lg my-1.5">${dfVal.toFixed(1)}</div>
+          <div class="text-[9px] font-semibold text-slate-400">Weight: 10%</div>
         </div>
       </div>
     `;
