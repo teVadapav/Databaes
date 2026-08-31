@@ -70,12 +70,12 @@ const AudioTTSController = {
       this.debounceTimer = setTimeout(async () => {
         try {
           const greetings = {
-            en: 'Welcome to Smart Krishi Advisory.',
-            hi: 'नमस्ते, स्मार्ट कृषि में आपका स्वागत है।',
-            mr: 'नमस्कार, स्मार्ट कृषी सल्ला केंद्रात आपले स्वागत आहे.',
-            or: 'ନମସ୍କାର, ସ୍ମାର୍ଟ କୃଷିକୁ ଆପଣଙ୍କୁ ସ୍ୱାଗତ।',
-            as: 'নমস্কাৰ, স্মাৰ্ট কৃষিলৈ আপোনাক স্বাগতম।',
-            kn: 'ನಮಸ್ಕಾರ, ಸ್ಮಾರ್ಟ್ ಕೃಷಿ ಸಲಹಾ ಕೇಂದ್ರಕ್ಕೆ ಸ್ವಾಗತ.'
+            en: 'Welcome to KhetSeva Advisory.',
+            hi: 'नमस्ते, खेतसेवा में आपका स्वागत है।',
+            mr: 'नमस्कार, खेतसेवा सल्ला केंद्रात आपले स्वागत आहे.',
+            or: 'ନମସ୍କାର, ଖେତସେବାକୁ ଆପଣଙ୍କୁ ସ୍ୱାଗତ।',
+            as: 'নমস্কাৰ, খেতসেৱালৈ আপোনাক স্বাগতম।',
+            kn: 'ನಮಸ್ಕಾರ, ಖೇತ್‌ಸೇವಾ ಸಲಹಾ ಕೇಂದ್ರಕ್ಕೆ ಸ್ವಾಗತ.'
           };
           const text = customText || greetings[languageCode] || greetings.en;
           const audioUrl = `/api/tts?text=${encodeURIComponent(text)}&lang=${languageCode}`;
@@ -219,7 +219,7 @@ const STATE_DISTRICT_MAP = {
     { id: "D3", name: "Yavatmal" }
   ],
   "Odisha": [
-    { id: "D_OD_SUN", name: "Sundargarh (17 Blocks Active)" },
+    { id: "D_OD_SUN", name: "Sundargarh" },
     { id: "D_OD1", name: "Kalahandi" },
     { id: "D_OD2", name: "Balangir" },
     { id: "D_OD3", name: "Bargarh" }
@@ -721,12 +721,12 @@ const Onboarding = {
   setTimeout(() => {
     Object.values(SUPPORTED_ONBOARDING_LOCALES).forEach(loc => {
       const phrases = {
-        en: "Welcome to Smart Krishi Crop Advisory",
-        hi: "स्मार्ट कृषि फसल सलाह में आपका स्वागत है",
-        mr: "स्मार्ट कृषी पीक सल्ल्यामध्ये आपले स्वागत आहे",
-        or: "ସ୍ମାର୍ଟ କୃଷି ଫସଲ ପରାମର୍ଶକୁ ଆପଣଙ୍କୁ ସ୍ୱାଗତ",
-        as: "স্মাৰ্ট কৃষি শস্য পৰামৰ্শলৈ আপোনাক স্বাগতম",
-        kn: "ಸ್ಮಾರ್ಟ್ ಕೃಷಿ ಬೆಳೆ ಸಲಹಾ ಕೇಂದ್ರಕ್ಕೆ ಸ್ವಾಗತ"
+        en: "Welcome to KhetSeva Crop Advisory",
+        hi: "खेतसेवा फसल सलाह में आपका स्वागत है",
+        mr: "खेतसेवा पीक सल्ल्यामध्ये आपले स्वागत आहे",
+        or: "ଖେତସେବା ଫସଲ ପରାମର୍ଶକୁ ଆପଣଙ୍କୁ ସ୍ୱାଗତ",
+        as: "খেতসেৱা শস্য পৰামৰ্শলৈ আপোনাক স্বাগতম",
+        kn: "ಖೇತ್‌ಸೇವಾ ಬೆಳೆ ಸಲಹಾ ಕೇಂದ್ರಕ್ಕೆ ಸ್ವಾಗತ"
       };
       const text = phrases[loc.code] || phrases.en;
       if (typeof window.prefetchAudio === 'function') {
@@ -757,7 +757,7 @@ const Onboarding = {
           <div class="flex items-center justify-between gap-1.5">
             <div class="flex items-center space-x-1.5 shrink-0">
               <span class="text-xl shrink-0">🌱</span>
-              <h2 class="text-sm sm:text-base font-black tracking-tight leading-tight whitespace-nowrap">Smart Krishi</h2>
+              <h2 class="text-sm sm:text-base font-black tracking-tight leading-tight whitespace-nowrap">KhetSeva</h2>
             </div>
             <div class="flex items-center space-x-1.5 shrink-0">
               <!-- Font Scale Segmented Control (A⁻, A, A⁺) -->
@@ -1270,12 +1270,12 @@ const Onboarding = {
 
       // Personalized voice intro mentioning the farmer's name in their preferred language
       const greetingsWithName = {
-        en: `Welcome ${fName}, to Smart Krishi Advisory.`,
-        hi: `नमस्ते ${fName} जी, स्मार्ट कृषि में आपका स्वागत है।`,
-        mr: `नमस्कार ${fName} जी, स्मार्ट कृषी सल्ला केंद्रात आपले स्वागत आहे.`,
-        or: `ନମସ୍କାର ${fName} ଆଜ୍ଞା, ସ୍ମାର୍ଟ କୃଷିକୁ ଆପଣଙ୍କୁ ସ୍ୱାଗତ।`,
-        as: `নমস্কাৰ ${fName} ডাঙৰীয়া, স্মাৰ্ট কৃষিলৈ আপোনাক স্বাগতম।`,
-        kn: `ನಮಸ್ಕಾರ ${fName} ಅವರೇ, ಸ್ಮಾರ್ಟ್ ಕೃಷಿ ಸಲಹಾ ಕೇಂದ್ರಕ್ಕೆ ಸ್ವಾಗತ.`
+        en: `Welcome ${fName}, to KhetSeva Advisory.`,
+        hi: `नमस्ते ${fName} जी, खेतसेवा में आपका स्वागत है।`,
+        mr: `नमस्कार ${fName} जी, खेतसेवा सल्ला केंद्रात आपले स्वागत आहे.`,
+        or: `ନମସ୍କାର ${fName} ଆଜ୍ଞା, ଖେତସେବାକୁ ଆପଣଙ୍କୁ ସ୍ୱାଗତ।`,
+        as: `নমস্কাৰ ${fName} ডাঙৰীয়া, খেতসেৱালৈ আপোনাক স্বাগতম।`,
+        kn: `ನಮಸ್ಕಾರ ${fName} ಅವರೇ, ಖೇತ್‌ಸೇವಾ ಸಲಹಾ ಕೇಂದ್ರಕ್ಕೆ ಸ್ವಾಗತ.`
       };
       const welcomeText = greetingsWithName[chosenLang] || greetingsWithName.en;
       if (typeof window.speakText === 'function') {
@@ -1399,12 +1399,12 @@ const Onboarding = {
       // Welcome voice greeting mentioning farmer's name in preferred language
       const fName = payload.farmer_name || 'Farmer';
       const greetingsWithName = {
-        en: `Welcome ${fName}, to Smart Krishi Advisory.`,
-        hi: `नमस्ते ${fName} जी, स्मार्ट कृषि में आपका स्वागत है।`,
-        mr: `नमस्कार ${fName} जी, स्मार्ट कृषी सल्ला केंद्रात आपले स्वागत आहे.`,
-        or: `ନମସ୍କାର ${fName} ଆଜ୍ଞା, ସ୍ମାର୍ଟ କୃଷିକୁ ଆପଣଙ୍କୁ ସ୍ୱାଗତ।`,
-        as: `নমস্কাৰ ${fName} ডাঙৰীয়া, স্মাৰ্ট কৃষিলৈ আপোনাক স্বাগতম।`,
-        kn: `ನಮಸ್ಕಾರ ${fName} ಅವರೇ, ಸ್ಮಾರ್ಟ್ ಕೃಷಿ ಸಲಹಾ ಕೇಂದ್ರಕ್ಕೆ ಸ್ವಾಗತ.`
+        en: `Welcome ${fName}, to KhetSeva Advisory.`,
+        hi: `नमस्ते ${fName} जी, खेतसेवा में आपका स्वागत है।`,
+        mr: `नमस्कार ${fName} जी, खेतसेवा सल्ला केंद्रात आपले स्वागत आहे.`,
+        or: `ନମସ୍କାର ${fName} ଆଜ୍ଞା, ଖେତସେବାକୁ ଆପଣଙ୍କୁ ସ୍ୱାଗତ।`,
+        as: `নমস্কাৰ ${fName} ডাঙৰীয়া, খেতসেৱালৈ আপোনাক স্বাগতম।`,
+        kn: `ನಮಸ್ಕಾರ ${fName} ಅವರೇ, ಖೇತ್‌ಸೇವಾ ಸಲಹಾ ಕೇಂದ್ರಕ್ಕೆ ಸ್ವಾಗತ.`
       };
       const welcomeText = greetingsWithName[targetLang] || greetingsWithName.en;
       if (typeof window.speakText === 'function') {

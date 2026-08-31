@@ -41,7 +41,7 @@ def run_acceptance_checklist():
             resp = client.get("/")
             assert resp.status_code == 200, f"Status: {resp.status_code}"
             html = resp.text
-            assert "Smart Krishi" in html
+            assert "KhetSeva" in html
             assert "tab-btn-advisory" in html
             assert "tab-btn-mandi" in html
             assert "tab-btn-alerts" in html

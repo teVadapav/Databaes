@@ -57,7 +57,7 @@ const SUPPORTED_LANGUAGES = {
 // ─── i18n Translation Table (Natural, Modern & Colloquial Indian Languages) ───
 const i18n = {
   "en": {
-    "appTitle": "Smart Krishi • PS-02",
+    "appTitle": "KhetSeva • PS-02",
     "cropAdvisory": "Crop Advisory",
     "mandiPrice": "📈 APMC Mandi Price",
     "myAlerts": "🔔 My Alerts",
@@ -177,7 +177,7 @@ const i18n = {
     "voiceBtnText": "Play Spoken Advisory 🔊"
   },
   "hi": {
-    "appTitle": "स्मार्ट कृषि • PS-02",
+    "appTitle": "खेतसेवा • PS-02",
     "cropAdvisory": "फसल सलाह",
     "mandiPrice": "📈 मंडी भाव",
     "myAlerts": "🔔 अलर्ट एवं सूचनाएं",
@@ -297,7 +297,7 @@ const i18n = {
     "voiceBtnText": "पूरी सलाह आवाज में सुनें 🔊"
   },
   "mr": {
-    "appTitle": "स्मार्ट कृषी • PS-02",
+    "appTitle": "खेतसेवा • PS-02",
     "cropAdvisory": "पीक सल्ला",
     "mandiPrice": "📈 बाजार भाव",
     "myAlerts": "🔔 महत्त्वाचे इशारे",
@@ -418,7 +418,7 @@ const i18n = {
     "voiceBtnText": "संपूर्ण सल्ला आवाजात ऐका 🔊"
   },
   "or": {
-    "appTitle": "ସ୍ମାର୍ଟ କୃଷି • PS-02",
+    "appTitle": "ଖେତସେବା • PS-02",
     "cropAdvisory": "ଫସଲ ପରାମର୍ଶ",
     "mandiPrice": "📈 ମଣ୍ଡି ଦର",
     "myAlerts": "🔔 ସତର୍କତା ଓ ସୂଚନା",
@@ -539,7 +539,7 @@ const i18n = {
     "voiceBtnText": "ସମ୍ପୂର୍ଣ୍ଣ ପରାମର୍ଶ ଶୁଣନ୍ତୁ 🔊"
   },
   "as": {
-    "appTitle": "স্মাৰ্ট কৃষি • PS-02",
+    "appTitle": "খেতসেৱা • PS-02",
     "cropAdvisory": "শস্য পৰামৰ্শ",
     "mandiPrice": "📈 বজাৰ দৰ",
     "myAlerts": "🔔 সতৰ্কবাণী",
@@ -659,7 +659,7 @@ const i18n = {
     "voiceBtnText": "সম্পূৰ্ণ পৰামৰ্শ শুনক 🔊"
   },
   "kn": {
-    "appTitle": "ಸ್ಮಾರ್ಟ್ ಕೃಷಿ • PS-02",
+    "appTitle": "ಖೇತ್‌ಸೇವಾ • PS-02",
     "cropAdvisory": "ಬೆಳೆ ಸಲಹೆ",
     "mandiPrice": "📈 ಮಾರುಕಟ್ಟೆ ದರ",
     "myAlerts": "🔔 ಎಚ್ಚರಿಕೆಗಳು",
@@ -3938,12 +3938,12 @@ async function loginAsFarmer(farmerId) {
   // Personalized voice intro with farmer's name in their preferred language
   const fLang = (farmer.preferred_language || farmer.language || state.selectedLanguage || 'hi').split('-')[0].toLowerCase();
   const greetingsWithName = {
-    en: `Welcome ${fName}, to Smart Krishi Advisory.`,
-    hi: `नमस्ते ${fName} जी, स्मार्ट कृषि में आपका स्वागत है।`,
-    mr: `नमस्कार ${fName} जी, स्मार्ट कृषी सल्ला केंद्रात आपले स्वागत आहे.`,
-    or: `ନମସ୍କାର ${fName} ଆଜ୍ଞା, ସ୍ମାର୍ଟ କୃଷିକୁ ଆପଣଙ୍କୁ ସ୍ୱାଗତ।`,
-    as: `নমস্কাৰ ${fName} ডাঙৰীয়া, স্মাৰ্ট কৃষিলৈ আপোনাক স্বাগতম।`,
-    kn: `ನಮಸ್ಕಾರ ${fName} ಅವರೇ, ಸ್ಮಾರ್ಟ್ ಕೃಷಿ ಸಲಹಾ ಕೇಂದ್ರಕ್ಕೆ ಸ್ವಾಗತ.`
+    en: `Welcome ${fName}, to KhetSeva Advisory.`,
+    hi: `नमस्ते ${fName} जी, खेतसेवा में आपका स्वागत है।`,
+    mr: `नमस्कार ${fName} जी, खेतसेवा सल्ला केंद्रात आपले स्वागत आहे.`,
+    or: `ନମସ୍କାର ${fName} ଆଜ୍ଞା, ଖେତସେବାକୁ ଆପଣଙ୍କୁ ସ୍ୱାଗତ।`,
+    as: `নমস্কাৰ ${fName} ডাঙৰীয়া, খেতসেৱালৈ আপোনাক স্বাগতম।`,
+    kn: `ನಮಸ್ಕಾರ ${fName} ಅವರೇ, ಖೇತ್‌ಸೇವಾ ಸಲಹಾ ಕೇಂದ್ರಕ್ಕೆ ಸ್ವಾಗತ.`
   };
   const welcomeText = greetingsWithName[fLang] || greetingsWithName.en;
   await speakText(welcomeText, fLang, 'login-welcome');

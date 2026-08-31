@@ -4,12 +4,12 @@
  */
 
 const OFFICER_LOCALES = {
-  en: { code: 'en', name: 'English', native: 'English', bcp47: 'en-IN', voice: 'en-IN-NeerjaNeural', greeting: 'Welcome to the Smart Krishi Officer Command Center.' },
-  hi: { code: 'hi', name: 'Hindi', native: 'हिन्दी', bcp47: 'hi-IN', voice: 'hi-IN-MadhurNeural', greeting: 'स्मार्ट कृषि अधिकारी नियंत्रण केंद्र में आपका स्वागत है।' },
-  or: { code: 'or', name: 'Odia', native: 'ଓଡ଼ିଆ', bcp47: 'or-IN', voice: 'or-IN-SubhasiniNeural', greeting: 'ସ୍ମାର୍ଟ କୃଷି ଅଧିକାରୀ କଣ୍ଟ୍ରୋଲ୍ ରୁମ୍ କୁ ଆପଣଙ୍କୁ ସ୍ୱାଗତ।' },
-  mr: { code: 'mr', name: 'Marathi', native: 'मराठी', bcp47: 'mr-IN', voice: 'mr-IN-AarohiNeural', greeting: 'स्मार्ट कृषी अधिकारी नियंत्रण कक्षात आपले स्वागत आहे.' },
-  as: { code: 'as', name: 'Assamese', native: 'অসমীয়া', bcp47: 'as-IN', voice: 'as-IN-YashNeural', greeting: 'স্মাৰ্ট কৃষি বিষয়া নিয়ন্ত্ৰণ কক্ষলৈ আপোনাক স্বাগতম।' },
-  kn: { code: 'kn', name: 'Kannada', native: 'ಕನ್ನಡ', bcp47: 'kn-IN', voice: 'kn-IN-GaganNeural', greeting: 'ಸ್ಮಾರ್ಟ್ ಕೃಷಿ ಅಧಿಕಾರಿ ನಿಯಂತ್ರಣ ಕೇಂದ್ರಕ್ಕೆ ತಮಗೆ ಸುಸ್ವಾಗತ.' }
+  en: { code: 'en', name: 'English', native: 'English', bcp47: 'en-IN', voice: 'en-IN-NeerjaNeural', greeting: 'Welcome to the KhetSeva Officer Command Center.' },
+  hi: { code: 'hi', name: 'Hindi', native: 'हिन्दी', bcp47: 'hi-IN', voice: 'hi-IN-MadhurNeural', greeting: 'खेतसेवा अधिकारी नियंत्रण केंद्र में आपका स्वागत है।' },
+  or: { code: 'or', name: 'Odia', native: 'ଓଡ଼ିଆ', bcp47: 'or-IN', voice: 'or-IN-SubhasiniNeural', greeting: 'ଖେତସେବା ଅଧିକାରୀ କଣ୍ଟ୍ରୋଲ୍ ରୁମ୍ କୁ ଆପଣଙ୍କୁ ସ୍ୱାଗତ।' },
+  mr: { code: 'mr', name: 'Marathi', native: 'मराठी', bcp47: 'mr-IN', voice: 'mr-IN-AarohiNeural', greeting: 'खेतसेवा अधिकारी नियंत्रण कक्षात आपले स्वागत आहे.' },
+  as: { code: 'as', name: 'Assamese', native: 'অসমীয়া', bcp47: 'as-IN', voice: 'as-IN-YashNeural', greeting: 'খেতসেৱা বিষয়া নিয়ন্ত্ৰণ কক্ষলৈ আপোনাক স্বাগতম।' },
+  kn: { code: 'kn', name: 'Kannada', native: 'ಕನ್ನಡ', bcp47: 'kn-IN', voice: 'kn-IN-GaganNeural', greeting: 'ಖೇತ್‌ಸೇವಾ ಅಧಿಕಾರಿ ನಿಯಂತ್ರಣ ಕೇಂದ್ರಕ್ಕೆ ತಮಗೆ ಸುಸ್ವಾಗತ.' }
 };
 
 const MOCK_OFFICER_REGISTRY = [
