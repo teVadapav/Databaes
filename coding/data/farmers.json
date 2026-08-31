@@ -26,7 +26,7 @@
       "PM-KISAN",
       "KALIA"
     ],
-    "officer_id": "OFF_OD1"
+    "officer_id": "OFI-01"
   },
   {
     "id": "F_SUN2",
@@ -57,7 +57,7 @@
       "PMFBY",
       "KALIA"
     ],
-    "officer_id": "OFF_OD1"
+    "officer_id": "OFI-01"
   },
   {
     "id": "F_SUN3",
@@ -85,7 +85,7 @@
     "enrolled_schemes": [
       "PM-KISAN"
     ],
-    "officer_id": "OFF_OD1"
+    "officer_id": "OFI-01"
   },
   {
     "id": "F_SUN4",
@@ -114,7 +114,7 @@
       "PM-KISAN",
       "KALIA"
     ],
-    "officer_id": "OFF_OD1"
+    "officer_id": "OFI-01"
   },
   {
     "id": "F1",
@@ -142,7 +142,33 @@
     "enrolled_schemes": [
       "PM-KISAN"
     ],
-    "officer_id": "O1"
+    "officer_id": "OFI-02"
+  },
+  {
+    "id": "F5",
+    "name": "Rekha Devi",
+    "phone": "+91-98901-77432",
+    "district_id": "D1",
+    "village": "Yeola",
+    "crop": "maize",
+    "crop_stage": "flowering",
+    "language": "hi",
+    "loan_due_date": "2026-09-02",
+    "loan_amount_inr": 95000,
+    "tech_literacy": "low",
+    "device_type": "feature_phone",
+    "network_quality": "moderate",
+    "landholding_hectares": 0.8,
+    "irrigation_type": "rainfed",
+    "borewell_failed": false,
+    "income_sources": [
+      "crop_cultivation"
+    ],
+    "has_pmfby_insurance": false,
+    "has_kcc": false,
+    "informal_debt": true,
+    "enrolled_schemes": [],
+    "officer_id": "OFI-02"
   },
   {
     "id": "F2",
@@ -171,7 +197,7 @@
       "PM-KISAN",
       "PMFBY"
     ],
-    "officer_id": "O1"
+    "officer_id": "OFI-08"
   },
   {
     "id": "F3",
@@ -201,7 +227,35 @@
       "PM-KISAN",
       "PMFBY"
     ],
-    "officer_id": "O1"
+    "officer_id": "OFI-08"
+  },
+  {
+    "id": "F6",
+    "name": "Prakash Deshmukh",
+    "phone": "+91-97300-66219",
+    "district_id": "D2",
+    "village": "Darwha",
+    "crop": "cotton",
+    "crop_stage": "flowering",
+    "language": "mr",
+    "loan_due_date": "2026-09-10",
+    "loan_amount_inr": 150000,
+    "tech_literacy": "low",
+    "device_type": "basic_smartphone",
+    "network_quality": "poor",
+    "landholding_hectares": 1.5,
+    "irrigation_type": "rainfed",
+    "borewell_failed": true,
+    "income_sources": [
+      "crop_cultivation"
+    ],
+    "has_pmfby_insurance": false,
+    "has_kcc": true,
+    "informal_debt": true,
+    "enrolled_schemes": [
+      "PM-KISAN"
+    ],
+    "officer_id": "OFI-08"
   },
   {
     "id": "F4",
@@ -230,45 +284,77 @@
     "enrolled_schemes": [
       "PMFBY"
     ],
-    "officer_id": "O2"
+    "officer_id": "OFI-03"
   },
   {
-    "id": "F5",
-    "name": "Rekha Devi",
-    "phone": "+91-98901-77432",
-    "district_id": "D1",
-    "village": "Yeola",
-    "crop": "maize",
-    "crop_stage": "flowering",
-    "language": "hi",
-    "loan_due_date": "2026-09-02",
-    "loan_amount_inr": 95000,
+    "id": "F_OD1",
+    "name": "Trinath Sahu",
+    "phone": "+91-94381-11234",
+    "district_id": "D_OD1",
+    "village": "Bhawanipatna",
+    "crop": "pulses",
+    "crop_stage": "vegetative",
+    "language": "or",
+    "loan_due_date": "2026-11-15",
+    "loan_amount_inr": 40000,
     "tech_literacy": "low",
     "device_type": "feature_phone",
-    "network_quality": "moderate",
-    "landholding_hectares": 0.8,
+    "network_quality": "poor",
+    "landholding_hectares": 1.2,
     "irrigation_type": "rainfed",
     "borewell_failed": false,
     "income_sources": [
       "crop_cultivation"
     ],
-    "has_pmfby_insurance": false,
-    "has_kcc": false,
-    "informal_debt": true,
-    "enrolled_schemes": [],
-    "officer_id": "O1"
+    "has_pmfby_insurance": true,
+    "has_kcc": true,
+    "informal_debt": false,
+    "enrolled_schemes": [
+      "PM-KISAN",
+      "KALIA"
+    ],
+    "officer_id": "OFI-05"
   },
   {
-    "id": "F6",
-    "name": "Prakash Deshmukh",
-    "phone": "+91-97300-66219",
-    "district_id": "D2",
-    "village": "Darwha",
+    "id": "F_OD2",
+    "name": "Kishore Naik",
+    "phone": "+91-94382-22345",
+    "district_id": "D_OD1",
+    "village": "Dharmagarh",
+    "crop": "paddy",
+    "crop_stage": "sowing",
+    "language": "or",
+    "loan_due_date": "2026-12-01",
+    "loan_amount_inr": 55000,
+    "tech_literacy": "medium",
+    "device_type": "android_smartphone",
+    "network_quality": "good",
+    "landholding_hectares": 2.0,
+    "irrigation_type": "canal",
+    "borewell_failed": false,
+    "income_sources": [
+      "crop_cultivation"
+    ],
+    "has_pmfby_insurance": true,
+    "has_kcc": true,
+    "informal_debt": false,
+    "enrolled_schemes": [
+      "PM-KISAN",
+      "PMFBY"
+    ],
+    "officer_id": "OFI-05"
+  },
+  {
+    "id": "F_OD3",
+    "name": "Duryodhan Bag",
+    "phone": "+91-94383-33456",
+    "district_id": "D_OD2",
+    "village": "Patnagarh",
     "crop": "cotton",
     "crop_stage": "flowering",
-    "language": "mr",
-    "loan_due_date": "2026-09-10",
-    "loan_amount_inr": 150000,
+    "language": "or",
+    "loan_due_date": "2026-10-20",
+    "loan_amount_inr": 80000,
     "tech_literacy": "low",
     "device_type": "basic_smartphone",
     "network_quality": "poor",
@@ -284,6 +370,204 @@
     "enrolled_schemes": [
       "PM-KISAN"
     ],
-    "officer_id": "O1"
+    "officer_id": "OFI-06"
+  },
+  {
+    "id": "F_OD4",
+    "name": "Satyabhama Majhi",
+    "phone": "+91-94384-44567",
+    "district_id": "D_OD2",
+    "village": "Titilagarh",
+    "crop": "paddy",
+    "crop_stage": "vegetative",
+    "language": "or",
+    "loan_due_date": "2026-11-28",
+    "loan_amount_inr": 48000,
+    "tech_literacy": "low",
+    "device_type": "feature_phone",
+    "network_quality": "moderate",
+    "landholding_hectares": 1.1,
+    "irrigation_type": "rainfed",
+    "borewell_failed": false,
+    "income_sources": [
+      "crop_cultivation"
+    ],
+    "has_pmfby_insurance": true,
+    "has_kcc": false,
+    "informal_debt": false,
+    "enrolled_schemes": [
+      "KALIA"
+    ],
+    "officer_id": "OFI-06"
+  },
+  {
+    "id": "F_OD5",
+    "name": "Sanatan Meher",
+    "phone": "+91-94385-55678",
+    "district_id": "D_OD3",
+    "village": "Attabira",
+    "crop": "paddy",
+    "crop_stage": "harvest",
+    "language": "or",
+    "loan_due_date": "2026-11-12",
+    "loan_amount_inr": 60000,
+    "tech_literacy": "high",
+    "device_type": "android_smartphone",
+    "network_quality": "good",
+    "landholding_hectares": 2.8,
+    "irrigation_type": "canal",
+    "borewell_failed": false,
+    "income_sources": [
+      "crop_cultivation",
+      "dairy"
+    ],
+    "has_pmfby_insurance": true,
+    "has_kcc": true,
+    "informal_debt": false,
+    "enrolled_schemes": [
+      "PM-KISAN",
+      "PMFBY",
+      "KALIA"
+    ],
+    "officer_id": "OFI-07"
+  },
+  {
+    "id": "F_OD6",
+    "name": "Bhagaban Bhoi",
+    "phone": "+91-94386-66789",
+    "district_id": "D_OD3",
+    "village": "Bhatli",
+    "crop": "paddy",
+    "crop_stage": "flowering",
+    "language": "or",
+    "loan_due_date": "2026-12-05",
+    "loan_amount_inr": 50000,
+    "tech_literacy": "medium",
+    "device_type": "android_smartphone",
+    "network_quality": "good",
+    "landholding_hectares": 2.0,
+    "irrigation_type": "canal",
+    "borewell_failed": false,
+    "income_sources": [
+      "crop_cultivation"
+    ],
+    "has_pmfby_insurance": true,
+    "has_kcc": true,
+    "informal_debt": false,
+    "enrolled_schemes": [
+      "PM-KISAN"
+    ],
+    "officer_id": "OFI-07"
+  },
+  {
+    "id": "F_AS1",
+    "name": "Rupen Das",
+    "phone": "+91-94351-11001",
+    "district_id": "D_AS1",
+    "village": "Kampur",
+    "crop": "paddy",
+    "crop_stage": "flowering",
+    "language": "as",
+    "loan_due_date": "2026-11-18",
+    "loan_amount_inr": 42000,
+    "tech_literacy": "low",
+    "device_type": "basic_smartphone",
+    "network_quality": "moderate",
+    "landholding_hectares": 1.4,
+    "irrigation_type": "rainfed",
+    "borewell_failed": false,
+    "income_sources": [
+      "crop_cultivation"
+    ],
+    "has_pmfby_insurance": true,
+    "has_kcc": true,
+    "informal_debt": false,
+    "enrolled_schemes": [
+      "PM-KISAN"
+    ],
+    "officer_id": "OFI-04"
+  },
+  {
+    "id": "F_AS2",
+    "name": "Bhaben Saikia",
+    "phone": "+91-94352-22002",
+    "district_id": "D_AS1",
+    "village": "Raha",
+    "crop": "paddy",
+    "crop_stage": "vegetative",
+    "language": "as",
+    "loan_due_date": "2026-12-10",
+    "loan_amount_inr": 38000,
+    "tech_literacy": "low",
+    "device_type": "feature_phone",
+    "network_quality": "poor",
+    "landholding_hectares": 1.0,
+    "irrigation_type": "rainfed",
+    "borewell_failed": false,
+    "income_sources": [
+      "crop_cultivation"
+    ],
+    "has_pmfby_insurance": false,
+    "has_kcc": false,
+    "informal_debt": true,
+    "enrolled_schemes": [],
+    "officer_id": "OFI-04"
+  },
+  {
+    "id": "F_KN1",
+    "name": "Basavaraj Patil",
+    "phone": "+91-94481-88990",
+    "district_id": "D_KN1",
+    "village": "Manvi",
+    "crop": "cotton",
+    "crop_stage": "flowering",
+    "language": "kn",
+    "loan_due_date": "2026-10-25",
+    "loan_amount_inr": 90000,
+    "tech_literacy": "low",
+    "device_type": "basic_smartphone",
+    "network_quality": "moderate",
+    "landholding_hectares": 2.2,
+    "irrigation_type": "rainfed",
+    "borewell_failed": true,
+    "income_sources": [
+      "crop_cultivation"
+    ],
+    "has_pmfby_insurance": false,
+    "has_kcc": true,
+    "informal_debt": true,
+    "enrolled_schemes": [
+      "PM-KISAN"
+    ],
+    "officer_id": "OFI-09"
+  },
+  {
+    "id": "F_KN2",
+    "name": "Ningamma Gowda",
+    "phone": "+91-94482-99001",
+    "district_id": "D_KN1",
+    "village": "Sindhanur",
+    "crop": "paddy",
+    "crop_stage": "vegetative",
+    "language": "kn",
+    "loan_due_date": "2026-11-30",
+    "loan_amount_inr": 55000,
+    "tech_literacy": "medium",
+    "device_type": "android_smartphone",
+    "network_quality": "good",
+    "landholding_hectares": 1.8,
+    "irrigation_type": "canal",
+    "borewell_failed": false,
+    "income_sources": [
+      "crop_cultivation"
+    ],
+    "has_pmfby_insurance": true,
+    "has_kcc": true,
+    "informal_debt": false,
+    "enrolled_schemes": [
+      "PM-KISAN",
+      "PMFBY"
+    ],
+    "officer_id": "OFI-09"
   }
 ]

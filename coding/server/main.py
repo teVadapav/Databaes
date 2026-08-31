@@ -958,19 +958,52 @@ def get_farmer_distress(farmer_id: str, weights: WeightOverride = Body(default=N
 
 
 @app.post("/api/officer/farmers")
-def get_officer_farmer_list(weights: WeightOverride = Body(default=None)):
+def get_officer_farmer_list(
+    weights: WeightOverride = Body(default=None),
+    officer_id: Optional[str] = None,
+    district_id: Optional[str] = None,
+    state: Optional[str] = None
+):
     """
     Officer Dashboard Aggregation Endpoint:
-    - Computes distress scores for all farmers using active/custom weights.
-    - Determines risk bands, top contributing signals, recommended schemes.
-    - Attaches recommended contact channels (App / Call/IVR) and device reachability.
+    - Supports district officer filtering (sees only their district farmers)
+    - Supports senior state officer filtering (sees all farmers across their state)
+    - Computes distress scores for eligible farmers using active/custom weights.
     - Sorts descending by distress score.
     """
     data = load_full_datastore()
     custom_weights = weights.model_dump() if weights else DEFAULT_WEIGHTS
 
+    target_farmers = data["farmers"]
+
+    if officer_id:
+        norm_off_id = officer_id if officer_id.startswith("OFI-") else f"OFI-{officer_id.zfill(2) if officer_id.isdigit() else officer_id}"
+        officer = next((o for o in data["officers"] if o["id"] == officer_id or o["id"] == norm_off_id), None)
+        if officer:
+            scope = officer.get("scope", "district")
+            off_state = officer.get("state")
+            off_dist_id = officer.get("district_id")
+            assigned_dists = officer.get("assigned_districts", [])
+            desig = officer.get("designation", "").lower()
+
+            if scope == "statewide" or "director" in desig or "commissioner" in desig or "secretary" in desig or "all_" in str(off_dist_id).lower():
+                # Senior State Officer: View all farmers across their entire state
+                state_district_ids = [d["id"] for d in data["districts"] if (d.get("state") or "").lower() == (off_state or "").lower()]
+                target_farmers = [f for f in target_farmers if f["district_id"] in state_district_ids or f["district_id"] in assigned_dists]
+            else:
+                # District Officer: View only their assigned district farmers
+                allowed_dists = set(assigned_dists)
+                if off_dist_id:
+                    allowed_dists.add(off_dist_id)
+                target_farmers = [f for f in target_farmers if f["district_id"] in allowed_dists or f.get("officer_id") == officer["id"]]
+    elif district_id and district_id != "ALL":
+        target_farmers = [f for f in target_farmers if f["district_id"] == district_id]
+    elif state and state != "ALL":
+        state_district_ids = [d["id"] for d in data["districts"] if (d.get("state") or "").lower() == state.lower()]
+        target_farmers = [f for f in target_farmers if f["district_id"] in state_district_ids]
+
     scored_farmers = []
-    for farmer in data["farmers"]:
+    for farmer in target_farmers:
         district = next((d for d in data["districts"] if d["id"] == farmer["district_id"]), {})
         channel = get_recommended_channel(farmer)
         score_info = calculate_distress_score(farmer["id"], custom_weights, data)
@@ -1014,7 +1047,7 @@ def get_officer_farmer_list(weights: WeightOverride = Body(default=None)):
 
     return {
         "farmers": scored_farmers,
-        "weights_applied": score_info["weights_used"] if scored_farmers else DEFAULT_WEIGHTS,
+        "weights_applied": custom_weights,
         "metrics": {
             "total_farmers": len(scored_farmers),
             "high_risk_count": high_count,

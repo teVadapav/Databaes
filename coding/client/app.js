@@ -1492,7 +1492,17 @@ function switchMainView(viewName) {
     }
   });
 
-  if (viewName === 'officer') {
+  if (viewName === 'farmer') {
+    const farmerVisited = typeof localStorage !== 'undefined' && localStorage.getItem('sk_farmer_visited');
+    if (!farmerVisited) {
+      if (typeof localStorage !== 'undefined') {
+        localStorage.setItem('sk_farmer_visited', 'true');
+      }
+      if (window.Onboarding && typeof window.Onboarding.init === 'function') {
+        window.Onboarding.init();
+      }
+    }
+  } else if (viewName === 'officer') {
     const officerVisited = typeof localStorage !== 'undefined' && localStorage.getItem('sk_officer_visited');
     if (!officerVisited) {
       if (typeof localStorage !== 'undefined') {
@@ -3679,7 +3689,13 @@ async function playWeatherMetricAudio(metricKey) {
 }
 async function fetchOfficerData() {
   try {
-    const res = await fetch(`${API_BASE}/officer/farmers`, {
+    const session = (window.OfficerOnboarding && typeof window.OfficerOnboarding.getSession === 'function') ? window.OfficerOnboarding.getSession() : null;
+    const officerId = session ? session.id : 'OFI-01';
+    const districtId = session ? session.district_id : 'D_OD_SUN';
+    const stateName = session ? session.state : 'Odisha';
+
+    const url = `${API_BASE}/officer/farmers?officer_id=${encodeURIComponent(officerId)}&district_id=${encodeURIComponent(districtId)}&state=${encodeURIComponent(stateName)}`;
+    const res = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(state.weights)

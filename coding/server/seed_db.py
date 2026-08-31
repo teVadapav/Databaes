@@ -38,6 +38,7 @@ def init_and_seed_db():
     DROP TABLE IF EXISTS contingency_crops;
     DROP TABLE IF EXISTS advisory_rules;
     DROP TABLE IF EXISTS schemes;
+    DROP TABLE IF EXISTS sundargarh_mandis;
     DROP TABLE IF EXISTS sundargarh_blocks;
     DROP TABLE IF EXISTS districts;
 
@@ -161,8 +162,12 @@ def init_and_seed_db():
         designation TEXT NOT NULL,
         phone TEXT NOT NULL,
         email TEXT NOT NULL,
+        state TEXT,
+        district TEXT,
+        district_id TEXT,
         assigned_districts TEXT,
-        office_location TEXT
+        office_location TEXT,
+        scope TEXT DEFAULT 'district'
     );
 
     CREATE TABLE contingency_crops (
@@ -267,9 +272,14 @@ def init_and_seed_db():
         officers_data = json.load(f)
         for o in officers_data:
             cursor.execute("""
-            INSERT INTO officers (id, name, designation, phone, email, assigned_districts, office_location)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-            """, (o["id"], o["name"], o["designation"], o["phone"], o.get("email", ""), json.dumps(o.get("assigned_districts", [])), o.get("office_location", "")))
+            INSERT INTO officers (id, name, designation, phone, email, state, district, district_id, assigned_districts, office_location, scope)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, (
+                o["id"], o["name"], o["designation"], o["phone"], o.get("email", ""),
+                o.get("state", ""), o.get("district", ""), o.get("district_id", ""),
+                json.dumps(o.get("assigned_districts", [])), o.get("office_location", ""),
+                o.get("scope", "district")
+            ))
 
     # Seed Contingency Crops
     with open(os.path.join(DATA_DIR, "contingency_crops.json"), "r", encoding="utf-8") as f:
