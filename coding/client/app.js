@@ -3705,11 +3705,17 @@ async function fetchOfficerData() {
 
     // Strict district and statewide isolation guarantee
     if (session) {
+      const isNational = session.scope === 'national' || session.district_id === 'ALL_INDIA' || session.id === 'OFI-00';
       const isStatewide = session.scope === 'statewide' || 
                           (session.district_id && session.district_id.startsWith('ALL_')) || 
                           (session.designation && (session.designation.includes('Director') || session.designation.includes('Commissioner') || session.designation.includes('Secretary')));
-      if (!isStatewide && session.district_id && !session.district_id.startsWith('ALL_')) {
-        farmers = farmers.filter(f => f.district_id === session.district_id);
+      if (!isNational) {
+        if (isStatewide && session.state) {
+          const targetState = session.state.trim().toLowerCase();
+          farmers = farmers.filter(f => (f.state || '').trim().toLowerCase() === targetState);
+        } else if (session.district_id && !session.district_id.startsWith('ALL_')) {
+          farmers = farmers.filter(f => f.district_id === session.district_id);
+        }
       }
     }
 

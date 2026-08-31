@@ -463,7 +463,7 @@ const OfficerOnboarding = {
                 <span>🇮🇳 Apex Senior Officer (National Scope • All Farmers):</span>
                 <span class="text-[9px] font-mono text-emerald-700 bg-emerald-100 border border-emerald-300 px-1.5 py-0.5 rounded font-bold">ALL FARMERS</span>
               </div>
-              <button type="button" onclick="document.getElementById('officer-login-query').value='00'; OfficerOnboarding.submitQuickLogin();" class="w-full text-left px-3 py-2 bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 border border-indigo-500/50 text-white rounded-xl text-[11px] font-extrabold hover:border-indigo-400 cursor-pointer shadow-sm flex items-center justify-between transition">
+              <button type="button" onclick="OfficerOnboarding.loginDirectly('OFI-00')" class="w-full text-left px-3 py-2 bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 border border-indigo-500/50 text-white rounded-xl text-[11px] font-extrabold hover:border-indigo-400 cursor-pointer shadow-sm flex items-center justify-between transition">
                 <div class="flex items-center space-x-2">
                   <span class="px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-mono font-black text-[10px] border border-emerald-400/30">OFI-00</span>
                   <span class="text-white font-bold">Dr. Manoj Ahuja, IAS</span>
@@ -475,23 +475,23 @@ const OfficerOnboarding = {
             <div class="pt-2 border-t border-slate-200">
               <div class="font-bold text-slate-800 mb-1">🏛️ District Officers (Strict Single District View):</div>
               <div class="flex flex-wrap gap-1.5">
-                <button type="button" onclick="document.getElementById('officer-login-query').value='01'; OfficerOnboarding.submitQuickLogin();" class="px-2 py-0.5 bg-white border border-slate-300 rounded text-[10px] font-bold text-sky-700 hover:bg-sky-50 cursor-pointer">OFI-01 (Sundargarh DAO)</button>
-                <button type="button" onclick="document.getElementById('officer-login-query').value='05'; OfficerOnboarding.submitQuickLogin();" class="px-2 py-0.5 bg-white border border-slate-300 rounded text-[10px] font-bold text-sky-700 hover:bg-sky-50 cursor-pointer">OFI-05 (Kalahandi DAO)</button>
-                <button type="button" onclick="document.getElementById('officer-login-query').value='06'; OfficerOnboarding.submitQuickLogin();" class="px-2 py-0.5 bg-white border border-slate-300 rounded text-[10px] font-bold text-sky-700 hover:bg-sky-50 cursor-pointer">OFI-06 (Balangir DAO)</button>
-                <button type="button" onclick="document.getElementById('officer-login-query').value='07'; OfficerOnboarding.submitQuickLogin();" class="px-2 py-0.5 bg-white border border-slate-300 rounded text-[10px] font-bold text-sky-700 hover:bg-sky-50 cursor-pointer">OFI-07 (Bargarh DAO)</button>
-                <button type="button" onclick="document.getElementById('officer-login-query').value='02'; OfficerOnboarding.submitQuickLogin();" class="px-2 py-0.5 bg-white border border-slate-300 rounded text-[10px] font-bold text-sky-700 hover:bg-sky-50 cursor-pointer">OFI-02 (Nashik DAO)</button>
-                <button type="button" onclick="document.getElementById('officer-login-query').value='08'; OfficerOnboarding.submitQuickLogin();" class="px-2 py-0.5 bg-white border border-slate-300 rounded text-[10px] font-bold text-sky-700 hover:bg-sky-50 cursor-pointer">OFI-08 (Akola DAO)</button>
-                <button type="button" onclick="document.getElementById('officer-login-query').value='03'; OfficerOnboarding.submitQuickLogin();" class="px-2 py-0.5 bg-white border border-slate-300 rounded text-[10px] font-bold text-sky-700 hover:bg-sky-50 cursor-pointer">OFI-03 (Yavatmal DAO)</button>
+                <button type="button" onclick="OfficerOnboarding.loginDirectly('OFI-01')" class="px-2 py-0.5 bg-white border border-slate-300 rounded text-[10px] font-bold text-sky-700 hover:bg-sky-50 cursor-pointer">OFI-01 (Sundargarh DAO)</button>
+                <button type="button" onclick="OfficerOnboarding.loginDirectly('OFI-05')" class="px-2 py-0.5 bg-white border border-slate-300 rounded text-[10px] font-bold text-sky-700 hover:bg-sky-50 cursor-pointer">OFI-05 (Kalahandi DAO)</button>
+                <button type="button" onclick="OfficerOnboarding.loginDirectly('OFI-06')" class="px-2 py-0.5 bg-white border border-slate-300 rounded text-[10px] font-bold text-sky-700 hover:bg-sky-50 cursor-pointer">OFI-06 (Balangir DAO)</button>
+                <button type="button" onclick="OfficerOnboarding.loginDirectly('OFI-07')" class="px-2 py-0.5 bg-white border border-slate-300 rounded text-[10px] font-bold text-sky-700 hover:bg-sky-50 cursor-pointer">OFI-07 (Bargarh DAO)</button>
+                <button type="button" onclick="OfficerOnboarding.loginDirectly('OFI-02')" class="px-2 py-0.5 bg-white border border-slate-300 rounded text-[10px] font-bold text-sky-700 hover:bg-sky-50 cursor-pointer">OFI-02 (Nashik DAO)</button>
+                <button type="button" onclick="OfficerOnboarding.loginDirectly('OFI-08')" class="px-2 py-0.5 bg-white border border-slate-300 rounded text-[10px] font-bold text-sky-700 hover:bg-sky-50 cursor-pointer">OFI-08 (Akola DAO)</button>
+                <button type="button" onclick="OfficerOnboarding.loginDirectly('OFI-03')" class="px-2 py-0.5 bg-white border border-slate-300 rounded text-[10px] font-bold text-sky-700 hover:bg-sky-50 cursor-pointer">OFI-03 (Yavatmal DAO)</button>
               </div>
             </div>
             <div class="pt-2 border-t border-slate-200">
               <div class="font-bold text-amber-900 mb-1">⭐ Senior State Officers (Full Statewide Jurisdiction):</div>
               <div class="flex flex-wrap gap-1.5">
-                <button type="button" onclick="document.getElementById('officer-login-query').value='10'; OfficerOnboarding.submitQuickLogin();" class="px-2.5 py-1 bg-amber-100/80 border border-amber-300 rounded-lg text-[10px] font-black text-amber-900 hover:bg-amber-200 cursor-pointer shadow-2xs">OFI-10 (State Director • Odisha)</button>
-                <button type="button" onclick="document.getElementById('officer-login-query').value='11'; OfficerOnboarding.submitQuickLogin();" class="px-2.5 py-1 bg-amber-100/80 border border-amber-300 rounded-lg text-[10px] font-black text-amber-900 hover:bg-amber-200 cursor-pointer shadow-2xs">OFI-11 (State Commissioner • Maharashtra)</button>
-                <button type="button" onclick="document.getElementById('officer-login-query').value='12'; OfficerOnboarding.submitQuickLogin();" class="px-2.5 py-1 bg-amber-100/80 border border-amber-300 rounded-lg text-[10px] font-black text-amber-900 hover:bg-amber-200 cursor-pointer shadow-2xs">OFI-12 (State Commissioner • Karnataka)</button>
-                <button type="button" onclick="document.getElementById('officer-login-query').value='13'; OfficerOnboarding.submitQuickLogin();" class="px-2.5 py-1 bg-amber-100/80 border border-amber-300 rounded-lg text-[10px] font-black text-amber-900 hover:bg-amber-200 cursor-pointer shadow-2xs">OFI-13 (State Commissioner • Assam)</button>
-                <button type="button" onclick="document.getElementById('officer-login-query').value='14'; OfficerOnboarding.submitQuickLogin();" class="px-2.5 py-1 bg-amber-100/80 border border-amber-300 rounded-lg text-[10px] font-black text-amber-900 hover:bg-amber-200 cursor-pointer shadow-2xs">OFI-14 (State APC • Uttar Pradesh)</button>
+                <button type="button" onclick="OfficerOnboarding.loginDirectly('OFI-10')" class="px-2.5 py-1 bg-amber-100/80 border border-amber-300 rounded-lg text-[10px] font-black text-amber-900 hover:bg-amber-200 cursor-pointer shadow-2xs">OFI-10 (State Director • Odisha)</button>
+                <button type="button" onclick="OfficerOnboarding.loginDirectly('OFI-11')" class="px-2.5 py-1 bg-amber-100/80 border border-amber-300 rounded-lg text-[10px] font-black text-amber-900 hover:bg-amber-200 cursor-pointer shadow-2xs">OFI-11 (State Commissioner • Maharashtra)</button>
+                <button type="button" onclick="OfficerOnboarding.loginDirectly('OFI-12')" class="px-2.5 py-1 bg-amber-100/80 border border-amber-300 rounded-lg text-[10px] font-black text-amber-900 hover:bg-amber-200 cursor-pointer shadow-2xs">OFI-12 (State Commissioner • Karnataka)</button>
+                <button type="button" onclick="OfficerOnboarding.loginDirectly('OFI-13')" class="px-2.5 py-1 bg-amber-100/80 border border-amber-300 rounded-lg text-[10px] font-black text-amber-900 hover:bg-amber-200 cursor-pointer shadow-2xs">OFI-13 (State Commissioner • Assam)</button>
+                <button type="button" onclick="OfficerOnboarding.loginDirectly('OFI-14')" class="px-2.5 py-1 bg-amber-100/80 border border-amber-300 rounded-lg text-[10px] font-black text-amber-900 hover:bg-amber-200 cursor-pointer shadow-2xs">OFI-14 (State APC • Uttar Pradesh)</button>
               </div>
             </div>
           </div>
@@ -590,6 +590,16 @@ const OfficerOnboarding = {
     this.hideModal();
   },
 
+  loginDirectly(officerId) {
+    const norm = officerId.toUpperCase().startsWith('OFI-') ? officerId.toUpperCase() : `OFI-${officerId.padStart(2, '0')}`;
+    const found = MOCK_OFFICER_REGISTRY.find(o => o.id.toUpperCase() === norm);
+    if (found) {
+      this.saveSession(found);
+      this.applyOfficerSession(found);
+      this.hideModal();
+    }
+  },
+
   submitQuickLogin() {
     const rawQuery = (document.getElementById('officer-login-query')?.value || '').trim();
     if (!rawQuery) {
@@ -598,14 +608,23 @@ const OfficerOnboarding = {
     }
 
     const cleanDigits = rawQuery.replace(/\D/g, '');
-    const cleanId = rawQuery.toUpperCase().startsWith('OFI-') ? rawQuery.toUpperCase() : (cleanDigits ? `OFI-${cleanDigits.length === 1 ? '0' + cleanDigits : cleanDigits}` : '');
+    const cleanId = rawQuery.toUpperCase().startsWith('OFI-') 
+      ? rawQuery.toUpperCase() 
+      : (cleanDigits ? `OFI-${cleanDigits.padStart(2, '0')}` : '');
 
+    // 1. Strict exact ID matching
     let found = MOCK_OFFICER_REGISTRY.find(o => 
-      o.id === cleanId || 
-      o.id === `OFI-${cleanDigits}` ||
-      o.phone.includes(cleanDigits) ||
+      o.id.toUpperCase() === cleanId || 
+      o.id.toUpperCase() === `OFI-${cleanDigits}` ||
       o.id.toLowerCase() === rawQuery.toLowerCase()
     );
+
+    // 2. Phone matching ONLY for full phone queries (7+ digits)
+    if (!found && cleanDigits.length >= 7) {
+      found = MOCK_OFFICER_REGISTRY.find(o => 
+        (o.phone || '').replace(/\D/g, '').includes(cleanDigits)
+      );
+    }
 
     if (!found) {
       found = {

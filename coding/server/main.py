@@ -992,14 +992,15 @@ def get_officer_farmer_list(
             elif scope == "statewide" or "director" in desig or "commissioner" in desig or "secretary" in desig or "all_" in str(off_dist_id).lower():
                 # Senior State Officer: View all farmers across their entire state
                 state_district_ids = {d["id"] for d in data["districts"] if (d.get("state") or "").strip().lower() == off_state}
-                state_district_ids.update(assigned_dists)
                 target_farmers = [f for f in data["farmers"] if f["district_id"] in state_district_ids]
             else:
-                # District Officer: View ONLY their assigned district farmers
-                allowed_dists = set(assigned_dists)
-                if off_dist_id and not off_dist_id.startswith("ALL_"):
-                    allowed_dists.add(off_dist_id)
-                target_farmers = [f for f in data["farmers"] if f["district_id"] in allowed_dists]
+                # District Officer: View ONLY their assigned single district farmers
+                target_district = off_dist_id or (assigned_dists[0] if assigned_dists else None)
+                if target_district and not target_district.startswith("ALL_"):
+                    target_farmers = [f for f in data["farmers"] if f["district_id"] == target_district]
+                else:
+                    allowed_dists = set(assigned_dists)
+                    target_farmers = [f for f in data["farmers"] if f["district_id"] in allowed_dists]
         elif district_id and district_id != "ALL" and not district_id.startswith("ALL_"):
             target_farmers = [f for f in data["farmers"] if f["district_id"] == district_id]
         elif state and state != "ALL":
