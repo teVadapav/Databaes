@@ -193,6 +193,7 @@ class LandDetails(BaseModel):
 
 
 class FarmerOnboardingPayload(BaseModel):
+    farmer_id: Optional[str] = None
     farmer_name: str
     phone_number: str
     state: str
@@ -360,16 +361,28 @@ def save_onboarding_profile(payload: FarmerOnboardingPayload):
         lang_code = "hi"
 
     norm_phone = payload.phone_number.replace("+91-", "").replace("+91", "").replace("-", "").strip()
-    existing_farmer = cursor.execute("""
-        SELECT id FROM farmers 
-        WHERE phone LIKE ? OR phone LIKE ? OR name = ?
-    """, (f"%{norm_phone}%", f"%{payload.phone_number}%", payload.farmer_name)).fetchone()
+    
+    existing_farmer = None
+    if payload.farmer_id:
+        existing_farmer = cursor.execute("""
+            SELECT id, village, officer_id FROM farmers WHERE id = ?
+        """, (payload.farmer_id,)).fetchone()
+    
+    if not existing_farmer:
+        existing_farmer = cursor.execute("""
+            SELECT id, village, officer_id FROM farmers 
+            WHERE phone LIKE ? OR phone LIKE ? OR name = ?
+        """, (f"%{norm_phone}%", f"%{payload.phone_number}%", payload.farmer_name)).fetchone()
 
     if existing_farmer:
         farmer_id = existing_farmer[0]
+        village_val = existing_farmer[1] or f"{payload.state} Village"
+        officer_id_val = existing_farmer[2] or "OFF_01"
     else:
         existing_count = cursor.execute("SELECT COUNT(*) FROM farmers").fetchone()[0]
         farmer_id = f"F{existing_count + 1}"
+        village_val = f"{payload.state} Village"
+        officer_id_val = "OFF_01"
     profile_id = f"PROF_{farmer_id}"
 
     device_type_val = payload.device_type or "android_smartphone"
@@ -427,6 +440,8 @@ def save_onboarding_profile(payload: FarmerOnboardingPayload):
     loan_date_val = payload.loan_due_date or "2026-11-15"
     loan_amt_val = float(payload.loan_amount) if payload.loan_amount is not None else 50000.0
 
+    clean_phone_for_db = f"+91-{norm_phone}"
+
     cursor.execute("""
         INSERT OR REPLACE INTO farmers (
             id, name, phone, district_id, village, crop, crop_stage,
@@ -439,9 +454,9 @@ def save_onboarding_profile(payload: FarmerOnboardingPayload):
     """, (
         farmer_id,
         payload.farmer_name,
-        f"+91-{payload.phone_number}",
+        clean_phone_for_db,
         payload.district,
-        f"{payload.state} Village",
+        village_val,
         primary_crop,
         stage_val,
         lang_code,
@@ -458,7 +473,7 @@ def save_onboarding_profile(payload: FarmerOnboardingPayload):
         kcc_val,
         informal_val,
         json.dumps(["PMFBY", "PM-KISAN"]),
-        "OFF_01"
+        officer_id_val
     ))
 
     conn.commit()

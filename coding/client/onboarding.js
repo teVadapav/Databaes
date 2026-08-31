@@ -319,42 +319,77 @@ const Onboarding = {
     if (typeof window.switchMainView === 'function') {
       window.switchMainView('farmer');
     }
-    const current = (window.state && window.state.currentFarmer) || AuthService.getUser();
+    
+    // Retrieve the active currently selected farmer directly from state
+    const current = (window.state && window.state.currentFarmer) || 
+                    (window.state && window.state.farmers && window.state.farmers.find(f => f.id === window.state.selectedFarmerId)) || 
+                    AuthService.getUser();
     const saved = JSON.parse(localStorage.getItem('sk_onboarding_profile') || 'null');
 
-    // Retain previous area data exactly as entered in onboarding/predashboard
-    let landArea = 1.2;
-    let landUnit = 'hectares';
+    // Determine values prioritizing current selected farmer
+    const farmerId = (current && current.id) || (window.state && window.state.selectedFarmerId) || (saved && saved.farmer_id) || 'F1';
+    const farmerName = (current && (current.name || current.farmer_name)) || (saved && saved.farmer_name) || 'Ramesh Patil';
 
-    if (saved && saved.land_details && saved.land_details.total_area !== undefined && saved.land_details.total_area !== null) {
-      landArea = saved.land_details.total_area;
-      landUnit = (saved.land_details.unit || 'hectares').toLowerCase();
-    } else if (current && current.total_land_area !== undefined && current.total_land_area !== null) {
+    let farmerPhone = '';
+    if (current && current.phone) {
+      farmerPhone = current.phone.replace('+91-', '').replace('+91', '').replace(/\D/g, '').slice(-10);
+    } else if (saved && saved.phone_number) {
+      farmerPhone = saved.phone_number.replace('+91-', '').replace('+91', '').replace(/\D/g, '').slice(-10);
+    } else {
+      farmerPhone = '9823110293';
+    }
+
+    const farmerDist = (current && (current.district_id || current.district)) || (saved && saved.district) || 'D1';
+    let farmerState = (current && current.state) || (saved && saved.state);
+    if (!farmerState || farmerState === 'Maharashtra') {
+      for (const [st, dists] of Object.entries(STATE_DISTRICT_MAP)) {
+        if (dists.some(d => d.id === farmerDist)) {
+          farmerState = st;
+          break;
+        }
+      }
+    }
+    if (!farmerState) farmerState = 'Maharashtra';
+
+    let landArea = 3.0;
+    let landUnit = 'acres';
+    if (current && current.total_land_area !== undefined && current.total_land_area !== null) {
       landArea = current.total_land_area;
-      landUnit = (current.land_unit || 'hectares').toLowerCase();
+      landUnit = (current.land_unit || 'acres').toLowerCase();
     } else if (current && (current.landholding_hectares || current.landholding_ha)) {
       landArea = current.landholding_hectares || current.landholding_ha;
       landUnit = (current.land_unit || 'hectares').toLowerCase();
+    } else if (saved && saved.land_details && saved.land_details.total_area !== undefined) {
+      landArea = saved.land_details.total_area;
+      landUnit = (saved.land_details.unit || 'acres').toLowerCase();
     }
+    const cleanLandUnit = landUnit.includes('ha') ? 'hectares' : 'acres';
+
+    const selectedCrop = (current && current.crop) ? current.crop.toLowerCase() : ((saved && saved.primary_crops && saved.primary_crops[0]) ? saved.primary_crops[0].toLowerCase() : 'onion');
+    const cropStage = (current && current.crop_stage) ? current.crop_stage.toLowerCase() : ((saved && saved.crop_stage) ? saved.crop_stage.toLowerCase() : 'vegetative');
+
+    const farmerLang = (current && current.language) ? current.language.split('-')[0].toLowerCase() : (OnboardingState.selectedLanguage || 'en');
+    OnboardingState.selectedLanguage = farmerLang;
 
     OnboardingState.formData = {
-      farmerName: (saved && saved.farmer_name) || (current && (current.farmer_name || current.name)) || 'Ramesh Patil',
-      phone: (saved && saved.phone_number) || (current && current.phone ? current.phone.replace('+91-', '').replace('+91', '').trim() : '') || '9823110293',
-      state: (saved && saved.state) || (current && current.state) || 'Maharashtra',
-      district: (saved && saved.district) || (current && (current.district || current.district_id)) || 'D1',
-      landArea: parseFloat(landArea) || 1.2,
-      landUnit: (landUnit || 'hectares').toLowerCase().includes('acre') ? 'acres' : 'hectares',
-      soilType: (saved && saved.land_details && saved.land_details.soil_type) || (current && current.soil_type) || 'black',
-      deviceType: (saved && saved.device_type) || (current && current.device_type) || 'android_smartphone',
-      irrigationType: (saved && saved.irrigation_type) || (current && current.irrigation_type) || 'rainfed',
-      borewellFailed: saved ? !!saved.borewell_failed : (current ? !!current.borewell_failed : false),
-      hasPmfby: saved ? (saved.has_pmfby !== undefined ? !!saved.has_pmfby : true) : (current ? (current.has_pmfby_insurance !== undefined ? !!current.has_pmfby_insurance : !!current.has_pmfby) : true),
-      hasKcc: saved ? (saved.has_kcc !== undefined ? !!saved.has_kcc : true) : (current ? (current.has_kcc !== undefined ? !!current.has_kcc : true) : true),
-      informalDebt: saved ? (saved.informal_debt !== undefined ? !!saved.informal_debt : false) : (current ? (current.informal_debt !== undefined ? !!current.informal_debt : false) : false),
-      loanDueDate: (saved && saved.loan_due_date) || (current && current.loan_due_date) || '2026-11-15',
-      loanAmount: (saved && (saved.loan_amount !== undefined && saved.loan_amount !== null ? saved.loan_amount : saved.loan_amount_inr)) || (current && (current.loan_amount_inr || current.loan_amount)) || 50000,
-      selectedCrops: (saved && saved.primary_crops) || (current && current.crop ? [current.crop.toLowerCase()] : ['onion']),
-      cropStage: (saved && saved.crop_stage) || (current && current.crop_stage ? current.crop_stage.toLowerCase() : 'vegetative')
+      farmerId: farmerId,
+      farmerName: farmerName,
+      phone: farmerPhone,
+      state: farmerState,
+      district: farmerDist,
+      landArea: parseFloat(landArea) || 3.0,
+      landUnit: cleanLandUnit,
+      soilType: (current && current.soil_type) || (saved && saved.land_details && saved.land_details.soil_type) || 'black',
+      deviceType: (current && current.device_type) || (saved && saved.device_type) || 'android_smartphone',
+      irrigationType: (current && current.irrigation_type) || (saved && saved.irrigation_type) || 'rainfed',
+      borewellFailed: current ? !!current.borewell_failed : (saved ? !!saved.borewell_failed : false),
+      hasPmfby: current ? (current.has_pmfby_insurance !== undefined ? !!current.has_pmfby_insurance : (current.has_pmfby !== undefined ? !!current.has_pmfby : true)) : (saved ? (saved.has_pmfby !== undefined ? !!saved.has_pmfby : true) : true),
+      hasKcc: current ? (current.has_kcc !== undefined ? !!current.has_kcc : true) : (saved ? (saved.has_kcc !== undefined ? !!saved.has_kcc : true) : true),
+      informalDebt: current ? (current.informal_debt !== undefined ? !!current.informal_debt : false) : (saved ? (saved.informal_debt !== undefined ? !!saved.informal_debt : false) : false),
+      loanDueDate: (current && current.loan_due_date) || (saved && saved.loan_due_date) || '2026-11-15',
+      loanAmount: (current && (current.loan_amount_inr !== undefined && current.loan_amount_inr !== null ? current.loan_amount_inr : current.loan_amount)) || (saved && (saved.loan_amount !== undefined ? saved.loan_amount : saved.loan_amount_inr)) || 50000,
+      selectedCrops: [selectedCrop],
+      cropStage: cropStage
     };
 
     OnboardingState.isEditMode = true;
@@ -1264,8 +1299,10 @@ const Onboarding = {
     const bcp47 = OnboardingState.getBcp47Locale(langKey);
     const voice = OnboardingState.getVoiceProfile(langKey);
     const f = OnboardingState.formData;
+    const targetFarmerId = f.farmerId || (window.state && window.state.selectedFarmerId) || null;
 
     const payload = {
+      farmer_id: targetFarmerId,
       farmer_name: f.farmerName,
       phone_number: f.phone,
       state: f.state,
