@@ -260,8 +260,8 @@ const OnboardingState = {
     phone: '',
     state: 'Maharashtra',
     district: 'D1',
-    landArea: 1.2,
-    landUnit: 'hectares',
+    landArea: 3.0,
+    landUnit: 'acres',
     soilType: 'black',
     deviceType: 'android_smartphone',
     irrigationType: 'rainfed',
@@ -725,14 +725,11 @@ const Onboarding = {
               <h2 class="text-sm sm:text-base font-black tracking-tight leading-tight whitespace-nowrap">Smart Krishi</h2>
             </div>
             <div class="flex items-center space-x-1.5 shrink-0">
-              <!-- Font Size Selector -->
-              <div class="flex items-center space-x-1 bg-white/20 border border-white/30 px-1.5 py-0.5 rounded-lg text-white text-xs shadow-xs" title="Adjust Text Readability">
-                <span class="text-[10px]">🔤</span>
-                <select id="ob-font-size-select" onchange="Onboarding.setFontSize(this.value)" class="bg-transparent text-white font-bold text-[11px] outline-none cursor-pointer">
-                  <option value="medium" class="text-slate-900" ${OnboardingState.fontSize === 'medium' ? 'selected' : ''}>Medium</option>
-                  <option value="large" class="text-slate-900" ${OnboardingState.fontSize === 'large' ? 'selected' : ''}>Large</option>
-                  <option value="xlarge" class="text-slate-900" ${OnboardingState.fontSize === 'xlarge' ? 'selected' : ''}>Extra Large</option>
-                </select>
+              <!-- Font Scale Segmented Control (A⁻, A, A⁺) -->
+              <div class="font-scale-segmented-control dark" role="group" aria-label="Font Size Scale" title="Adjust Text Readability">
+                <button type="button" class="font-scale-pill-btn ${(!OnboardingState.fontSize || OnboardingState.fontSize === 'standard' || OnboardingState.fontSize === 'medium') ? 'active' : ''}" data-scale="standard" onclick="if(window.setFontScale) window.setFontScale('standard'); else Onboarding.setFontSize('standard');" title="Standard Text">A⁻</button>
+                <button type="button" class="font-scale-pill-btn ${OnboardingState.fontSize === 'large' ? 'active' : ''}" data-scale="large" onclick="if(window.setFontScale) window.setFontScale('large'); else Onboarding.setFontSize('large');" title="Large Text">A</button>
+                <button type="button" class="font-scale-pill-btn ${OnboardingState.fontSize === 'xlarge' ? 'active' : ''}" data-scale="xlarge" onclick="if(window.setFontScale) window.setFontScale('xlarge'); else Onboarding.setFontSize('xlarge');" title="Extra Large Text">A⁺</button>
               </div>
 
               <span id="ob-step-badge" class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-white/20 text-white backdrop-blur-sm border border-white/20 whitespace-nowrap">Step 1 of 4</span>
@@ -1390,24 +1387,27 @@ const Onboarding = {
   },
 
   setFontSize(size) {
-    OnboardingState.fontSize = size;
+    const norm = (size === 'medium' || size === 'scale-standard') ? 'standard' : (size === 'scale-large' ? 'large' : (size === 'scale-xlarge' ? 'xlarge' : size));
+    OnboardingState.fontSize = norm;
     if (typeof localStorage !== 'undefined') {
-      localStorage.setItem('sk_font_size', size);
+      localStorage.setItem('sk_font_scale', norm);
+      localStorage.setItem('sk_font_size', norm);
     }
+    document.documentElement.setAttribute('data-scale', norm);
+    
     const wrapper = document.querySelector('.onboarding-card-wrapper');
     if (wrapper) {
-      wrapper.classList.remove('font-size-medium', 'font-size-large', 'font-size-xlarge');
-      wrapper.classList.add(`font-size-${size}`);
+      wrapper.classList.remove('font-size-standard', 'font-size-medium', 'font-size-large', 'font-size-xlarge');
+      wrapper.classList.add(`font-size-${norm}`);
     }
     const farmerView = document.getElementById('view-farmer');
     if (farmerView) {
-      farmerView.classList.remove('font-size-medium', 'font-size-large', 'font-size-xlarge');
-      farmerView.classList.add(`font-size-${size}`);
+      farmerView.classList.remove('font-size-standard', 'font-size-medium', 'font-size-large', 'font-size-xlarge');
+      farmerView.classList.add(`font-size-${norm}`);
     }
-    const appFontSizeSelect = document.getElementById('font-size-select');
-    if (appFontSizeSelect) appFontSizeSelect.value = size;
-    const obFontSizeSelect = document.getElementById('ob-font-size-select');
-    if (obFontSizeSelect) obFontSizeSelect.value = size;
+    document.querySelectorAll('.font-scale-pill-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.getAttribute('data-scale') === norm);
+    });
   }
 };
 

@@ -131,67 +131,181 @@ body.script-devanagari {
   font-family: 'Noto Sans Devanagari', 'Georgia', serif;
 }
 
-/* ── Elegant & Adaptive Font Size Scaling (Scoped to Farmer App & Onboarding) ── */
-#view-farmer.font-size-medium,
-.onboarding-card-wrapper.font-size-medium {
-  --scale-font: 1;
+/* ── Fluid CSS Variable Hierarchy (Task 1: Root Dataset Scaling Engine) ── */
+:root,
+:root[data-scale="standard"],
+:root[data-scale="scale-standard"] {
+  --font-scale: 1.0;
+  --tile-min-height: 140px;
+  --icon-scale: 24px;
+  --badge-font: 0.75rem;
+  --body-font: 0.95rem;
+  --header-font: 1.25rem;
 }
 
-#view-farmer.font-size-large,
-.onboarding-card-wrapper.font-size-large {
-  --scale-font: 1.1;
+:root[data-scale="large"],
+:root[data-scale="scale-large"] {
+  --font-scale: 1.15;
+  --tile-min-height: 160px;
+  --icon-scale: 28px;
+  --badge-font: 0.85rem;
+  --body-font: 1.1rem;
+  --header-font: 1.45rem;
 }
 
-#view-farmer.font-size-xlarge,
-.onboarding-card-wrapper.font-size-xlarge {
-  --scale-font: 1.2;
+:root[data-scale="xlarge"],
+:root[data-scale="scale-xlarge"] {
+  --font-scale: 1.30;
+  --tile-min-height: 185px;
+  --icon-scale: 34px;
+  --badge-font: 0.95rem;
+  --body-font: 1.25rem;
+  --header-font: 1.7rem;
 }
 
-/* Adaptive Content Scaling for Large */
-#view-farmer.font-size-large .farmer-tab-pane,
-#view-farmer.font-size-large .advisory-content,
-#view-farmer.font-size-large p,
-.onboarding-card-wrapper.font-size-large p {
-  font-size: 1.05rem;
-  line-height: 1.5;
+/* Fluid Typography and No-Clip Container Scaling */
+#view-farmer,
+.farmer-view,
+.onboarding-card-wrapper {
+  font-size: var(--body-font, 0.95rem);
 }
 
-#view-farmer.font-size-large h1,
-#view-farmer.font-size-large h2,
-#view-farmer.font-size-large h3,
-.onboarding-card-wrapper.font-size-large h2,
-.onboarding-card-wrapper.font-size-large h3 {
-  font-size: 1.15em;
-  line-height: 1.35;
+#view-farmer h1,
+#view-farmer h2,
+.onboarding-card-wrapper h2 {
+  font-size: var(--header-font, 1.25rem);
+  line-height: 1.3;
 }
 
-/* Adaptive Content Scaling for Extra Large */
-#view-farmer.font-size-xlarge .farmer-tab-pane,
-#view-farmer.font-size-xlarge .advisory-content,
-#view-farmer.font-size-xlarge p,
-.onboarding-card-wrapper.font-size-xlarge p {
-  font-size: 1.18rem;
-  line-height: 1.55;
+#view-farmer .text-xs,
+.onboarding-card-wrapper .text-xs {
+  font-size: calc(0.75rem * var(--font-scale, 1.0));
 }
 
-#view-farmer.font-size-xlarge h1,
-#view-farmer.font-size-xlarge h2,
-#view-farmer.font-size-xlarge h3,
-.onboarding-card-wrapper.font-size-xlarge h2,
-.onboarding-card-wrapper.font-size-xlarge h3 {
-  font-size: 1.25em;
-  line-height: 1.35;
+#view-farmer .text-sm,
+.onboarding-card-wrapper .text-sm {
+  font-size: calc(0.875rem * var(--font-scale, 1.0));
 }
 
-/* Ensure UI buttons, inputs and badges always maintain clean flex alignment */
-#view-farmer button, 
-#view-farmer select, 
-.onboarding-card-wrapper button {
-  min-height: 34px;
+#view-farmer .text-base,
+.onboarding-card-wrapper .text-base {
+  font-size: calc(1rem * var(--font-scale, 1.0));
 }
 
-.farmer-btn {
-  min-height: 85px;
+#view-farmer .text-lg,
+.onboarding-card-wrapper .text-lg {
+  font-size: calc(1.125rem * var(--font-scale, 1.0));
+}
+
+/* No-Clip Fluidity for Tiles and Cards */
+.farmer-btn,
+.metric-card,
+.dashboard-tile {
+  min-height: var(--tile-min-height, 140px);
+  height: max-content;
+  overflow: visible;
+  word-break: break-word;
+  transition: all 0.2s ease-in-out;
+}
+
+/* ── Segmented Pill Control for Font Size Scaling (A⁻, A, A⁺) ── */
+.font-scale-segmented-control {
+  display: inline-flex;
+  align-items: center;
+  background: #f1f5f9;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 0.75rem;
+  padding: 2px;
+  gap: 2px;
+  position: relative;
+  user-select: none;
+}
+
+.font-scale-pill-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 26px;
+  height: 24px;
+  padding: 0 5px;
+  border-radius: 0.5rem;
+  border: none;
+  background: transparent;
+  color: #475569;
+  font-size: 0.72rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+  line-height: 1;
+}
+
+.font-scale-pill-btn:hover {
+  color: #0f172a;
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.font-scale-pill-btn.active {
+  background: #ffffff;
+  color: #0284c7;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+  font-weight: 900;
+}
+
+.font-scale-segmented-control.dark {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.font-scale-segmented-control.dark .font-scale-pill-btn {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.font-scale-segmented-control.dark .font-scale-pill-btn:hover {
+  background: rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+}
+
+.font-scale-segmented-control.dark .font-scale-pill-btn.active {
+  background: #ffffff;
+  color: #0369a1;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+/* ── Mandi Price Unit Toggle Switch (₹/kg vs ₹/qtl) ── */
+.mandi-unit-toggle {
+  display: inline-flex;
+  align-items: center;
+  background: #f1f5f9;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 0.75rem;
+  padding: 2px;
+  gap: 2px;
+}
+
+.mandi-unit-btn {
+  padding: 3px 8px;
+  border-radius: 0.55rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #64748b;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+  line-height: 1.2;
+}
+
+.mandi-unit-btn:hover {
+  color: #1e293b;
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.mandi-unit-btn.active {
+  background: #ffffff;
+  color: #0284c7;
+  font-weight: 800;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 /* ── Mobile Phone Mockup Device for Desktop ── */

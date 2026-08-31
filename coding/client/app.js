@@ -1321,53 +1321,100 @@ function detectDevice() {
   }
 }
 
-// ─── FONT SIZE CONTROLLER (Scoped strictly to Farmer App & Pre-Dashboard) ───
+// ─── FONT SCALE & TYPOGRAPHY CONTROLLER (Task 1) ───
 function initFontSize() {
-  const savedSize = (typeof localStorage !== 'undefined' && localStorage.getItem('sk_font_size')) || 'medium';
-  setFontSize(savedSize);
+  const rawSaved = (typeof localStorage !== 'undefined' && (localStorage.getItem('sk_font_scale') || localStorage.getItem('sk_font_size'))) || 'standard';
+  const normalized = (rawSaved === 'medium' || rawSaved === 'scale-standard') ? 'standard' : (rawSaved === 'scale-large' ? 'large' : (rawSaved === 'scale-xlarge' ? 'xlarge' : rawSaved));
+  setFontScale(normalized);
 }
 
-function setFontSize(size) {
-  state.fontSize = size;
+function setFontScale(scale) {
+  const normScale = (scale === 'medium' || scale === 'scale-standard') ? 'standard' : (scale === 'scale-large' ? 'large' : (scale === 'scale-xlarge' ? 'xlarge' : scale));
+  state.fontSize = normScale;
+  state.fontScale = normScale;
+
   if (typeof localStorage !== 'undefined') {
-    localStorage.setItem('sk_font_size', size);
+    localStorage.setItem('sk_font_scale', normScale);
+    localStorage.setItem('sk_font_size', normScale);
   }
+
+  // Set Root HTML data-scale attribute for fluid CSS custom properties
+  document.documentElement.setAttribute('data-scale', normScale);
 
   const farmerView = document.getElementById('view-farmer');
   if (farmerView) {
-    farmerView.classList.remove('font-size-medium', 'font-size-large', 'font-size-xlarge');
-    farmerView.classList.add(`font-size-${size}`);
+    farmerView.classList.remove('font-size-standard', 'font-size-medium', 'font-size-large', 'font-size-xlarge');
+    farmerView.classList.add(`font-size-${normScale}`);
   }
 
   const obWrapper = document.querySelector('.onboarding-card-wrapper');
   if (obWrapper) {
-    obWrapper.classList.remove('font-size-medium', 'font-size-large', 'font-size-xlarge');
-    obWrapper.classList.add(`font-size-${size}`);
+    obWrapper.classList.remove('font-size-standard', 'font-size-medium', 'font-size-large', 'font-size-xlarge');
+    obWrapper.classList.add(`font-size-${normScale}`);
   }
+
+  // Update active state on all segmented buttons
+  document.querySelectorAll('.font-scale-pill-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.getAttribute('data-scale') === normScale);
+  });
 
   const farmerSelect = document.getElementById('font-size-select');
-  if (farmerSelect) farmerSelect.value = size;
+  if (farmerSelect) farmerSelect.value = (normScale === 'standard' ? 'medium' : normScale);
 
   const obSelect = document.getElementById('ob-font-size-select');
-  if (obSelect) obSelect.value = size;
+  if (obSelect) obSelect.value = (normScale === 'standard' ? 'medium' : normScale);
 
   if (window.OnboardingState) {
-    window.OnboardingState.fontSize = size;
+    window.OnboardingState.fontSize = normScale;
   }
 }
+
+// Backwards compatibility alias
+function setFontSize(size) {
+  setFontScale(size);
+}
+window.setFontScale = setFontScale;
+
+// ─── MANDI PRICE UNIT CONTROLLER (Task 2: ₹/kg vs ₹/qtl) ───
+function initMandiPriceUnit() {
+  const savedUnit = (typeof localStorage !== 'undefined' && localStorage.getItem('sk_mandi_unit')) || 'kg';
+  state.mandiPriceUnit = savedUnit;
+  updateMandiUnitButtons();
+}
+
+function setMandiPriceUnit(unit) {
+  state.mandiPriceUnit = (unit === 'qtl') ? 'qtl' : 'kg';
+  if (typeof localStorage !== 'undefined') {
+    localStorage.setItem('sk_mandi_unit', state.mandiPriceUnit);
+  }
+  updateMandiUnitButtons();
+  renderFarmerMandiPrice();
+}
+
+function updateMandiUnitButtons() {
+  const kgBtn = document.getElementById('mandi-unit-kg');
+  const qtlBtn = document.getElementById('mandi-unit-qtl');
+  const isKg = state.mandiPriceUnit !== 'qtl';
+  if (kgBtn) kgBtn.classList.toggle('active', isKg);
+  if (qtlBtn) qtlBtn.classList.toggle('active', !isKg);
+}
+window.setMandiPriceUnit = setMandiPriceUnit;
 
 async function initApp() {
   detectDevice();
   initFontSize();
+  initMandiPriceUnit();
   initLanguageSelector();
   initIvrSimulator();
+  if (window.OfficerOnboarding && typeof window.OfficerOnboarding.init === 'function') {
+    window.OfficerOnboarding.init();
+  }
   window.addEventListener('resize', detectDevice);
   await Promise.all([
     loadFarmersList(),
     fetchOfficerData()
   ]);
 }
-
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', initApp);
 } else {
@@ -1446,11 +1493,15 @@ function switchMainView(viewName) {
   });
 
   if (viewName === 'officer') {
+    if (window.OfficerOnboarding && typeof window.OfficerOnboarding.hasActiveSession === 'function') {
+      if (!window.OfficerOnboarding.hasActiveSession()) {
+        window.OfficerOnboarding.openModal(false);
+      }
+    }
     fetchOfficerData();
   } else if (viewName === 'sandbox') {
     runSandboxEvaluation();
   }
-}
 
 function setFarmerAccessMode(mode) {
   state.farmerAccessMode = mode;
@@ -2218,8 +2269,10 @@ async function renderFarmerMandiPrice() {
   const pd = adv.price_data;
   const lang = state.selectedLanguage || (typeof localStorage !== 'undefined' && localStorage.getItem('sk_locale')) || 'en';
   const mLoc = MANDI_I18N[lang] || MANDI_I18N['en'];
+  const unit = state.mandiPriceUnit || 'kg';
+  const isKg = (unit === 'kg');
 
-    const localizedCrop = getLocalizedCrop(pd.crop, lang);
+  const localizedCrop = getLocalizedCrop(pd.crop, lang);
   const localizedMarket = getLocalizedMarket(pd.market_name, lang);
   
   const mandiNameEl = document.getElementById('mandi-name');
@@ -2233,16 +2286,41 @@ async function renderFarmerMandiPrice() {
       mr: 'अद्ययावत: २५ ऑगस्ट २०२६',
       or: 'ଅପଡେଟ୍: ୨୫ ଅଗଷ୍ଟ ୨୦୨୬',
       as: 'আপডেট: ২৫ আগষ্ট ২০২৬',
-      kn: 'ದಿನಾಂಕ: ೨೫ ಆಗಸ್ಟ್ ೨୦೨೬'
+      kn: 'ದಿನಾಂಕ: ୨୫ ಆಗಸ್ಟ್ ୨୦୨೬'
     };
     updatedEl.textContent = uMap[lang] || uMap['en'];
   }
 
+  // Calculate Unit-Aware Values
+  const rawCur = isKg ? (pd.current_price / 100) : pd.current_price;
+  const rawMsp = isKg ? (pd.govt_msp / 100) : pd.govt_msp;
+  const rawDiff = isKg ? ((pd.govt_msp - pd.current_price) / 100) : (pd.govt_msp - pd.current_price);
+
+  const curPriceStr = isKg ? (rawCur % 1 === 0 ? rawCur.toFixed(0) : rawCur.toFixed(2)) : rawCur.toLocaleString('en-IN');
+  const mspPriceStr = isKg ? (rawMsp % 1 === 0 ? rawMsp.toFixed(0) : rawMsp.toFixed(2)) : rawMsp.toLocaleString('en-IN');
+  const diffStr = isKg ? (rawDiff % 1 === 0 ? rawDiff.toFixed(0) : rawDiff.toFixed(2)) : rawDiff.toLocaleString('en-IN');
+
+  const unitLabelMap = {
+    kg: { en: '/ kg', hi: 'प्रति किलो', mr: 'प्रति किलो', or: 'ପ୍ରତି କିଲୋ', as: 'প্ৰতি কেজি', kn: 'ಪ್ರತಿ ಕೆಜಿ' },
+    qtl: { en: '/ Quintal', hi: 'प्रति क्विंटल', mr: 'प्रति क्विंटल', or: 'କ୍ୱିଣ୍ଟାଲ ପିଛା', as: 'প্ৰতি কুইন্টলত', kn: 'ಪ್ರತಿ ಕ್ವಿಂಟಾಲ್‌ಗೆ' }
+  };
+  const floorLabelMap = {
+    kg: { en: '/ kg (Floor Benchmark)', hi: 'प्रति किलो (न्यूनतम आधार)', mr: 'प्रति किलो (हमीभाव आधार)', or: 'ପ୍ରତି କିଲୋ (ନିଶ୍ଚିତ ସହାୟତା)', as: 'প্ৰତି কেজি (নিৰাপদ সমৰ্থନ)', kn: 'ಪ್ರತಿ ಕೆಜಿ (ಖಾತರಿ ಮಾನದಂಡ)' },
+    qtl: { en: '/ Quintal (Floor)', hi: 'प्रति क्विंटल (गारंटीड बेंचमार्क)', mr: 'प्रति क्विंटल (हमीभाव बेंचमार्क)', or: 'କ୍ୱିଣ୍ଟାଲ ପିଛା (ନିଶ୍ଚିତ ସହାୟତା)', as: 'প্ৰতি কুইন্টলত (নিৰাপଦ ସହାୟତା)', kn: 'ಪ್ರತಿ ಕ್ವಿಂಟಾಲ್‌ಗೆ (ಖಾತರಿ ಮಾನದಂಡ)' }
+  };
+
   const currentPriceEl = document.getElementById('mandi-current-price');
-  if (currentPriceEl) currentPriceEl.textContent = `₹${pd.current_price.toLocaleString('en-IN')}`;
+  if (currentPriceEl) currentPriceEl.textContent = `₹${curPriceStr}`;
 
   const mspPriceEl = document.getElementById('mandi-msp-price');
-  if (mspPriceEl) mspPriceEl.textContent = `₹${pd.govt_msp.toLocaleString('en-IN')}`;
+  if (mspPriceEl) mspPriceEl.textContent = `₹${mspPriceStr}`;
+
+  // Update unit sublabels on cards
+  const curSubLabel = document.querySelector('[data-i18n="perQuintalLabel"]');
+  if (curSubLabel) curSubLabel.textContent = (unitLabelMap[unit] && unitLabelMap[unit][lang]) || unitLabelMap[unit].en;
+
+  const mspSubLabel = document.querySelector('[data-i18n="guaranteedMspLabel"]');
+  if (mspSubLabel) mspSubLabel.textContent = (floorLabelMap[unit] && floorLabelMap[unit][lang]) || floorLabelMap[unit].en;
 
   const alertBox = document.getElementById('mandi-alert-box');
   const alertIcon = document.getElementById('mandi-alert-icon');
@@ -2250,23 +2328,33 @@ async function renderFarmerMandiPrice() {
   const alertText = document.getElementById('mandi-alert-text');
   const alertBadge = document.getElementById('mandi-alert-badge');
 
-  const diff = pd.govt_msp - pd.current_price;
   const shortfall = pd.shortfall_pct || '26.7';
+  const unitSuffix = isKg ? (lang === 'hi' || lang === 'mr' ? 'किलो' : lang === 'or' ? 'କିଲୋ' : lang === 'as' ? 'কেজি' : lang === 'kn' ? 'ಕೆಜಿ' : 'kg') : (lang === 'hi' || lang === 'mr' ? 'क्विंटल' : lang === 'or' ? 'କ୍ୱିଣ୍ଟାଲ' : lang === 'as' ? 'কুইন্টল' : lang === 'kn' ? 'ಕ್ವಿಂಟಾಲ್' : 'quintal');
 
   if (pd.is_below_msp) {
-    if (alertBox) alertBox.className = "bg-red-50 border-2 border-red-400 rounded-2xl p-5 text-red-950 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4";
+    if (alertBox) alertBox.className = "bg-red-50 border-2 border-red-400 rounded-2xl p-4 sm:p-5 text-red-950 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4";
     if (alertIcon) alertIcon.textContent = "⚠️";
     if (alertTitle) alertTitle.textContent = mLoc.belowTitle;
-    if (alertText) alertText.textContent = mLoc.belowBody(diff, shortfall);
+    if (alertText) {
+      const unitAwareBodyMap = {
+        en: `Current market price is ₹${diffStr}/${unitSuffix} (${shortfall}%) below Government MSP. Do NOT sell in distress. Avail e-NAM warehouse pledge loan.`,
+        hi: `वर्तमान मंडी भाव सरकारी समर्थन मूल्य (MSP) से ₹${diffStr}/${unitSuffix} (${shortfall}%) कम है। घाटे में न बेचें। ई-नाम या वेयरहाउस रसीद पर ऋण लें।`,
+        mr: `सध्याचा बाजार भाव हमीभावापेक्षा ₹${diffStr}/${unitSuffix} (${shortfall}%) कमी आहे. घाईत नुकसान सहन करून विकू नका. गोदामात माल ठेवून कर्ज मिळवा.`,
+        or: `ବର୍ତ୍ତମାନ ମଣ୍ଡି ଦର ସରକାରୀ ଏମଏସପି ଠାରୁ ₹${diffStr}/${unitSuffix} (${shortfall}%) କମ୍ ଅଛି। କ୍ଷତିରେ ବିକ୍ରି କରନ୍ତୁ ନାହିଁ। ଇ-ନାମ୍ କିମ୍ବା ଗୋଦାମ ଋଣ ସୁବିଧା ନିଅନ୍ତୁ।`,
+        as: `বৰ্তমান বজাৰ মূল্য চৰকাৰী সমৰ্থন মূল্যতকৈ ₹${diffStr}/${unitSuffix} (${shortfall}%) কম। লোকচানত বিক্ৰী নকৰিব। ই-নাম বা গুদাম ঋণ লওক।`,
+        kn: `ಪ್ರಸ್ತುತ ಮಾರುಕಟ್ಟೆ ದರವು ಸರ್ಕಾರಿ ಬೆಂಬಲ ಬೆಲೆಗಿಂತ ₹${diffStr}/${unitSuffix} (${shortfall}%) ಕಡಿಮೆಯಿದೆ. ನಷ್ಟದಲ್ಲಿ ಮಾರಾಟ ಮಾಡಬೇಡಿ. ಇ-ನ್ಯಾಮ್ ಅಥವಾ ಗೋದಾಮು ರಸೀದಿ ಸಾಲ ಬಳಸಿ.`
+      };
+      alertText.textContent = unitAwareBodyMap[lang] || unitAwareBodyMap.en;
+    }
     if (alertBadge) {
       alertBadge.textContent = mLoc.distressBadge;
       alertBadge.className = "bg-red-600 text-white font-black text-xs px-3 py-1.5 rounded-lg whitespace-nowrap";
     }
   } else {
-    if (alertBox) alertBox.className = "bg-emerald-50 border-2 border-sky-400 rounded-2xl p-5 text-sky-950 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4";
+    if (alertBox) alertBox.className = "bg-emerald-50 border-2 border-sky-400 rounded-2xl p-4 sm:p-5 text-sky-950 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4";
     if (alertIcon) alertIcon.textContent = "✅";
     if (alertTitle) alertTitle.textContent = mLoc.aboveTitle;
-    if (alertText) alertText.textContent = mLoc.aboveBody(pd.current_price);
+    if (alertText) alertText.textContent = mLoc.aboveBody ? mLoc.aboveBody(curPriceStr) : `Current price is ₹${curPriceStr}/${unitSuffix}.`;
     if (alertBadge) {
       alertBadge.textContent = mLoc.stableBadge;
       alertBadge.className = "bg-sky-600 text-white font-black text-xs px-3 py-1.5 rounded-lg whitespace-nowrap";
@@ -2276,11 +2364,13 @@ async function renderFarmerMandiPrice() {
   // Render 100% Localized Recommended Actions
   const recListEl = document.getElementById('mandi-recommendations-list');
   if (recListEl) {
-    const actionItems = pd.is_below_msp ? mLoc.belowActions(diff) : mLoc.aboveActions;
+    const actionItems = pd.is_below_msp ? mLoc.belowActions(diffStr) : mLoc.aboveActions;
     recListEl.innerHTML = actionItems.map(act => `<p>${act}</p>`).join('');
   }
-}
 
+  // Update Toggle active button states
+  updateMandiUnitButtons();
+}
 
 async function playMandiAudio() {
   const adv = state.currentAdvisory;
@@ -2291,41 +2381,54 @@ async function playMandiAudio() {
 
   const pd = adv.price_data;
   const lang = state.selectedLanguage || (typeof localStorage !== 'undefined' && localStorage.getItem('sk_locale')) || 'en';
+  const unit = state.mandiPriceUnit || 'kg';
+  const isKg = (unit === 'kg');
 
   const localizedCrop = getLocalizedCrop(pd.crop, lang);
   const localizedMarket = getLocalizedMarket(pd.market_name, lang);
-  const diff = Math.round(pd.govt_msp - pd.current_price);
-  const currentPrice = Math.round(pd.current_price);
-  const mspPrice = Math.round(pd.govt_msp);
+
+  const rawCur = isKg ? (pd.current_price / 100) : pd.current_price;
+  const rawMsp = isKg ? (pd.govt_msp / 100) : pd.govt_msp;
+  const rawDiff = isKg ? ((pd.govt_msp - pd.current_price) / 100) : (pd.govt_msp - pd.current_price);
+
+  const currentPrice = isKg ? (rawCur % 1 === 0 ? rawCur.toFixed(0) : rawCur.toFixed(2)) : Math.round(rawCur);
+  const mspPrice = isKg ? (rawMsp % 1 === 0 ? rawMsp.toFixed(0) : rawMsp.toFixed(2)) : Math.round(rawMsp);
+  const diff = isKg ? (rawDiff % 1 === 0 ? rawDiff.toFixed(0) : rawDiff.toFixed(2)) : Math.round(rawDiff);
+
+  const unitWordMap = {
+    kg: { en: 'per kg', hi: 'प्रति किलो', mr: 'प्रति किलो', or: 'ପ୍ରତି କିଲୋ', as: 'প্ৰতি কেজি', kn: 'ಪ್ರತಿ ಕೆಜಿ' },
+    qtl: { en: 'per quintal', hi: 'प्रति क्विंटल', mr: 'प्रति क्विंटल', or: 'କ୍ୱିଣ୍ଟାଲ ପିଛା', as: 'প্ৰতি কুইন্টলত', kn: 'ಪ್ರತಿ ಕ್ವಿಂಟಾಲ್‌ಗೆ' }
+  };
+  const unitWord = (unitWordMap[unit] && unitWordMap[unit][lang]) || unitWordMap[unit].en;
 
   let script = "";
   if (pd.is_below_msp) {
     if (lang === 'hi') {
-      script = `${localizedMarket} में ${localizedCrop} का आज का मंडी भाव ₹${currentPrice} प्रति क्विंटल है, जो सरकारी समर्थन मूल्य ₹${mspPrice} से ₹${diff} कम है। घाटे में तुरंत न बेचें। पहला: गोदामात माल सुरक्षित रखकर ७% ब्याज पर ७०% ऋण प्राप्त करें। दूसरा: पीएम-आशा योजना में मूल्य भरपाई हेतु पंजीकरण करें। तीसरा: ई-नाम मंडी में ऑनलाइन नीलामी द्वारा बेहतर भाव प्राप्त करें।`;
+      script = `${localizedMarket} में ${localizedCrop} का आज का मंडी भाव ₹${currentPrice} ${unitWord} है, जो सरकारी समर्थन मूल्य ₹${mspPrice} से ₹${diff} कम है। घाटे में तुरंत न बेचें। पहला: गोदामात माल सुरक्षित रखकर ७% ब्याज पर ७०% ऋण प्राप्त करें। दूसरा: पीएम-आशा योजना में मूल्य भरपाई हेतु पंजीकरण करें। तीसरा: ई-नाम मंडी में ऑनलाइन नीलामी द्वारा बेहतर भाव प्राप्त करें।`;
     } else if (lang === 'mr') {
-      script = `${localizedMarket} मध्ये ${localizedCrop} चा आजचा बाजार भाव ₹${currentPrice} प्रति क्विंटल आहे, जो शासकीय हमीभाव ₹${mspPrice} पेक्षा ₹${diff} ने कमी आहे. घाईघाईत कमी भावात नुकसान सोसून विकू नका. पहिला सल्ला: माल गोदामात सुरक्षित ठेवून ७% सवलत दराने ७०% तारण कर्ज मिळवा. दुसरा सल्ला: हमीभाव तूट भरपाईसाठी पीएम-आशा योजनेत तालुका खरेदी केंद्रात नोंदणी करा. तिसरा सल्ला: ई-नाम राष्ट्रीय बाजार समितीमध्ये उत्तम भावासाठी इलेक्ट्रॉनिक लिलावात सहभागी व्हा.`;
+      script = `${localizedMarket} मध्ये ${localizedCrop} चा आजचा बाजार भाव ₹${currentPrice} ${unitWord} आहे, जो शासकीय हमीभाव ₹${mspPrice} पेक्षा ₹${diff} ने कमी आहे. घाईघाईत कमी भावात नुकसान सोसून विकू नका. पहिला सल्ला: माल गोदामात सुरक्षित ठेवून ७% सवलत दराने ७०% तारण कर्ज मिळवा. दुसरा सल्ला: हमीभाव तूट भरपाईसाठी पीएम-आशा योजनेत तालुका खरेदी केंद्रात नोंदणी करा. तिसरा सल्ला: ई-नाम राष्ट्रीय बाजार समितीमध्ये उत्तम भावासाठी इलेक्ट्रॉनिक लिलावात सहभागी व्हा.`;
     } else if (lang === 'or') {
-      script = `${localizedMarket} ରେ ${localizedCrop} ର ଆଜିର ମଣ୍ଡି ଦର କ୍ୱିଣ୍ଟାଲ ପିଛା ₹${currentPrice} ଅଛି, ଯାହା ସରକାରୀ ଏମଏସପି ₹${mspPrice} ଠାରୁ ₹${diff} କମ୍। କ୍ଷତିରେ ବିକ୍ରି କରନ୍ତୁ ନାହିଁ। ପ୍ରଥମ ପଦକ୍ଷେପ: ଗୋଦାମରେ ମାଲ ରଖି ୭୦% ଋଣ ସୁବିଧା ନିଅନ୍ତୁ। ଦ୍ୱିତୀୟ ପଦକ୍ଷେପ: ପିଏମ୍-ଆଶା ଯୋଜନାରେ ପଞ୍ଜୀକରଣ କରନ୍ତୁ। ତୃତୀୟ ପଦକ୍ଷେପ: ଇ-ନାମ୍ ରେ ଉତ୍ତମ ଦର ପାଇଁ ବିକ୍ରି କରନ୍ତୁ।`;
+      script = `${localizedMarket} ରେ ${localizedCrop} ର ଆଜିର ମଣ୍ଡି ଦର ${unitWord} ₹${currentPrice} ଅଛି, ଯାହା ସରକାରୀ ଏମଏସପି ₹${mspPrice} ଠାରୁ ₹${diff} କମ୍। କ୍ଷତିରେ ବିକ୍ରି କରନ୍ତୁ ନାହିଁ। ପ୍ରଥମ ପଦକ୍ଷେପ: ଗୋଦାମରେ ମାଲ ରଖି ୭୦% ଋଣ ସୁବିଧା ନିଅନ୍ତୁ। ଦ୍ୱିତୀୟ ପଦକ୍ଷେପ: ପିଏମ୍-ଆଶା ଯୋଜନାରେ ପଞ୍ଜୀକରଣ କରନ୍ତୁ। ତୃତୀୟ ପଦକ୍ଷେପ: ଇ-ନାମ୍ ରେ ଉତ୍ତମ ଦର ପାଇଁ ବିକ୍ରି କରନ୍ତୁ।`;
     } else if (lang === 'as') {
-      script = `${localizedMarket}ত ${localizedCrop}ৰ আজিৰ বজাৰ দৰ প্ৰতি কুইন্টলত ₹${currentPrice}, যি চৰকাৰী সমৰ্থন মূল্য ₹${mspPrice}তকৈ ₹${diff} কম। ক্ষতি স্বীকাৰ কৰি এতিয়াই বিক্ৰী নকৰিব। প্ৰথম: গুদামত শস্য জমা ৰাখি কম সুতত ৭০% ঋণ লওক। দ্বিতীয়: পিএম-আশা আঁচনিত নামভৰ্তি কৰক। তৃতীয়: ই-নাম অনলাইন নিলাম ব্যৱস্থা ব্যৱহাৰ কৰক।`;
+      script = `${localizedMarket}ত ${localizedCrop}ৰ আজিৰ বজাৰ দৰ ${unitWord} ₹${currentPrice}, যি চৰকাৰী সমৰ্থন মূল্য ₹${mspPrice}তকৈ ₹${diff} কম। ক্ষতি স্বীকাৰ কৰি এতিয়াই বিক্ৰী নকৰিব। প্ৰথম: গুদামত শস্য জমা ৰাখি কম সুতত ৭০% ঋণ লওক। দ্বিতীয়: পিএম-আশা আঁচনিত নামভৰ্তি কৰক। তৃতীয়: ই-নাম অনলাইন নিলাম ব্যৱস্থা ব্যৱহাৰ কৰক।`;
     } else if (lang === 'kn') {
-      script = `${localizedMarket} ಮಾರುಕಟ್ಟೆಯಲ್ಲಿ ${localizedCrop} ಇಂದಿನ ದರ ಪ್ರತಿ ಕ್ವಿಂಟಾಲ್‌ಗೆ ₹${currentPrice} ಆಗಿದ್ದು, ಸರ್ಕಾರಿ ಬೆಂಬಲ ಬೆಲೆ ₹${mspPrice} ಗಿಂತ ₹${diff} ಕಡಿಮೆಯಾಗಿದೆ. ಆತುರದಲ್ಲಿ ನಷ್ಟಕ್ಕೆ ಮಾರಾಟ ಮಾಡಬೇಡಿ. ಮೊದಲನೆಯದಾಗಿ: ಗೋದಾಮಿನಲ್ಲಿ ಸಂಗ್ರಹಿಸಿ ೭% ಬಡ್ಡಿಗೆ ೭೦% ರಸೀದಿ ಸಾಲ ಪಡೆಯಿರಿ. ಎರಡನೆಯದಾಗಿ: ಪಿಎಂ-ಆಶಾ ಯೋಜನೆಯಲ್ಲಿ ನೋಂದಾಯಿಸಿ. ಮೂರನೆಯದಾಗಿ: ಉತ್ತಮ ಬೆಲೆಗಾಗಿ ಇ-ನ್ಯಾಮ್ ಎಲೆಕ್ಟ್ರಾನಿಕ್ ಹರಾಜಿನಲ್ಲಿ ಮಾರಾಟ ಮಾಡಿ.`;
+      script = `${localizedMarket} ಮಾರುಕಟ್ಟೆಯಲ್ಲಿ ${localizedCrop} ಇಂದಿನ ದರ ${unitWord} ₹${currentPrice} ಆಗಿದ್ದು, ಸರ್ಕಾರಿ ಬೆಂಬಲ ಬೆಲೆ ₹${mspPrice} ಗಿಂತ ₹${diff} ಕಡಿಮೆಯಾಗಿದೆ. ಆತುರದಲ್ಲಿ ನಷ್ಟಕ್ಕೆ ಮಾರಾಟ ಮಾಡಬೇಡಿ. ಮೊದಲನೆಯದಾಗಿ: ಗೋದಾಮಿನಲ್ಲಿ ಸಂಗ್ರಹಿಸಿ ೭% ಬಡ್ಡಿಗೆ ೭೦% ರಸೀದಿ ಸಾಲ ಪಡೆಯಿರಿ. ಎರಡನೆಯದಾಗಿ: ಪಿಎಂ-ಆಶಾ ಯೋಜನೆಯಲ್ಲಿ ನೋಂದಾಯಿಸಿ. ಮೂರನೆಯದಾಗಿ: ಉತ್ತಮ ಬೆಲೆಗಾಗಿ ಇ-ನ್ಯಾಮ್ ಎಲೆಕ್ಟ್ರಾನಿಕ್ ಹರಾಜಿನಲ್ಲಿ ಮಾರಾಟ ಮಾಡಿ.`;
     } else {
-      script = `Today's Mandi price for ${localizedCrop} at ${localizedMarket} is ₹${currentPrice} per quintal, which is ₹${diff} below the Government MSP of ₹${mspPrice}. Avoid distress sale. Step 1: Store in a WDRA warehouse and avail a 70% pledge loan at 7% interest. Step 2: Register for PM-AASHA price deficit support at the procurement center. Step 3: Utilize e-NAM electronic auction for better market discovery.`;
+      script = `Today's Mandi price for ${localizedCrop} at ${localizedMarket} is ₹${currentPrice} ${unitWord}, which is ₹${diff} below the Government MSP of ₹${mspPrice}. Avoid distress sale. Step 1: Store in a WDRA warehouse and avail a 70% pledge loan at 7% interest. Step 2: Register for PM-AASHA price deficit support at the procurement center. Step 3: Utilize e-NAM electronic auction for better market discovery.`;
     }
   } else {
     if (lang === 'hi') {
-      script = `${localizedMarket} में ${localizedCrop} का आज का मंडी भाव ₹${currentPrice} प्रति क्विंटल है। यह सरकारी समर्थन मूल्य ₹${mspPrice} से ऊपर संतोषजनक एवं लाभदायक स्थिति में है।`;
+      script = `${localizedMarket} में ${localizedCrop} का आज का मंडी भाव ₹${currentPrice} ${unitWord} है। यह सरकारी समर्थन मूल्य ₹${mspPrice} से ऊपर संतोषजनक एवं लाभदायक स्थिति में है।`;
     } else if (lang === 'mr') {
-      script = `${localizedMarket} मध्ये ${localizedCrop} चा आजचा बाजार भाव ₹${currentPrice} प्रति क्विंटल असून शासकीय हमीभाव ₹${mspPrice} पेक्षा जास्त आणि फायदेशीर आहे.`;
+      script = `${localizedMarket} मध्ये ${localizedCrop} चा आजचा बाजार भाव ₹${currentPrice} ${unitWord} असून शासकीय हमीभाव ₹${mspPrice} पेक्षा जास्त आणि फायदेशीर आहे.`;
     } else if (lang === 'or') {
-      script = `${localizedMarket} ରେ ${localizedCrop} ର ଆଜିର ମଣ୍ଡି ଦର ₹${currentPrice} ଅଛି, ଯାହା ସରକାରୀ ଏମଏସପି ₹${mspPrice} ଠାରୁ ଅଧିକ ଏବଂ ଲାଭଜନକ ଅଟେ।`;
+      script = `${localizedMarket} ରେ ${localizedCrop} ର ଆଜିର ମଣ୍ଡି ଦର ${unitWord} ₹${currentPrice} ଅଛି, ଯାହା ସରକାରୀ ଏମଏସପି ₹${mspPrice} ଠାରୁ ଅଧିକ ଏବଂ ଲାଭଜନକ ଅଟେ।`;
     } else if (lang === 'as') {
-      script = `${localizedMarket}ত ${localizedCrop}ৰ আজিৰ বজাৰ দৰ ₹${currentPrice}, যি চৰকাৰী সমৰ্থন মূল্য ₹${mspPrice}তকৈ ওপৰত সন্তোষজনক আৰু লাভজনক।`;
+      script = `${localizedMarket}ত ${localizedCrop}ৰ আজিৰ বজাৰ দৰ ${unitWord} ₹${currentPrice}, ଯি চৰকাৰী সমৰ্থন মূল্য ₹${mspPrice}তকৈ ওপৰত সন্তোষজনক আৰু লাভজনক।`;
     } else if (lang === 'kn') {
-      script = `${localizedMarket} ಮಾರುಕಟ್ಟೆಯಲ್ಲಿ ${localizedCrop} ಇಂದಿನ ದರ ₹${currentPrice} ಆಗಿದ್ದು, ಸರ್ಕಾರಿ ಬೆಂಬಲ ಬೆಲೆ ₹${mspPrice} ಗಿಂತ ಉತ್ತಮವಾಗಿದೆ.`;
+      script = `${localizedMarket} ಮಾರುಕಟ್ಟೆಯಲ್ಲಿ ${localizedCrop} ಇಂದಿನ ದರ ${unitWord} ₹${currentPrice} ಆಗಿದ್ದು, ಸರ್ಕಾರಿ ಬೆಂಬಲ ಬೆಲೆ ₹${mspPrice} ಗಿಂತ ಉತ್ತಮವಾಗಿದೆ.`;
     } else {
-      script = `Today's Mandi price for ${localizedCrop} at ${localizedMarket} is ₹${currentPrice} per quintal, maintaining strong stability above Government MSP of ₹${mspPrice}.`;
+      script = `Today's Mandi price for ${localizedCrop} at ${localizedMarket} is ₹${currentPrice} ${unitWord}, maintaining strong stability above Government MSP of ₹${mspPrice}.`;
     }
   }
 

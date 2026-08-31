@@ -214,14 +214,17 @@
             </div>
             
             <div class="flex items-center space-x-1.5 shrink-0 ml-auto">
-              <!-- Font Size Selector Dropdown -->
-              <div class="flex items-center space-x-1 bg-slate-50 border border-slate-200 px-2 py-1 rounded-xl shadow-xs" title="Adjust Text Size">
-                <span class="text-[10px] font-black text-slate-600">🔤</span>
-                <select id="font-size-select" onchange="setFontSize(this.value)" class="bg-transparent text-slate-800 font-bold text-xs outline-none cursor-pointer">
-                  <option value="medium">Medium</option>
-                  <option value="large">Large</option>
-                  <option value="xlarge">Extra Large</option>
-                </select>
+              <!-- Font Scale Segmented Control (A⁻, A, A⁺) -->
+              <div class="font-scale-segmented-control" role="group" aria-label="Font Size Scale" title="Adjust Text Readability">
+                <button type="button" class="font-scale-pill-btn active" data-scale="standard" onclick="setFontScale('standard')" title="Standard Text">
+                  <span>A⁻</span>
+                </button>
+                <button type="button" class="font-scale-pill-btn" data-scale="large" onclick="setFontScale('large')" title="Large Text">
+                  <span>A</span>
+                </button>
+                <button type="button" class="font-scale-pill-btn" data-scale="xlarge" onclick="setFontScale('xlarge')" title="Extra Large Text">
+                  <span>A⁺</span>
+                </button>
               </div>
 
               <!-- Language Selector Dropdown -->
@@ -433,9 +436,16 @@
                       <span data-i18n="listenMandi">Listen Mandi 🔊</span>
                     </button>
                   </div>
-                  <div>
-                    <h2 class="text-base font-black text-slate-900" data-i18n="mandiMainTitle">Mandi Price vs MSP</h2>
-                    <div class="text-[10px] text-slate-500"><span id="mandi-name" class="font-bold text-slate-700">Lasalgaon APMC</span> • <span id="mandi-updated-date">Updated: 25 Aug 2026</span></div>
+                  <div class="flex items-center justify-between mt-0.5 gap-2">
+                    <div>
+                      <h2 class="text-base font-black text-slate-900" data-i18n="mandiMainTitle">Mandi Price vs MSP</h2>
+                      <div class="text-[10px] text-slate-500"><span id="mandi-name" class="font-bold text-slate-700">Lasalgaon APMC</span> • <span id="mandi-updated-date">Updated: 25 Aug 2026</span></div>
+                    </div>
+                    <!-- Unit Conversion Toggle Switch (Task 2) -->
+                    <div class="mandi-unit-toggle shrink-0" role="group" aria-label="Price Display Unit">
+                      <button type="button" id="mandi-unit-kg" class="mandi-unit-btn active" onclick="setMandiPriceUnit('kg')" title="Display in ₹ per kg">₹ / kg</button>
+                      <button type="button" id="mandi-unit-qtl" class="mandi-unit-btn" onclick="setMandiPriceUnit('qtl')" title="Display in ₹ per quintal">₹ / Quintal</button>
+                    </div>
                   </div>
                 </div>
 
@@ -572,6 +582,26 @@
     <!-- ========================================================================= -->
     <div id="view-officer" class="hidden space-y-6">
       
+      <!-- Active Officer Identity & Session Status Banner (Task 4) -->
+      <div class="bg-slate-900 text-white px-5 py-3.5 rounded-2xl shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border border-slate-800">
+        <div class="flex items-center space-x-3">
+          <span class="text-2xl">👨‍💼</span>
+          <div>
+            <div class="text-sm font-extrabold text-white flex items-center gap-2 flex-wrap">
+              <span id="officer-display-name">Officer: Shri Manas Ranjan Jena</span>
+              <span id="officer-display-id" class="px-2 py-0.5 rounded-full text-[10px] font-black bg-sky-500/20 text-emerald-300 border border-sky-500/30">ID: OFI-01</span>
+            </div>
+            <div id="officer-display-role" class="text-xs text-slate-400">District Agricultural Officer (DAO) • Sundargarh, Odisha</div>
+          </div>
+        </div>
+        <div class="flex items-center space-x-2 shrink-0">
+          <button type="button" onclick="OfficerOnboarding.openModal(true)" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 active:scale-95 text-slate-200 hover:text-white text-xs font-bold border border-slate-700 transition flex items-center space-x-1.5 cursor-pointer shadow-xs">
+            <span>🔄</span>
+            <span>Switch / Edit Officer Profile</span>
+          </button>
+        </div>
+      </div>
+
       <!-- Officer Header & Spoken Briefing Banner -->
       <div class="bg-white p-5 sm:p-6 rounded-3xl border border-slate-200 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
@@ -1205,10 +1235,14 @@
     </div>
   </footer>
 
+  <!-- Officer Onboarding & Login Modal Overlay (Task 4) -->
+  <div id="officer-onboarding-modal-overlay" class="hidden" role="dialog" aria-modal="true"></div>
+
   <!-- TTS Status Toast -->
   <div id="tts-toast" class="tts-toast" role="status" aria-live="polite"></div>
 
-  <script src="/static/onboarding.js?v=appbetter_8"></script>
-  <script src="/static/app.js?v=appbetter_8"></script>
+  <script src="/static/onboarding.js?v=appbetter2_1"></script>
+  <script src="/static/officer_onboarding.js?v=appbetter2_1"></script>
+  <script src="/static/app.js?v=appbetter2_1"></script>
 </body>
 </html>
