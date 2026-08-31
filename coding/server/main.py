@@ -2282,6 +2282,7 @@ def evaluate_simulation(payload: SimulationPayload):
             if payload.rainfall_deviation_pct is not None:
                 w_rec["rainfall_deviation_pct"] = float(payload.rainfall_deviation_pct)
             if payload.dry_spell_days is not None:
+                w_rec["dry_spell_days"] = int(payload.dry_spell_days)
                 w_rec["consecutive_dry_days"] = int(payload.dry_spell_days)
             if payload.onset_delay_days is not None:
                 w_rec["onset_delay_days"] = int(payload.onset_delay_days)
@@ -2292,27 +2293,36 @@ def evaluate_simulation(payload: SimulationPayload):
         if m_idx is not None:
             m_rec = dict(data["mandi_prices"][m_idx])
             if payload.current_mandi_price is not None:
+                m_rec["price_per_quintal"] = float(payload.current_mandi_price)
                 m_rec["modal_price_per_quintal"] = float(payload.current_mandi_price)
             if payload.govt_msp is not None:
+                m_rec["govt_msp_per_quintal"] = float(payload.govt_msp)
                 m_rec["msp_per_quintal"] = float(payload.govt_msp)
             data["mandi_prices"][m_idx] = m_rec
         elif payload.current_mandi_price is not None:
             data["mandi_prices"].append({
                 "district_id": district_id,
                 "crop": crop,
+                "price_per_quintal": float(payload.current_mandi_price),
                 "modal_price_per_quintal": float(payload.current_mandi_price),
+                "govt_msp_per_quintal": float(payload.govt_msp or 0),
                 "msp_per_quintal": float(payload.govt_msp or 0),
                 "trend": "falling"
             })
 
     advisory_res = get_advisory(f_id, data)
     distress_res = calculate_distress_score(f_id, DEFAULT_WEIGHTS, data)
+    if "breakdown" not in distress_res:
+        distress_res["breakdown"] = distress_res.get("raw_dimensions", {})
 
     # Decision trace
     mandi = next((m for m in data["mandi_prices"] if m["crop"].lower() == crop and m["district_id"] == district_id), {})
     rain = next((r for r in data["daily_rainfall"] if r["district_id"] == district_id), {})
-    cur_price = mandi.get("modal_price_per_quintal", 0)
-    msp_val = mandi.get("msp_per_quintal", 0)
+    cur_price = mandi.get("price_per_quintal", mandi.get("modal_price_per_quintal", 0))
+    msp_val = mandi.get("govt_msp_per_quintal", mandi.get("msp_per_quintal", 0))
+    dry_spell_val = rain.get("dry_spell_days", rain.get("consecutive_dry_days", 0))
+
+    fired_rule = advisory_res.get("rule_id", "R-20")
 
     decision_trace = [
         {
@@ -2320,28 +2330,28 @@ def evaluate_simulation(payload: SimulationPayload):
             "rule": "R-30 (Market Intervention / MSP Override)",
             "condition": "crop_stage == 'harvest' and mandi_price < govt_msp",
             "evaluated": f"Stage: '{crop_stage}', Price: ₹{cur_price}, MSP: ₹{msp_val}",
-            "triggered": (crop_stage == "harvest" and cur_price > 0 and msp_val > 0 and cur_price < msp_val)
+            "triggered": (fired_rule == "R-30")
         },
         {
             "priority": 2,
             "rule": "R-10 (Contingency Crop Switch)",
-            "condition": "onset_delay > 14 or (dry_spell >= 12 and crop_stage == 'sowing')",
-            "evaluated": f"Onset Delay: {rain.get('onset_delay_days', 0)}d, Dry Spell: {rain.get('consecutive_dry_days', 0)}d, Stage: '{crop_stage}'",
-            "triggered": (rain.get("onset_delay_days", 0) > 14 or (rain.get("consecutive_dry_days", 0) >= 12 and crop_stage == "sowing"))
+            "condition": "onset_delay > 15 or (dry_spell >= 12 and crop_stage == 'sowing')",
+            "evaluated": f"Onset Delay: {rain.get('onset_delay_days', 0)}d, Dry Spell: {dry_spell_val}d, Stage: '{crop_stage}'",
+            "triggered": (fired_rule == "R-10")
         },
         {
             "priority": 3,
-            "rule": "R-15 (Protective Life-Saving Irrigation)",
-            "condition": "irrigation_type == 'protective_well' and (borewell_failed or dry_spell >= 10)",
-            "evaluated": f"Irrigation: '{sim_farmer['irrigation_type']}', Borewell Failed: {sim_farmer['borewell_failed']}, Dry Spell: {rain.get('consecutive_dry_days', 0)}d",
-            "triggered": (sim_farmer["irrigation_type"] == "protective_well" and (sim_farmer["borewell_failed"] or rain.get("consecutive_dry_days", 0) >= 10))
+            "rule": "R-15 / R-11 / R-12 (Protective Moisture & Irrigation)",
+            "condition": "irrigation_type == 'protective_well' (borewell_failed) or dry_spell >= 7d",
+            "evaluated": f"Irrigation: '{sim_farmer['irrigation_type']}', Borewell Failed: {sim_farmer['borewell_failed']}, Dry Spell: {dry_spell_val}d",
+            "triggered": (fired_rule in ["R-15", "R-11", "R-12", "R-OD-01"])
         },
         {
             "priority": 4,
             "rule": "R-20 (Standard ICAR-CRIDA Agronomy Guidance)",
             "condition": "Fired when no high-priority distress overrides trigger",
-            "evaluated": "Default agronomy guideline based on crop growth stage",
-            "triggered": (advisory_res.get("rule_id") == "R-20")
+            "evaluated": f"Rule: {fired_rule} (Crop Growth & Soil Care Guidance)",
+            "triggered": (fired_rule == "R-20" or fired_rule.startswith("R-OD-02"))
         }
     ]
 

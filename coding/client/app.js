@@ -4626,8 +4626,8 @@ function renderSandboxResults(data) {
   }
 
   const fdiFormulaEl = document.getElementById('sb-fdi-formula');
-  if (fdiFormulaEl && dist.breakdown) {
-    const b = dist.breakdown;
+  const b = dist.breakdown || dist.raw_dimensions || dist.sub_components;
+  if (fdiFormulaEl && b) {
     fdiFormulaEl.innerHTML = `
       <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2 text-center text-xs">
         <div class="bg-white p-2 rounded-xl border border-slate-200">
@@ -4703,9 +4703,25 @@ function loadSandboxPreset(presetKey) {
     document.getElementById('sb-pmfby').checked = false;
     document.getElementById('sb-kcc').checked = false;
     document.getElementById('sb-informal-debt').checked = true;
-    document.getElementById('sb-cur-price').value = '4600';
-    document.getElementById('sb-msp-price').value = '4600';
+    document.getElementById('sb-cur-price').value = '4892';
+    document.getElementById('sb-msp-price').value = '4892';
     document.getElementById('sb-rain-dev').value = '0';
+    document.getElementById('sb-dry-days').value = '0';
+    document.getElementById('sb-onset-delay').value = '0';
+  } else if (presetKey === 'healthy_season') {
+    document.getElementById('sb-farmer-name').value = 'Dnyaneshwar Munde';
+    document.getElementById('sb-district').value = 'D1';
+    document.getElementById('sb-crop').value = 'wheat';
+    document.getElementById('sb-stage').value = 'vegetative';
+    document.getElementById('sb-land').value = '2.5';
+    document.getElementById('sb-irrigation').value = 'canal';
+    document.getElementById('sb-borewell-failed').checked = false;
+    document.getElementById('sb-pmfby').checked = true;
+    document.getElementById('sb-kcc').checked = true;
+    document.getElementById('sb-informal-debt').checked = false;
+    document.getElementById('sb-cur-price').value = '2400';
+    document.getElementById('sb-msp-price').value = '2275';
+    document.getElementById('sb-rain-dev').value = '5';
     document.getElementById('sb-dry-days').value = '0';
     document.getElementById('sb-onset-delay').value = '0';
   }
