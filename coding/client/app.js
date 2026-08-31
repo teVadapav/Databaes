@@ -1493,15 +1493,11 @@ function switchMainView(viewName) {
   });
 
   if (viewName === 'officer') {
-    if (window.OfficerOnboarding && typeof window.OfficerOnboarding.hasActiveSession === 'function') {
-      if (!window.OfficerOnboarding.hasActiveSession()) {
-        window.OfficerOnboarding.openModal(false);
-      }
-    }
     fetchOfficerData();
   } else if (viewName === 'sandbox') {
     runSandboxEvaluation();
   }
+}
 
 function setFarmerAccessMode(mode) {
   state.farmerAccessMode = mode;
@@ -2306,7 +2302,7 @@ async function renderFarmerMandiPrice() {
   };
   const floorLabelMap = {
     kg: { en: '/ kg (Floor Benchmark)', hi: 'प्रति किलो (न्यूनतम आधार)', mr: 'प्रति किलो (हमीभाव आधार)', or: 'ପ୍ରତି କିଲୋ (ନିଶ୍ଚିତ ସହାୟତା)', as: 'প্ৰତି কেজি (নিৰাপদ সমৰ্থନ)', kn: 'ಪ್ರತಿ ಕೆಜಿ (ಖಾತರಿ ಮಾನದಂಡ)' },
-    qtl: { en: '/ Quintal (Floor)', hi: 'प्रति क्विंटल (गारंटीड बेंचमार्क)', mr: 'प्रति क्विंटल (हमीभाव बेंचमार्क)', or: 'କ୍ୱିଣ୍ଟାଲ ପିଛା (ନିଶ୍ଚିତ ସହାୟତା)', as: 'প্ৰতি কুইন্টলত (নিৰাপଦ ସହାୟତା)', kn: 'ಪ್ರತಿ ಕ್ವಿಂಟಾಲ್‌ಗೆ (ಖಾತರಿ ಮಾನದಂಡ)' }
+    qtl: { en: '/ Quintal (Floor)', hi: 'प्रति क्विंटल (गारंटीड बेंचमार्क)', mr: 'प्रति क्विंटल (हमीभाव बेंचमार्क)', or: 'କ୍ୱିଣ୍ଟାଲ ପିଛା (ନିଶ୍ଚିତ ସହାୟତା)', as: 'প্ৰতি কুইন্টলত (নিৰাপದ ସହାୟତା)', kn: 'ಪ್ರತಿ ಕ್ವಿಂಟಾಲ್‌ಗೆ (ಖಾತರಿ ಮಾನದಂಡ)' }
   };
 
   const currentPriceEl = document.getElementById('mandi-current-price');
@@ -2410,7 +2406,7 @@ async function playMandiAudio() {
     } else if (lang === 'or') {
       script = `${localizedMarket} ରେ ${localizedCrop} ର ଆଜିର ମଣ୍ଡି ଦର ${unitWord} ₹${currentPrice} ଅଛି, ଯାହା ସରକାରୀ ଏମଏସପି ₹${mspPrice} ଠାରୁ ₹${diff} କମ୍। କ୍ଷତିରେ ବିକ୍ରି କରନ୍ତୁ ନାହିଁ। ପ୍ରଥମ ପଦକ୍ଷେପ: ଗୋଦାମରେ ମାଲ ରଖି ୭୦% ଋଣ ସୁବିଧା ନିଅନ୍ତୁ। ଦ୍ୱିତୀୟ ପଦକ୍ଷେପ: ପିଏମ୍-ଆଶା ଯୋଜନାରେ ପଞ୍ଜୀକରଣ କରନ୍ତୁ। ତୃତୀୟ ପଦକ୍ଷେପ: ଇ-ନାମ୍ ରେ ଉତ୍ତମ ଦର ପାଇଁ ବିକ୍ରି କରନ୍ତୁ।`;
     } else if (lang === 'as') {
-      script = `${localizedMarket}ত ${localizedCrop}ৰ আজিৰ বজাৰ দৰ ${unitWord} ₹${currentPrice}, যি চৰকাৰী সমৰ্থন মূল্য ₹${mspPrice}তকৈ ₹${diff} কম। ক্ষতি স্বীকাৰ কৰি এতিয়াই বিক্ৰী নকৰিব। প্ৰথম: গুদামত শস্য জমা ৰাখি কম সুতত ৭০% ঋণ লওক। দ্বিতীয়: পিএম-আশা আঁচনিত নামভৰ্তি কৰক। তৃতীয়: ই-নাম অনলাইন নিলাম ব্যৱস্থা ব্যৱহাৰ কৰক।`;
+      script = `${localizedMarket}ত ${localizedCrop}ৰ আজিৰ বজাৰ দৰ ${unitWord} ₹${currentPrice}, ଯি চৰকাৰী সমৰ্থন मूल्य ₹${mspPrice}তকৈ ₹${diff} কম। ক্ষতি স্বীকাৰ কৰি এতিয়াই বিক্ৰী নকৰিব। প্ৰথম: গুদামত শস্য জমা ৰাখি কম সুতত ৭০% ঋণ লওক। দ্বিতীয়: পিএম-আশা আঁচনিত নামভৰ্তি কৰক। তৃতীয়: ই-নাম অনলাইন নিলাম ব্যৱস্থা ব্যৱহাৰ কৰক।`;
     } else if (lang === 'kn') {
       script = `${localizedMarket} ಮಾರುಕಟ್ಟೆಯಲ್ಲಿ ${localizedCrop} ಇಂದಿನ ದರ ${unitWord} ₹${currentPrice} ಆಗಿದ್ದು, ಸರ್ಕಾರಿ ಬೆಂಬಲ ಬೆಲೆ ₹${mspPrice} ಗಿಂತ ₹${diff} ಕಡಿಮೆಯಾಗಿದೆ. ಆತುರದಲ್ಲಿ ನಷ್ಟಕ್ಕೆ ಮಾರಾಟ ಮಾಡಬೇಡಿ. ಮೊದಲನೆಯದಾಗಿ: ಗೋದಾಮಿನಲ್ಲಿ ಸಂಗ್ರಹಿಸಿ ೭% ಬಡ್ಡಿಗೆ ೭೦% ರಸೀದಿ ಸಾಲ ಪಡೆಯಿರಿ. ಎರಡನೆಯದಾಗಿ: ಪಿಎಂ-ಆಶಾ ಯೋಜನೆಯಲ್ಲಿ ನೋಂದಾಯಿಸಿ. ಮೂರನೆಯದಾಗಿ: ಉತ್ತಮ ಬೆಲೆಗಾಗಿ ಇ-ನ್ಯಾಮ್ ಎಲೆಕ್ಟ್ರಾನಿಕ್ ಹರಾಜಿನಲ್ಲಿ ಮಾರಾಟ ಮಾಡಿ.`;
     } else {
@@ -2424,7 +2420,7 @@ async function playMandiAudio() {
     } else if (lang === 'or') {
       script = `${localizedMarket} ରେ ${localizedCrop} ର ଆଜିର ମଣ୍ଡି ଦର ${unitWord} ₹${currentPrice} ଅଛି, ଯାହା ସରକାରୀ ଏମଏସପି ₹${mspPrice} ଠାରୁ ଅଧିକ ଏବଂ ଲାଭଜନକ ଅଟେ।`;
     } else if (lang === 'as') {
-      script = `${localizedMarket}ত ${localizedCrop}ৰ আজিৰ বজাৰ দৰ ${unitWord} ₹${currentPrice}, ଯি চৰকাৰী সমৰ্থন মূল্য ₹${mspPrice}তকৈ ওপৰত সন্তোষজনক আৰু লাভজনক।`;
+      script = `${localizedMarket}ত ${localizedCrop}ৰ আজিৰ বজাৰ দৰ ${unitWord} ₹${currentPrice}, ଯি চৰকাৰী সমৰ্থন मूल्य ₹${mspPrice}তকৈ ওপৰত সন্তোষজনক আৰু লাভজনক।`;
     } else if (lang === 'kn') {
       script = `${localizedMarket} ಮಾರುಕಟ್ಟೆಯಲ್ಲಿ ${localizedCrop} ಇಂದಿನ ದರ ${unitWord} ₹${currentPrice} ಆಗಿದ್ದು, ಸರ್ಕಾರಿ ಬೆಂಬಲ ಬೆಲೆ ₹${mspPrice} ಗಿಂತ ಉತ್ತಮವಾಗಿದೆ.`;
     } else {

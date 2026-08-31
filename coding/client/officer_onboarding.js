@@ -72,10 +72,12 @@ const OfficerOnboardingState = {
 
 const OfficerOnboarding = {
   init() {
-    const session = this.getSession();
-    if (session) {
-      this.applyOfficerSession(session);
+    let session = this.getSession();
+    if (!session) {
+      session = MOCK_OFFICER_REGISTRY[0];
+      this.saveSession(session);
     }
+    this.applyOfficerSession(session);
   },
 
   getSession() {
