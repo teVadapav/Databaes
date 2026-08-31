@@ -719,27 +719,25 @@ const Onboarding = {
         
         <!-- Header -->
         <div class="onboarding-header">
-          <div class="flex items-center justify-between gap-2">
-            <div class="flex items-center space-x-2 min-w-0">
-              <span class="text-2xl shrink-0">🌱</span>
-              <div class="min-w-0">
-                <h2 class="text-base sm:text-lg font-black tracking-tight leading-tight truncate">Smart Krishi</h2>
-              </div>
+          <div class="flex items-center justify-between gap-1.5">
+            <div class="flex items-center space-x-1.5 shrink-0">
+              <span class="text-xl shrink-0">🌱</span>
+              <h2 class="text-sm sm:text-base font-black tracking-tight leading-tight whitespace-nowrap">Smart Krishi</h2>
             </div>
-            <div class="flex items-center space-x-2 shrink-0">
+            <div class="flex items-center space-x-1.5 shrink-0">
               <!-- Font Size Selector -->
-              <div class="flex items-center space-x-1 bg-white/20 border border-white/30 px-2 py-1 rounded-xl text-white text-xs shadow-xs" title="Adjust Text Readability">
+              <div class="flex items-center space-x-1 bg-white/20 border border-white/30 px-1.5 py-0.5 rounded-lg text-white text-xs shadow-xs" title="Adjust Text Readability">
                 <span class="text-[10px]">🔤</span>
-                <select id="ob-font-size-select" onchange="Onboarding.setFontSize(this.value)" class="bg-transparent text-white font-bold text-xs outline-none cursor-pointer">
+                <select id="ob-font-size-select" onchange="Onboarding.setFontSize(this.value)" class="bg-transparent text-white font-bold text-[11px] outline-none cursor-pointer">
                   <option value="medium" class="text-slate-900" ${OnboardingState.fontSize === 'medium' ? 'selected' : ''}>Medium</option>
                   <option value="large" class="text-slate-900" ${OnboardingState.fontSize === 'large' ? 'selected' : ''}>Large</option>
                   <option value="xlarge" class="text-slate-900" ${OnboardingState.fontSize === 'xlarge' ? 'selected' : ''}>Extra Large</option>
                 </select>
               </div>
 
-              <span id="ob-step-badge" class="px-2.5 py-1 rounded-full text-[11px] font-extrabold bg-white/20 text-white backdrop-blur-sm border border-white/20 whitespace-nowrap">Step 1 of 4</span>
+              <span id="ob-step-badge" class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-white/20 text-white backdrop-blur-sm border border-white/20 whitespace-nowrap">Step 1 of 4</span>
               ${isEdit || OnboardingState.isComplete() ? `
-                <button onclick="Onboarding.hideModal()" class="text-white/90 hover:text-white text-lg font-bold w-7 h-7 flex items-center justify-center rounded-lg hover:bg-white/20 transition">✕</button>
+                <button onclick="Onboarding.hideModal()" class="text-white/90 hover:text-white text-base font-bold w-6 h-6 flex items-center justify-center rounded-lg hover:bg-white/20 transition shrink-0" title="Close">✕</button>
               ` : ''}
             </div>
           </div>
@@ -783,11 +781,11 @@ const Onboarding = {
 
         <!-- SCREEN 2: Farmer Profile Form OR Login Mode -->
         <div id="ob-screen-2" class="onboarding-screen">
-          <div class="p-6 pb-2 text-center">
-            <h3 id="ob-title-2" class="text-xl font-extrabold text-slate-900">
+          <div class="px-5 pt-4 pb-2 text-center">
+            <h3 id="ob-title-2" class="text-xl font-extrabold text-slate-900 tracking-tight">
               ${OnboardingState.isLoginMode ? this.t('loginTitle', currentLang) : this.t('step2Title', currentLang)}
             </h3>
-            <p id="ob-sub-2" class="text-xs text-slate-500 mt-1">
+            <p id="ob-sub-2" class="text-xs text-slate-500 mt-1 font-medium">
               ${OnboardingState.isLoginMode ? this.t('loginSub', currentLang) : this.t('step2Sub', currentLang)}
             </p>
           </div>
@@ -795,7 +793,7 @@ const Onboarding = {
           <div class="onboarding-form-body">
             ${OnboardingState.isLoginMode ? `
               <!-- LOGIN FORM -->
-              <form id="ob-login-form" onsubmit="event.preventDefault(); Onboarding.handleLogin();">
+              <form id="ob-login-form" onsubmit="event.preventDefault(); Onboarding.handleLogin();" class="space-y-4">
                 <div class="form-group">
                   <label class="form-label">${this.t('mobileNumber', currentLang)} / Farmer ID</label>
                   <input type="text" id="ob-login-input" class="form-input" placeholder="e.g. 9823110293 or F1" required autofocus value="F1">
@@ -808,27 +806,27 @@ const Onboarding = {
               </form>
             ` : `
               <!-- REGISTRATION / PROFILE FORM -->
-              <form id="ob-farmer-form" onsubmit="event.preventDefault(); Onboarding.validateAndGoToStep3();">
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  
-                  <div class="form-group">
-                    <label class="form-label">${this.t('fullName', currentLang)} *</label>
-                    <input type="text" id="ob-farmer-name" class="form-input" placeholder="e.g. Ramesh Patil" value="${form.farmerName}" required>
-                    <div id="err-farmer-name" class="form-err-msg">Please enter your name</div>
-                  </div>
-
-                  <div class="form-group">
-                    <label class="form-label">${this.t('mobileNumber', currentLang)} *</label>
-                    <div class="flex items-center space-x-2">
-                      <span class="px-3 py-2.5 bg-slate-100 border-2 border-slate-300 rounded-xl text-sm font-bold text-slate-600">+91</span>
-                      <input type="tel" id="ob-farmer-phone" class="form-input" placeholder="9823110293" maxlength="10" value="${form.phone}" required>
-                    </div>
-                    <div id="err-farmer-phone" class="form-err-msg">Enter valid 10-digit mobile number</div>
-                  </div>
-
+              <form id="ob-farmer-form" onsubmit="event.preventDefault(); Onboarding.validateAndGoToStep3();" class="space-y-3.5">
+                
+                <!-- Farmer Full Name -->
+                <div class="form-group">
+                  <label class="form-label">${this.t('fullName', currentLang)} *</label>
+                  <input type="text" id="ob-farmer-name" class="form-input" placeholder="e.g. Ramesh Patil" value="${form.farmerName}" required>
+                  <div id="err-farmer-name" class="form-err-msg">Please enter your name</div>
                 </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <!-- Mobile Phone Number with Clean +91 Prefix -->
+                <div class="form-group">
+                  <label class="form-label">${this.t('mobileNumber', currentLang)} *</label>
+                  <div class="phone-input-wrapper">
+                    <span class="phone-prefix">+91</span>
+                    <input type="tel" id="ob-farmer-phone" class="form-input phone-input" placeholder="9823110293" maxlength="10" value="${form.phone}" required>
+                  </div>
+                  <div id="err-farmer-phone" class="form-err-msg">Enter valid 10-digit mobile number</div>
+                </div>
+
+                <!-- State & District in a Clean 2-Column Row -->
+                <div class="grid grid-cols-2 gap-3">
                   <div class="form-group">
                     <label class="form-label">${this.t('stateLabel', currentLang)}</label>
                     <select id="ob-farmer-state" class="form-select" onchange="Onboarding.onStateChange(this.value)">
@@ -850,35 +848,34 @@ const Onboarding = {
                   </div>
                 </div>
 
-                <!-- Land Area & Unit Switcher -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div class="form-group">
-                    <div class="flex items-center justify-between mb-1">
-                      <label class="form-label mb-0">${this.t('landAreaLabel', currentLang)} *</label>
-                      <div class="unit-toggle-group">
-                        <button type="button" id="unit-btn-ha" class="unit-toggle-btn ${form.landUnit === 'hectares' ? 'active' : ''}" onclick="Onboarding.setLandUnit('hectares')">Hectares</button>
-                        <button type="button" id="unit-btn-acres" class="unit-toggle-btn ${form.landUnit === 'acres' ? 'active' : ''}" onclick="Onboarding.setLandUnit('acres')">Acres</button>
-                      </div>
+                <!-- Total Land Area & Unit Toggle (Full Width with Ample Label Room) -->
+                <div class="form-group">
+                  <div class="flex items-center justify-between mb-1.5">
+                    <label class="form-label mb-0">${this.t('landAreaLabel', currentLang)} *</label>
+                    <div class="unit-toggle-group">
+                      <button type="button" id="unit-btn-ha" class="unit-toggle-btn ${form.landUnit === 'hectares' ? 'active' : ''}" onclick="Onboarding.setLandUnit('hectares')">Hectares</button>
+                      <button type="button" id="unit-btn-acres" class="unit-toggle-btn ${form.landUnit === 'acres' ? 'active' : ''}" onclick="Onboarding.setLandUnit('acres')">Acres</button>
                     </div>
-                    <input type="number" step="0.1" min="0.1" id="ob-land-area" class="form-input" value="${form.landArea}" required>
                   </div>
-
-                  <div class="form-group">
-                    <label class="form-label">${this.t('soilTypeLabel', currentLang)}</label>
-                    <select id="ob-soil-type" class="form-select">
-                      <option value="black" ${form.soilType === 'black' ? 'selected' : ''}>${currentLang === 'hi' ? 'काली कपास मिट्टी (रेगुर)' : currentLang === 'mr' ? 'काळी कसदार जमीन (रेगूर)' : currentLang === 'or' ? 'କଳା କପା ମାଟି' : currentLang === 'as' ? 'কলা কপাহী মাটি' : currentLang === 'kn' ? 'ಕಪ್ಪು ಹತ್ತಿ ಮಣ್ಣು' : 'Black Cotton Soil (Regur)'}</option>
-                      <option value="alluvial" ${form.soilType === 'alluvial' ? 'selected' : ''}>${currentLang === 'hi' ? 'जलोढ़ दोमट मिट्टी' : currentLang === 'mr' ? 'गाळाची सुपीक जमीन' : currentLang === 'or' ? 'ପଟୁ ମାଟି' : currentLang === 'as' ? 'পলি মাটি' : currentLang === 'kn' ? 'ಮೆಕ್ಕಲು ಮಣ್ಣು' : 'Alluvial Loam Soil'}</option>
-                      <option value="red" ${form.soilType === 'red' ? 'selected' : ''}>${currentLang === 'hi' ? 'लाल रेतीली मिट्टी' : currentLang === 'mr' ? 'तांबडी वालुकामय जमीन' : currentLang === 'or' ? 'ନାଲି ବାଲିଆ ମାଟି' : currentLang === 'as' ? 'ৰঙা বালিয়া মাটি' : currentLang === 'kn' ? 'ಕೆಂಪು ಮರಳು ಮಿಶ್ರಿತ ಮಣ್ಣು' : 'Red Sandy Loam Soil'}</option>
-                      <option value="laterite" ${form.soilType === 'laterite' ? 'selected' : ''}>${currentLang === 'hi' ? 'लैटेराइट चिकनी मिट्टी' : currentLang === 'mr' ? 'जांभी चिकणमाती' : currentLang === 'or' ? 'ଲେଟେରାଇଟ୍ ମାଟି' : currentLang === 'as' ? 'লেটেৰাইট মাটি' : currentLang === 'kn' ? 'ಲ್ಯಾಟರೈಟ್ ಜೇಡಿ ಮಣ್ಣು' : 'Laterite Clay Soil'}</option>
-                      <option value="sandy" ${form.soilType === 'sandy' ? 'selected' : ''}>${currentLang === 'hi' ? 'बलुई / मरुस्थलीय मिट्टी' : currentLang === 'mr' ? 'वाळवंटी / रेताड जमीन' : currentLang === 'or' ? 'ବାଲିଆ ମାଟି' : currentLang === 'as' ? 'বালিচহীয়া মাটি' : currentLang === 'kn' ? 'ಮರಳು ಭೂಮಿ' : 'Arid Desert / Sandy Soil'}</option>
-                      <option value="saline" ${form.soilType === 'saline' ? 'selected' : ''}>${currentLang === 'hi' ? 'लवणीय एवं क्षारीय मिट्टी' : currentLang === 'mr' ? 'खारवट व चोपण जमीन' : currentLang === 'or' ? 'ଲୁଣି ମାଟି' : currentLang === 'as' ? 'লৱণাক্ত মাটি' : currentLang === 'kn' ? 'ಉಪ್ಪು ಮಿಶ್ರಿತ ಮಣ್ಣು' : 'Saline & Alkaline Soil'}</option>
-                      <option value="peaty" ${form.soilType === 'peaty' ? 'selected' : ''}>${currentLang === 'hi' ? 'दलदली / जैविक मिट्टी' : currentLang === 'mr' ? 'दलदलीची सेंद्रिय जमीन' : currentLang === 'or' ? 'ଜୈବିକ ମାଟି' : currentLang === 'as' ? 'জৈৱিক মাটি' : currentLang === 'kn' ? 'ಜೌಗು ಸಾವಯವ ಮಣ್ಣು' : 'Peaty / Marshy Organic Soil'}</option>
-                      <option value="loamy" ${form.soilType === 'loamy' ? 'selected' : ''}>${currentLang === 'hi' ? 'उर्वर मध्यम दोमट मिट्टी' : currentLang === 'mr' ? 'सुपीक मध्यम पोयटा जमीन' : currentLang === 'or' ? 'ଉର୍ବର ଦୋରସା ମାଟି' : currentLang === 'as' ? 'উৰ্বৰ পলসুৱা মাটি' : currentLang === 'kn' ? 'ಫಲವತ್ತಾದ ಗೋಡು ಮಣ್ಣು' : 'Fertile Medium Loam Soil'}</option>
-                    </select>
-                  </div>
+                  <input type="number" step="0.1" min="0.1" id="ob-land-area" class="form-input" value="${form.landArea}" required>
                 </div>
 
-                <!-- Irrigation Details from Sundargarh -->
+                <!-- Soil Type (Full Width for Readable Soil Names) -->
+                <div class="form-group">
+                  <label class="form-label">${this.t('soilTypeLabel', currentLang)}</label>
+                  <select id="ob-soil-type" class="form-select">
+                    <option value="black" ${form.soilType === 'black' ? 'selected' : ''}>${currentLang === 'hi' ? 'काली कपास मिट्टी (रेगुर)' : currentLang === 'mr' ? 'काळी कसदार जमीन (रेगूर)' : currentLang === 'or' ? 'କଳା କପା ମାଟି' : currentLang === 'as' ? 'কলা কপাহী মাটি' : currentLang === 'kn' ? 'ಕಪ್ಪು ಹತ್ತಿ ಮಣ್ಣು' : 'Black Cotton Soil (Regur)'}</option>
+                    <option value="alluvial" ${form.soilType === 'alluvial' ? 'selected' : ''}>${currentLang === 'hi' ? 'जलोढ़ दोमट मिट्टी' : currentLang === 'mr' ? 'गाळाची सुपीक जमीन' : currentLang === 'or' ? 'ପଟୁ ମାଟି' : currentLang === 'as' ? 'পলি মাটি' : currentLang === 'kn' ? 'ಮೆಕ್ಕಲು ಮಣ್ಣು' : 'Alluvial Loam Soil'}</option>
+                    <option value="red" ${form.soilType === 'red' ? 'selected' : ''}>${currentLang === 'hi' ? 'लाल रेतीली मिट्टी' : currentLang === 'mr' ? 'तांबडी वालुकामय जमीन' : currentLang === 'or' ? 'ନାଲି ବାଲିଆ ମାଟି' : currentLang === 'as' ? 'ৰঙা বালিয়া মাটি' : currentLang === 'kn' ? 'ಕೆಂಪು ಮರಳು ಮಿಶ್ರಿತ ಮಣ್ಣು' : 'Red Sandy Loam Soil'}</option>
+                    <option value="laterite" ${form.soilType === 'laterite' ? 'selected' : ''}>${currentLang === 'hi' ? 'लैटेराइट चिकनी मिट्टी' : currentLang === 'mr' ? 'जांभी चिकणमाती' : currentLang === 'or' ? 'ଲେଟେରାଇଟ୍ ମାଟି' : currentLang === 'as' ? 'লেটেৰাইট মাটি' : currentLang === 'kn' ? 'ಲ್ಯಾಟರೈಟ್ ಜೇಡಿ ಮಣ್ಣು' : 'Laterite Clay Soil'}</option>
+                    <option value="sandy" ${form.soilType === 'sandy' ? 'selected' : ''}>${currentLang === 'hi' ? 'बलुई / मरुस्थलीय मिट्टी' : currentLang === 'mr' ? 'वाळवंटी / रेताड जमीन' : currentLang === 'or' ? 'ବାଲିଆ ମାଟି' : currentLang === 'as' ? 'বালিচহীয়া মাটি' : currentLang === 'kn' ? 'ಮರಳು ಭೂಮಿ' : 'Arid Desert / Sandy Soil'}</option>
+                    <option value="saline" ${form.soilType === 'saline' ? 'selected' : ''}>${currentLang === 'hi' ? 'लवणीय एवं क्षारीय मिट्टी' : currentLang === 'mr' ? 'खारवट व चोपण जमीन' : currentLang === 'or' ? 'ଲୁଣି ମାଟି' : currentLang === 'as' ? 'লৱণাক্ত মাটি' : currentLang === 'kn' ? 'ಉಪ್ಪು ಮಿಶ್ರಿತ ಮಣ್ಣು' : 'Saline & Alkaline Soil'}</option>
+                    <option value="peaty" ${form.soilType === 'peaty' ? 'selected' : ''}>${currentLang === 'hi' ? 'दलदली / जैविक मिट्टी' : currentLang === 'mr' ? 'दलदलीची सेंद्रिय जमीन' : currentLang === 'or' ? 'ଜୈବିକ ମାଟି' : currentLang === 'as' ? 'ଜୈৱিক মাটি' : currentLang === 'kn' ? 'ಜೌಗು ಸಾವಯವ ಮಣ್ಣು' : 'Peaty / Marshy Organic Soil'}</option>
+                    <option value="loamy" ${form.soilType === 'loamy' ? 'selected' : ''}>${currentLang === 'hi' ? 'उर्वर मध्यम दोमट मिट्टी' : currentLang === 'mr' ? 'सुपीक मध्यम पोयटा जमीन' : currentLang === 'or' ? 'ଉର୍ବର ଦୋରସା ମାଟି' : currentLang === 'as' ? 'উৰ্বৰ পলসুৱা মাটি' : currentLang === 'kn' ? 'ಫಲವತ್ತಾದ ಗೋಡು ಮಣ್ಣು' : 'Fertile Medium Loam Soil'}</option>
+                  </select>
+                </div>
+
+                <!-- Primary Irrigation Details & Borewell Failure Check -->
                 <div class="form-group">
                   <label class="form-label">${this.t('irrigationLabel', currentLang)}</label>
                   <select id="ob-farmer-irrigation" class="form-select">
@@ -886,42 +883,45 @@ const Onboarding = {
                     <option value="protective_well" ${form.irrigationType === 'protective_well' ? 'selected' : ''}>${this.t('irrWell', currentLang)}</option>
                     <option value="canal" ${form.irrigationType === 'canal' ? 'selected' : ''}>${this.t('irrCanal', currentLang)}</option>
                   </select>
-                  <label class="flex items-center space-x-2 text-xs font-semibold text-slate-700 cursor-pointer mt-2">
-                    <input type="checkbox" id="ob-borewell-failed" ${form.borewellFailed ? 'checked' : ''} class="w-4 h-4 text-[#3897f1] rounded">
-                    <span>${this.t('borewellFailedLabel', currentLang)}</span>
+                  <label class="checkbox-pill mt-2">
+                    <input type="checkbox" id="ob-borewell-failed" ${form.borewellFailed ? 'checked' : ''} class="custom-checkbox">
+                    <span class="text-xs font-semibold text-slate-700 select-none">${this.t('borewellFailedLabel', currentLang)}</span>
                   </label>
                 </div>
 
-                <!-- Financial Safety Nets & Loans from Sundargarh -->
-                <div class="p-3.5 bg-slate-50 border border-slate-200 rounded-2xl space-y-3 mb-4">
-                  <div class="text-xs font-bold text-slate-800 uppercase tracking-wider">${this.t('safetyNetsLabel', currentLang)}</div>
+                <!-- Financial Safety Nets & Loans (Clean Structured Card) -->
+                <div class="financial-card">
+                  <div class="financial-card-header">
+                    <span class="text-xs font-extrabold text-slate-800 uppercase tracking-wider">${this.t('safetyNetsLabel', currentLang)}</span>
+                  </div>
                   <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs font-semibold text-slate-700">
-                    <label class="flex items-center space-x-2 cursor-pointer">
-                      <input type="checkbox" id="ob-pmfby" ${form.hasPmfby ? 'checked' : ''} class="w-4 h-4 text-[#3897f1] rounded">
-                      <span>${this.t('pmfbyLabel', currentLang)}</span>
+                    <label class="checkbox-tile">
+                      <input type="checkbox" id="ob-pmfby" ${form.hasPmfby ? 'checked' : ''} class="custom-checkbox">
+                      <span class="select-none">${this.t('pmfbyLabel', currentLang)}</span>
                     </label>
-                    <label class="flex items-center space-x-2 cursor-pointer">
-                      <input type="checkbox" id="ob-kcc" ${form.hasKcc ? 'checked' : ''} class="w-4 h-4 text-[#3897f1] rounded">
-                      <span>${this.t('kccLabel', currentLang)}</span>
+                    <label class="checkbox-tile">
+                      <input type="checkbox" id="ob-kcc" ${form.hasKcc ? 'checked' : ''} class="custom-checkbox">
+                      <span class="select-none">${this.t('kccLabel', currentLang)}</span>
                     </label>
                   </div>
-                  <label class="flex items-center space-x-2 text-xs font-bold text-rose-700 cursor-pointer">
-                    <input type="checkbox" id="ob-informal-debt" ${form.informalDebt ? 'checked' : ''} class="w-4 h-4 text-rose-600 rounded">
-                    <span>${this.t('informalDebtLabel', currentLang)}</span>
+                  <label class="checkbox-tile danger">
+                    <input type="checkbox" id="ob-informal-debt" ${form.informalDebt ? 'checked' : ''} class="custom-checkbox danger">
+                    <span class="text-rose-700 font-bold select-none">${this.t('informalDebtLabel', currentLang)}</span>
                   </label>
 
-                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                  <div class="grid grid-cols-2 gap-2.5 pt-2 border-t border-slate-200/80">
                     <div>
-                      <label class="form-label text-xs">${this.t('loanDueDateLabel', currentLang)}</label>
-                      <input type="date" id="ob-loan-due-date" class="form-input text-xs" value="${form.loanDueDate || '2026-11-15'}">
+                      <label class="form-label text-[11px] mb-1 text-slate-600">${this.t('loanDueDateLabel', currentLang)}</label>
+                      <input type="date" id="ob-loan-due-date" class="form-input text-xs py-1.5 px-2" value="${form.loanDueDate || '2026-11-15'}">
                     </div>
                     <div>
-                      <label class="form-label text-xs">${this.t('loanAmountLabel', currentLang)}</label>
-                      <input type="number" id="ob-loan-amount" class="form-input text-xs" value="${form.loanAmount || 50000}">
+                      <label class="form-label text-[11px] mb-1 text-slate-600">${this.t('loanAmountLabel', currentLang)}</label>
+                      <input type="number" id="ob-loan-amount" class="form-input text-xs py-1.5 px-2" value="${form.loanAmount || 50000}">
                     </div>
                   </div>
                 </div>
 
+                <!-- Primary Device Type -->
                 <div class="form-group">
                   <label class="form-label">${this.t('deviceTypeLabel', currentLang)}</label>
                   <select id="ob-device-type" class="form-select">
@@ -930,9 +930,11 @@ const Onboarding = {
                   </select>
                 </div>
 
-                <div class="text-right">
-                  <button type="button" onclick="Onboarding.toggleLoginMode(true)" class="text-xs text-[#3897f1] font-bold hover:underline">
-                    ${this.t('switchToLogin', currentLang)}
+                <!-- Switch to Login / Register Link -->
+                <div class="text-center pt-1 pb-1">
+                  <button type="button" onclick="Onboarding.toggleLoginMode(true)" class="text-xs text-[#3897f1] font-bold hover:underline inline-flex items-center gap-1">
+                    <span>🔑</span>
+                    <span>${this.t('switchToLogin', currentLang)}</span>
                   </button>
                 </div>
               </form>

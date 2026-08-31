@@ -11,6 +11,10 @@
       darkMode: 'class',
       theme: {
         extend: {
+          fontFamily: {
+            sans: ['Georgia', 'serif'],
+            serif: ['Georgia', 'serif']
+          },
           colors: {
             brand: {
               50: '#f0fdf4',
@@ -35,8 +39,8 @@
       }
     }
   </script>
-  <link rel="stylesheet" href="/static/styles.css?v=3897f1_4">
-  <link rel="stylesheet" href="/static/onboarding.css?v=3897f1_4">
+  <link rel="stylesheet" href="/static/styles.css?v=appbetter_8">
+  <link rel="stylesheet" href="/static/onboarding.css?v=appbetter_8">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;600;700&family=Noto+Sans:wght@400;600;700&family=Noto+Sans+Oriya:wght@400;600;700&family=Noto+Sans+Bengali:wght@400;600;700&family=Noto+Sans+Kannada:wght@400;600;700&display=swap" rel="stylesheet">
@@ -49,9 +53,15 @@
       --primary-dark: #16539a;
       --accent-color: #3897f1;
     }
+    * {
+      font-family: 'Georgia', 'Noto Sans Oriya', 'Noto Sans Devanagari', 'Noto Sans Bengali', 'Noto Sans Kannada', serif;
+    }
     body {
-      font-family: 'Outfit', 'Noto Sans Devanagari', -apple-system, sans-serif;
+      font-family: 'Georgia', 'Noto Sans Oriya', 'Noto Sans Devanagari', 'Noto Sans Bengali', 'Noto Sans Kannada', serif;
       background-color: #f0f7ff;
+    }
+    header, header *, header button, header span, header p, header nav {
+      font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
     }
     .onboarding-header {
       background: linear-gradient(135deg, #16539a 0%, #2380de 50%, #3897f1 100%) !important;
@@ -107,20 +117,6 @@
     }
     .unit-toggle-btn.active {
       color: #16539a !important;
-    }
-  </style>
-
-  <style>
-    :root {
-      --primary-color: #3897f1;
-      --primary-hover: #2380de;
-      --primary-light: #ebf5fe;
-      --primary-dark: #16539a;
-      --accent-color: #3897f1;
-    }
-    body {
-      font-family: 'Outfit', 'Noto Sans Devanagari', -apple-system, sans-serif;
-      background-color: #f0f7ff;
     }
   </style>
 </head>
@@ -1212,7 +1208,7 @@
   <!-- TTS Status Toast -->
   <div id="tts-toast" class="tts-toast" role="status" aria-live="polite"></div>
 
-  <script src="/static/onboarding.js?v=appbetter_4"></script>
-  <script src="/static/app.js?v=appbetter_4"></script>
+  <script src="/static/onboarding.js?v=appbetter_8"></script>
+  <script src="/static/app.js?v=appbetter_8"></script>
 </body>
 </html>

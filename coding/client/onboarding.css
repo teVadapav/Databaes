@@ -56,7 +56,7 @@
 .onboarding-header {
   background: linear-gradient(135deg, #16539a 0%, #2380de 50%, #3897f1 100%);
   color: #ffffff;
-  padding: 0.85rem 1rem 0.75rem;
+  padding: 0.65rem 0.85rem 0.6rem;
   position: relative;
   flex-shrink: 0;
 }
@@ -243,31 +243,126 @@
   display: block;
 }
 
+/* Phone Number Input with Prefix */
+.phone-input-wrapper {
+  display: flex;
+  align-items: center;
+  position: relative;
+  width: 100%;
+}
+
+.phone-prefix {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.65rem 0.85rem;
+  background: #f1f5f9;
+  border: 1.5px solid #cbd5e1;
+  border-right: none;
+  border-radius: 0.75rem 0 0 0.75rem;
+  font-size: 0.88rem;
+  font-weight: 800;
+  color: #475569;
+  flex-shrink: 0;
+  user-select: none;
+}
+
+.phone-input {
+  border-top-left-radius: 0 !important;
+  border-bottom-left-radius: 0 !important;
+  flex: 1;
+}
+
+/* Custom Checkbox & Pill / Tile Styles */
+.custom-checkbox {
+  width: 1.15rem;
+  height: 1.15rem;
+  border-radius: 0.35rem;
+  accent-color: #3897f1;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.custom-checkbox.danger {
+  accent-color: #e11d48;
+}
+
+.checkbox-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  user-select: none;
+}
+
+.checkbox-tile {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 0.75rem;
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 0.65rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.checkbox-tile:hover {
+  border-color: #cbd5e1;
+  background: #f8fafc;
+}
+
+.checkbox-tile.danger {
+  border-color: #fecdd3;
+  background: #fff1f2;
+}
+
+/* Financial Safety Nets Card */
+.financial-card {
+  background: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 1rem;
+  padding: 0.85rem 1rem;
+  margin-bottom: 0.95rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.financial-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
 /* Unit Switcher Button Group (Acres vs Hectares) */
 .unit-toggle-group {
   display: inline-flex;
-  background: #e2e8f0;
-  padding: 0.2rem;
+  align-items: center;
+  background: #f1f5f9;
+  padding: 3px;
   border-radius: 0.65rem;
-  border: 1px solid #cbd5e1;
+  border: 1.5px solid #cbd5e1;
 }
 
 .unit-toggle-btn {
-  padding: 0.25rem 0.65rem;
+  padding: 0.35rem 0.65rem;
   border-radius: 0.5rem;
   font-size: 0.75rem;
   font-weight: 700;
-  color: #475569;
+  color: #64748b;
   background: transparent;
   border: none;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.15s ease;
+  white-space: nowrap;
 }
 
 .unit-toggle-btn.active {
   background: #ffffff;
-  color: #16539a;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+  color: #0284c7;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  font-weight: 800;
 }
 
 /* Primary Crops Multi-Select Chips */
@@ -369,12 +464,12 @@
 
 /* Screen Transitions */
 .onboarding-screen {
-  display: none;
+  display: none !important;
 }
 
 .onboarding-screen.active {
-  display: block;
-  animation: fadeInStep 0.25s ease-in-out forwards;
+  display: block !important;
+  animation: fadeInStep 0.2s ease-in-out forwards;
 }
 
 @keyframes fadeInStep {

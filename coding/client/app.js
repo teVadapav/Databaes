@@ -1356,7 +1356,7 @@ function setFontSize(size) {
   }
 }
 
-document.addEventListener('DOMContentLoaded', async () => {
+async function initApp() {
   detectDevice();
   initFontSize();
   initLanguageSelector();
@@ -1366,7 +1366,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     loadFarmersList(),
     fetchOfficerData()
   ]);
-});
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initApp);
+} else {
+  initApp();
+}
 
 function initLanguageSelector() {
   const select = document.getElementById('lang-select');
@@ -3230,9 +3236,9 @@ function updateSchemeCategoryCounts() {
     if (badge) {
       badge.textContent = count;
       if (cat === activeCat) {
-        badge.className = "px-1.5 py-0.5 rounded-full text-[10px] font-black bg-white/25 text-white ml-1";
+        badge.className = "px-1.5 py-0.2 rounded-full text-[9px] font-black bg-white/20 ml-0.5";
       } else {
-        badge.className = "px-1.5 py-0.5 rounded-full text-[10px] font-black bg-slate-200 text-slate-700 ml-1";
+        badge.className = "px-1.5 py-0.2 rounded-full text-[9px] font-black bg-slate-200 text-slate-700 ml-0.5";
       }
     }
   });
@@ -3246,10 +3252,10 @@ function switchSchemeCategory(category) {
     const btn = document.getElementById(`scheme-cat-${c}`);
     if (btn) {
       if (c === state.activeSchemeCategory) {
-        btn.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-extrabold flex items-center space-x-1.5 transition-all bg-sky-600 text-white shadow-sm border border-emerald-700 cursor-pointer";
+        btn.className = "px-2.5 py-1 rounded-lg text-xs font-extrabold flex items-center space-x-1 transition bg-[#3897f1] text-white shadow-2xs cursor-pointer shrink-0 whitespace-nowrap";
         btn.setAttribute('aria-selected', 'true');
       } else {
-        btn.className = "px-4 py-2 rounded-xl text-xs sm:text-sm font-extrabold flex items-center space-x-1.5 transition-all bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200 cursor-pointer";
+        btn.className = "px-2.5 py-1 rounded-lg text-xs font-extrabold flex items-center space-x-1 transition bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200 cursor-pointer shrink-0 whitespace-nowrap";
         btn.setAttribute('aria-selected', 'false');
       }
     }

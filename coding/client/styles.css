@@ -1,12 +1,21 @@
-@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+Bengali:wght@400;600;700;800&family=Noto+Serif+Devanagari:wght@400;600;700;800&family=Noto+Serif+Kannada:wght@400;600;700;800&family=Noto+Serif+Oriya:wght@400;600;700;800&family=Noto+Sans+Bengali:wght@400;600;700;800&family=Noto+Sans+Devanagari:wght@400;600;700;800&family=Noto+Sans+Kannada:wght@400;600;700;800&family=Noto+Sans+Oriya:wght@400;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Noto+Sans+Bengali:wght@400;600;700;800&family=Noto+Sans+Devanagari:wght@400;600;700;800&family=Noto+Sans+Kannada:wght@400;600;700;800&family=Noto+Sans+Oriya:wght@400;600;700;800&display=swap');
 
 :root {
-  --font-primary: 'Georgia', 'Noto Serif', 'Noto Serif Oriya', 'Noto Serif Devanagari', 'Noto Serif Bengali', 'Noto Serif Kannada', 'Noto Sans Oriya', 'Noto Sans Devanagari', 'Noto Sans Bengali', 'Noto Sans Kannada', serif;
+  --font-primary: 'Georgia', 'Noto Sans Oriya', 'Noto Sans Devanagari', 'Noto Sans Bengali', 'Noto Sans Kannada', serif;
+}
+
+* {
+  font-family: var(--font-primary, 'Georgia', serif);
 }
 
 body {
-  font-family: var(--font-primary);
+  font-family: var(--font-primary, 'Georgia', serif);
   -webkit-tap-highlight-color: transparent;
+}
+
+/* Top Global Navigation Bar - Revert strictly to original Outfit font */
+header, header *, header button, header span, header p, header nav {
+  font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
 }
 
 /* Custom Styles for PS-02 Smart Krishi Application */
@@ -110,16 +119,16 @@ button, select, input {
 
 /* ── Regional Script Font Overrides ───────────────────────────────────── */
 body.script-odia {
-  font-family: 'Noto Serif Oriya', 'Noto Sans Oriya', 'Georgia', serif;
+  font-family: 'Noto Sans Oriya', 'Georgia', serif;
 }
 body.script-assamese {
-  font-family: 'Noto Serif Bengali', 'Noto Sans Bengali', 'Georgia', serif;
+  font-family: 'Noto Sans Bengali', 'Georgia', serif;
 }
 body.script-kannada {
-  font-family: 'Noto Serif Kannada', 'Noto Sans Kannada', 'Georgia', serif;
+  font-family: 'Noto Sans Kannada', 'Georgia', serif;
 }
 body.script-devanagari {
-  font-family: 'Noto Serif Devanagari', 'Noto Sans Devanagari', 'Georgia', serif;
+  font-family: 'Noto Sans Devanagari', 'Georgia', serif;
 }
 
 /* ── Elegant & Adaptive Font Size Scaling (Scoped to Farmer App & Onboarding) ── */
