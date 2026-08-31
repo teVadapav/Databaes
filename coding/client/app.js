@@ -1493,6 +1493,15 @@ function switchMainView(viewName) {
   });
 
   if (viewName === 'officer') {
+    const officerVisited = typeof localStorage !== 'undefined' && localStorage.getItem('sk_officer_visited');
+    if (!officerVisited) {
+      if (typeof localStorage !== 'undefined') {
+        localStorage.setItem('sk_officer_visited', 'true');
+      }
+      if (window.OfficerOnboarding && typeof window.OfficerOnboarding.openModal === 'function') {
+        window.OfficerOnboarding.openModal(false);
+      }
+    }
     fetchOfficerData();
   } else if (viewName === 'sandbox') {
     runSandboxEvaluation();

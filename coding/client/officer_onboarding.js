@@ -101,6 +101,20 @@ const OfficerOnboarding = {
     }
   },
 
+  openSwitchModal() {
+    const overlay = document.getElementById('officer-onboarding-modal-overlay');
+    if (!overlay) return;
+
+    OfficerOnboardingState.isLoginMode = true;
+    this.renderUI();
+    overlay.classList.remove('hidden');
+    overlay.style.display = 'flex';
+  },
+
+  openEditModal() {
+    this.openModal(true);
+  },
+
   openModal(forceEdit = false) {
     const overlay = document.getElementById('officer-onboarding-modal-overlay');
     if (!overlay) return;
@@ -108,7 +122,24 @@ const OfficerOnboarding = {
     if (forceEdit) {
       OfficerOnboardingState.isLoginMode = false;
       OfficerOnboardingState.currentStep = 2;
+      const session = this.getSession() || MOCK_OFFICER_REGISTRY[0];
+      if (session) {
+        const cleanDigits = (session.id || '').replace(/\D/g, '').slice(-2);
+        OfficerOnboardingState.officerData = {
+          name: session.name || '',
+          phone: (session.phone || '').replace('+91-', '').replace('+91', '').replace(/\D/g, '').slice(-10),
+          state: session.state || 'Odisha',
+          district: session.district || 'Sundargarh',
+          district_id: session.district_id || 'D_OD_SUN',
+          designation: session.designation || 'District Agricultural Officer (DAO)',
+          officerIdNumber: cleanDigits || '01'
+        };
+        if (session.language) {
+          OfficerOnboardingState.selectedLanguage = session.language;
+        }
+      }
     } else {
+      OfficerOnboardingState.isLoginMode = false;
       OfficerOnboardingState.currentStep = 1;
     }
 
