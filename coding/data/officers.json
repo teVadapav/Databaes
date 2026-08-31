@@ -1,5 +1,18 @@
 [
   {
+    "id": "OFI-00",
+    "name": "Dr. Manoj Ahuja, IAS",
+    "designation": "Union Agriculture Secretary (GoI)",
+    "phone": "+91-98100-00001",
+    "email": "secy-agri@nic.in",
+    "state": "National (All States)",
+    "district": "All Districts (All India)",
+    "district_id": "ALL_INDIA",
+    "assigned_districts": ["ALL"],
+    "office_location": "Ministry of Agriculture & Farmers Welfare, Krishi Bhawan, New Delhi",
+    "scope": "national"
+  },
+  {
     "id": "OFI-01",
     "name": "Shri Manas Ranjan Jena",
     "designation": "District Agricultural Officer (DAO)",

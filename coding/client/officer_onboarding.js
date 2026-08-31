@@ -14,6 +14,17 @@ const OFFICER_LOCALES = {
 
 const MOCK_OFFICER_REGISTRY = [
   {
+    id: 'OFI-00',
+    name: 'Dr. Manoj Ahuja, IAS',
+    phone: '9810000001',
+    state: 'National (All States)',
+    district: 'All Districts (All India)',
+    district_id: 'ALL_INDIA',
+    designation: 'Union Agriculture Secretary (GoI)',
+    language: 'en',
+    scope: 'national'
+  },
+  {
     id: 'OFI-01',
     name: 'Shri Manas Ranjan Jena',
     phone: '9437019284',
@@ -446,8 +457,22 @@ const OfficerOnboarding = {
             </span>
             <input type="text" id="officer-login-query" required class="form-input rounded-l-none text-xs font-bold" placeholder="e.g. 1 (for OFI-01) or 9437019284">
           </div>
-          <div class="mt-2.5 p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-2 text-[11px] text-slate-600">
+          <div class="mt-2.5 p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-2.5 text-[11px] text-slate-600">
             <div>
+              <div class="font-black text-indigo-950 mb-1 flex items-center justify-between">
+                <span>🇮🇳 Apex Senior Officer (National Scope • All Farmers):</span>
+                <span class="text-[9px] font-mono text-emerald-700 bg-emerald-100 border border-emerald-300 px-1.5 py-0.5 rounded font-bold">ALL FARMERS</span>
+              </div>
+              <button type="button" onclick="document.getElementById('officer-login-query').value='00'; OfficerOnboarding.submitQuickLogin();" class="w-full text-left px-3 py-2 bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 border border-indigo-500/50 text-white rounded-xl text-[11px] font-extrabold hover:border-indigo-400 cursor-pointer shadow-sm flex items-center justify-between transition">
+                <div class="flex items-center space-x-2">
+                  <span class="px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-mono font-black text-[10px] border border-emerald-400/30">OFI-00</span>
+                  <span class="text-white font-bold">Dr. Manoj Ahuja, IAS</span>
+                  <span class="text-indigo-300 text-[10px] font-normal hidden sm:inline">• Union Agriculture Secretary (GoI)</span>
+                </div>
+                <span class="text-[10px] text-emerald-300 font-bold bg-white/10 px-2 py-0.5 rounded-md">View All Farmers →</span>
+              </button>
+            </div>
+            <div class="pt-2 border-t border-slate-200">
               <div class="font-bold text-slate-800 mb-1">🏛️ District Officers (Strict Single District View):</div>
               <div class="flex flex-wrap gap-1.5">
                 <button type="button" onclick="document.getElementById('officer-login-query').value='01'; OfficerOnboarding.submitQuickLogin();" class="px-2 py-0.5 bg-white border border-slate-300 rounded text-[10px] font-bold text-sky-700 hover:bg-sky-50 cursor-pointer">OFI-01 (Sundargarh DAO)</button>

@@ -986,7 +986,10 @@ def get_officer_farmer_list(
             assigned_dists = officer.get("assigned_districts", [])
             desig = (officer.get("designation") or "").lower()
 
-            if scope == "statewide" or "director" in desig or "commissioner" in desig or "secretary" in desig or "all_" in str(off_dist_id).lower():
+            if scope == "national" or scope == "all" or str(off_dist_id).upper() == "ALL_INDIA" or "union" in desig or "national" in desig:
+                # Apex Senior Officer: View ALL farmers across the entire country
+                target_farmers = data["farmers"]
+            elif scope == "statewide" or "director" in desig or "commissioner" in desig or "secretary" in desig or "all_" in str(off_dist_id).lower():
                 # Senior State Officer: View all farmers across their entire state
                 state_district_ids = {d["id"] for d in data["districts"] if (d.get("state") or "").strip().lower() == off_state}
                 state_district_ids.update(assigned_dists)
@@ -1021,6 +1024,7 @@ def get_officer_farmer_list(
             "village": farmer.get("village", ""),
             "district_id": district.get("id"),
             "district_name": district.get("name", farmer["district_id"]),
+            "state": district.get("state", farmer.get("state", "")),
             "crop": farmer["crop"],
             "crop_stage": farmer["crop_stage"],
             "landholding_hectares": farmer["landholding_hectares"],
